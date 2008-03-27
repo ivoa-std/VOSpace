@@ -1,0 +1,922 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+    xmlns:vos.types.1.0="http://www.net.ivoa/xml/VOSpaceTypes-v1.0"
+    targetNamespace="http://www.net.ivoa/xml/VOSpaceTypes-v1.0"
+    elementFormDefault="qualified"
+    >
+    
+    <!-- ======== Property types ======== -->
+
+    <xsd:complexType name="PropertyType">
+        <xsd:simpleContent>
+            <xsd:extension base="xsd:string">
+            <xsd:attributeGroup ref="vos.types.1.0:PropertyAttributeGroup"></xsd:attributeGroup>
+            </xsd:extension>
+        </xsd:simpleContent>
+    </xsd:complexType >
+  
+    <xsd:complexType name="PropertyListType">
+        <xsd:annotation>
+            <xsd:documentation>
+                A container element for a list of properties.
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:sequence>
+            <xsd:element name="property" type="vos.types.1.0:PropertyType" minOccurs="0" maxOccurs="unbounded" nillable="true"/>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="PropertyReferenceType">
+        <xsd:annotation>
+            <xsd:documentation>
+                A reference to a property description, used in getProperties()
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:attributeGroup ref="vos.types.1.0:PropertyAttributeGroup"></xsd:attributeGroup>
+    </xsd:complexType>
+
+    <xsd:complexType name="PropertyReferenceListType">
+        <xsd:annotation>
+            <xsd:documentation>
+                A container element for a list of property references.
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:sequence>
+            <xsd:element name="property" type="vos.types.1.0:PropertyReferenceType" minOccurs="0" maxOccurs="unbounded" nillable="true"/>
+        </xsd:sequence>
+    </xsd:complexType>
+    
+    <xsd:complexType name="GetPropertiesRequestType">
+    </xsd:complexType>
+    
+    <xsd:complexType name="GetPropertiesResponseType">
+        <xsd:sequence>
+            <xsd:element name="accepts" type="vos.types.1.0:PropertyReferenceListType">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        A list of identifiers for the properties that the service accepts and understands.
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+            <xsd:element name="provides" type="vos.types.1.0:PropertyReferenceListType">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        A list of identifiers for the properties that the service provides.
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+            <xsd:element name="contains" type="vos.types.1.0:PropertyReferenceListType">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        A list of identifiers for all the properties currently used by nodes within the service.
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <!-- ======== View types ======== -->
+
+    <xsd:complexType name="ParamType">
+        <xsd:annotation>
+            <xsd:documentation>
+                A view or protocol parameter.
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:simpleContent>
+            <xsd:extension base="xsd:string">
+                <xsd:attribute name="uri" type="xsd:anyURI" use="required"/>
+            </xsd:extension>
+        </xsd:simpleContent>
+    </xsd:complexType>
+    
+    <xsd:complexType name="ViewType">
+        <xsd:annotation>
+            <xsd:documentation>
+                An element describing a view of a data-set.
+                A view may just provide the original data, or it could be server generated.
+                Examples of server generated views could include a votable view of data in a database table,
+                or a conversion from one image format to another.
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:sequence>
+            <xsd:element name="param" type="vos.types.1.0:ParamType" minOccurs="0" maxOccurs="unbounded" nillable="true">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        A list of parameters for the view.
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+        </xsd:sequence>
+        <xsd:attribute name="uri" type="xsd:anyURI" use="required">
+            <xsd:annotation>
+                <xsd:documentation>
+                    The view URI.
+                    This should point to a resource describing the view format and what parameters it requires.
+                </xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute name="original" type="xsd:boolean" use="optional" default="true">
+            <xsd:annotation>
+                <xsd:documentation>
+                    A flag to indicate if the view provides access to the original data content or a derived form.
+                </xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+    </xsd:complexType>
+
+    <xsd:complexType name="ViewListType">
+        <xsd:annotation>
+            <xsd:documentation>
+                A container element for a list of views.
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:sequence>
+            <xsd:element name="view" type="vos.types.1.0:ViewType" minOccurs="0" maxOccurs="unbounded" nillable="true"/>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="GetViewsRequestType">
+    </xsd:complexType>
+    
+    <xsd:complexType name="GetViewsResponseType">
+        <xsd:sequence>
+            <xsd:element name="accepts" type="vos.types.1.0:ViewListType">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        A list of identifiers for the views that the service can accept.
+                        A simple file based system may accept data in 'any' format. 
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+            <xsd:element name="provides" type="vos.types.1.0:ViewListType">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        A list of identifiers for the views that the service can provide.
+                        A simple file based system may only provide data in the original format.
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <!-- ======== Protocol types ======== -->
+
+    <xsd:complexType name="ProtocolType">
+        <xsd:annotation>
+            <xsd:documentation>
+                A protocol element, containing the protocol URI, the endpoint and any protocol specific parameters.  
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:sequence>
+            <xsd:element name="endpoint" type="xsd:anyURI" minOccurs="0" maxOccurs="1">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        The target endpoint to use for a data transfer.
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+            <xsd:element name="param" type="vos.types.1.0:ParamType" minOccurs="0" maxOccurs="unbounded" nillable="true">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        Any additional protocol specific parameters required to use the endpoint.
+                        For example, the user name or password to use for ftp access.
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+        </xsd:sequence>
+        <xsd:attribute name="uri" type="xsd:anyURI" use="required">
+            <xsd:annotation>
+                <xsd:documentation>
+                    The protocol identifier.
+                </xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+    </xsd:complexType>
+
+    <xsd:complexType name="ProtocolListType">
+        <xsd:annotation>
+            <xsd:documentation>
+                A container element for a list of protocols.
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:sequence>
+            <xsd:element name="protocol" type="vos.types.1.0:ProtocolType" minOccurs="0" maxOccurs="unbounded" nillable="true"/>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="GetProtocolsRequestType">
+    </xsd:complexType>
+    
+    <xsd:complexType name="GetProtocolsResponseType">
+        <xsd:sequence>
+            <xsd:element name="accepts" type="vos.types.1.0:ProtocolListType">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        A list of identifiers for the protocols that the service can accept.
+                        This means that the service can act as a client for the protocol. 
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+            <xsd:element name="provides" type="vos.types.1.0:ProtocolListType">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        A list of identifiers for the protocols that the service can provide.
+                        This means that the service can act as a server for the protocol. 
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <!-- ======== Node types ======== -->
+
+    <xsd:complexType name="NodeType">
+        <xsd:annotation>
+            <xsd:documentation>
+                The base class for all nodes.
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:sequence>
+            <xsd:element name="properties" type="vos.types.1.0:PropertyListType" minOccurs="0" maxOccurs="1">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        The list of node properties.
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>            
+        </xsd:sequence>
+        <xsd:attribute name="uri" type="xsd:anyURI" use="required">
+            <xsd:annotation>
+                <xsd:documentation>
+                    The node identifier URI.
+                </xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+    </xsd:complexType>
+
+    <xsd:complexType name="DataNodeType">
+        <xsd:annotation>
+            <xsd:documentation>
+                The base class for data nodes.
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:complexContent>
+            <xsd:extension base="vos.types.1.0:NodeType">
+                <xsd:sequence>
+                    <xsd:element name="accepts" type="vos.types.1.0:ViewListType" minOccurs="0" maxOccurs="1">
+                        <xsd:annotation>
+                            <xsd:documentation>
+                                The list of views or data formats that this node can accept.
+                                A simple unstructured node may accept data in any format.
+                                A structured node may only accept data in specific formats. 
+                            </xsd:documentation>
+                        </xsd:annotation>
+                    </xsd:element>            
+                    <xsd:element name="provides" type="vos.types.1.0:ViewListType" minOccurs="0" maxOccurs="1">
+                        <xsd:annotation>
+                            <xsd:documentation>
+                                The list of views or data formats that this node can provide.
+                                A simple unstructured node may only provide access to the data in the original format.
+                                A structured node may provide different views of the data generated by the service.
+                            </xsd:documentation>
+                        </xsd:annotation>
+                    </xsd:element>            
+                </xsd:sequence>
+                <xsd:attribute name="busy" type="xsd:boolean" use="optional" default="false">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            A flag to indicate if the node content is available.
+                            This will be set to false while the data is being imported,
+                            or if the underlying service is busy.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+            </xsd:extension>
+        </xsd:complexContent>    
+    </xsd:complexType>
+
+    <xsd:complexType name="UnstructuredDataNodeType">
+        <xsd:annotation>
+            <xsd:documentation>
+                An unstructured data node, containing unspecified content.
+                The service does not need to understand or interpret the content.
+                This type of node can accept any format, and only provides one view returning the original data.
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:complexContent>
+            <xsd:extension base="vos.types.1.0:DataNodeType">
+            </xsd:extension>
+        </xsd:complexContent>    
+    </xsd:complexType>
+
+    <xsd:complexType name="StructuredDataNodeType">
+        <xsd:annotation>
+            <xsd:documentation>
+                A structured data node, containing a specific data format that the service has understands.
+                This type of node may only accept specific data formats, and provide different views of the
+                data generated by the service. 
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:complexContent>
+            <xsd:extension base="vos.types.1.0:DataNodeType">
+            </xsd:extension>
+        </xsd:complexContent>    
+    </xsd:complexType>
+
+    <!-- ======== Fault types ======== -->
+
+    <xsd:complexType name="BaseFaultType">
+        <xsd:annotation>
+            <xsd:documentation>
+                The base class for all faults.
+            </xsd:documentation>
+        </xsd:annotation>
+    </xsd:complexType>
+
+    <xsd:complexType name="ServiceFaultType">
+        <xsd:annotation>
+            <xsd:documentation>
+                The base class for service faults.
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:complexContent>
+            <xsd:extension base="vos.types.1.0:BaseFaultType">
+            </xsd:extension>
+        </xsd:complexContent>    
+    </xsd:complexType>
+
+    <xsd:complexType name="InternalFaultType">
+        <xsd:annotation>
+            <xsd:documentation>
+                Fault to indicate an internal error in the service.
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:complexContent>
+            <xsd:extension base="vos.types.1.0:ServiceFaultType">
+            </xsd:extension>
+        </xsd:complexContent>    
+    </xsd:complexType>
+
+    <xsd:complexType name="OperationFaultType">
+        <xsd:annotation>
+            <xsd:documentation>
+                The base class for operation faults.
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:complexContent>
+            <xsd:extension base="vos.types.1.0:BaseFaultType">
+            </xsd:extension>
+        </xsd:complexContent>    
+    </xsd:complexType>
+
+    <xsd:complexType name="NodeNotFoundFaultType">
+        <xsd:annotation>
+            <xsd:documentation>
+                Fault to indicate that an expected node did not exist.
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:complexContent>
+            <xsd:extension base="vos.types.1.0:OperationFaultType">
+                <xsd:sequence>
+                    <xsd:element name="uri" type="xsd:anyURI" nillable="true"/>
+                </xsd:sequence>
+            </xsd:extension>
+        </xsd:complexContent>    
+    </xsd:complexType>
+
+    <xsd:complexType name="DuplicateNodeFaultType">
+        <xsd:annotation>
+            <xsd:documentation>
+                Fault to indicate that node already exists with a given URI.
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:complexContent>
+            <xsd:extension base="vos.types.1.0:OperationFaultType">
+                <xsd:sequence>
+                    <xsd:element name="uri" type="xsd:anyURI" nillable="true"/>
+                </xsd:sequence>
+            </xsd:extension>
+        </xsd:complexContent>    
+    </xsd:complexType>
+
+    <xsd:complexType name="PermissionDeniedFaultType">
+        <xsd:annotation>
+            <xsd:documentation>
+                Fault to indicate that the user does not have permission to perform an operation.
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:complexContent>
+            <xsd:extension base="vos.types.1.0:OperationFaultType">
+            </xsd:extension>
+        </xsd:complexContent>    
+    </xsd:complexType>
+
+    <xsd:complexType name="InvalidUriFaultType">
+        <xsd:annotation>
+            <xsd:documentation>
+                Fault to indicate an invalid URI.
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:complexContent>
+            <xsd:extension base="vos.types.1.0:OperationFaultType">
+                <xsd:sequence>
+                    <xsd:element name="value" type="xsd:string" nillable="true"/>
+                </xsd:sequence>
+            </xsd:extension>
+        </xsd:complexContent>    
+    </xsd:complexType>
+
+    <xsd:complexType name="InvalidTokenFaultType">
+        <xsd:annotation>
+            <xsd:documentation>
+                Fault to indicate an invalid continuation token.
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:complexContent>
+            <xsd:extension base="vos.types.1.0:OperationFaultType">
+                <xsd:sequence>
+                    <xsd:element name="value" type="xsd:string" nillable="true"/>
+                </xsd:sequence>
+            </xsd:extension>
+        </xsd:complexContent>    
+    </xsd:complexType>
+
+    <xsd:complexType name="InvalidArgumentFaultType">
+        <xsd:annotation>
+            <xsd:documentation>
+                Fault to indicate an invalid argument for an operation.
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:complexContent>
+            <xsd:extension base="vos.types.1.0:OperationFaultType">
+            </xsd:extension>
+        </xsd:complexContent>    
+    </xsd:complexType>
+
+    <xsd:complexType name="TypeNotSupportedFaultType">
+        <xsd:annotation>
+            <xsd:documentation>
+                Fault to indicate the service does not support the requested node type.
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:complexContent>
+            <xsd:extension base="vos.types.1.0:OperationFaultType">
+                <xsd:sequence>
+                    <xsd:element name="name" type="xsd:QName" nillable="true"/>
+                </xsd:sequence>
+            </xsd:extension>
+        </xsd:complexContent>    
+    </xsd:complexType>
+
+    <xsd:complexType name="ViewNotSupportedFaultType">
+        <xsd:annotation>
+            <xsd:documentation>
+                Fault to indicate the service does not support the requested view.
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:complexContent>
+            <xsd:extension base="vos.types.1.0:OperationFaultType">
+                <xsd:sequence>
+                    <xsd:element name="view" type="vos.types.1.0:ViewType" nillable="true"/>
+                </xsd:sequence>
+            </xsd:extension>
+        </xsd:complexContent>    
+    </xsd:complexType>
+
+    <xsd:complexType name="ProtocolErrorType">
+        <xsd:annotation>
+            <xsd:documentation>
+                An extension to the protocol type to include an error message.
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:complexContent>
+            <xsd:extension base="vos.types.1.0:ProtocolType">
+                <xsd:sequence>
+                    <xsd:element name="error" type="xsd:string" nillable="true"/>
+                </xsd:sequence>
+            </xsd:extension>
+        </xsd:complexContent>    
+    </xsd:complexType>
+
+    <xsd:complexType name="ProtocolNotSupportedFaultType">
+        <xsd:annotation>
+            <xsd:documentation>
+                Fault to indicate the service does not support any of the requested protocols.
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:complexContent>
+            <xsd:extension base="vos.types.1.0:OperationFaultType">
+                <xsd:sequence>
+                    <xsd:element name="protocol" type="vos.types.1.0:ProtocolErrorType" minOccurs="0" maxOccurs="unbounded" />
+                </xsd:sequence>
+            </xsd:extension>
+        </xsd:complexContent>    
+    </xsd:complexType>
+
+    <xsd:complexType name="TransferFailedFaultType">
+        <xsd:annotation>
+            <xsd:documentation>
+                Fault to indicate a data transfer has failed.
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:complexContent>
+            <xsd:extension base="vos.types.1.0:OperationFaultType">
+                <xsd:sequence>
+                    <xsd:element name="protocol" type="vos.types.1.0:ProtocolErrorType" minOccurs="0" maxOccurs="unbounded"/>
+                </xsd:sequence>
+            </xsd:extension>
+        </xsd:complexContent>    
+    </xsd:complexType>
+
+    <xsd:complexType name="InvalidDataFaultType">
+        <xsd:annotation>
+            <xsd:documentation>
+                Fault to indicate an attempt to import invalid data into a Structured node .
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:complexContent>
+            <xsd:extension base="vos.types.1.0:OperationFaultType">
+                <xsd:sequence>
+                    <xsd:element name="view" type="vos.types.1.0:ViewType" nillable="true"/>
+                </xsd:sequence>
+            </xsd:extension>
+        </xsd:complexContent>    
+    </xsd:complexType>
+
+    <!-- ======== Node manipulation messages ======== -->
+
+    <xsd:complexType name="CreateNodeRequestType">
+        <xsd:sequence>
+            <xsd:element name="node" type="vos.types.1.0:NodeType">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        A template for the new node.
+                        This can include values for any of the user modifiable node properties.
+                        If the node identifier URI is set to 'vos://null', then the service will generate
+                        a new name for the node.
+                        The client cannot use this method to set the list of views accepted or provided by the node.
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+        </xsd:sequence>
+    </xsd:complexType>    
+    
+    <xsd:complexType name="CreateNodeResponseType">
+        <xsd:sequence>
+            <xsd:element name="node" type="vos.types.1.0:NodeType">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        Details of the new node.
+                        For extended node types this will be replaced by the full element for the extended type,
+                        using xsi:type to indicate the node type.
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+        </xsd:sequence>
+    </xsd:complexType>    
+    
+    <xsd:complexType name="DeleteNodeRequestType">
+        <xsd:sequence>
+            <xsd:element name="target" type="xsd:anyURI">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        The target node identifier.
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+        </xsd:sequence>
+    </xsd:complexType>
+    
+    <xsd:complexType name="DeleteNodeResponseType">
+    </xsd:complexType>
+    
+    <xsd:complexType name="MoveNodeRequestType">
+        <xsd:sequence>
+            <xsd:element name="source" type="xsd:anyURI">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        The source node identifier.
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+            <xsd:element name="destination" type="vos.types.1.0:NodeType">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        A template for the new node.
+                        This can include values for any of the user modifiable node properties.
+                        If the node identifier is set to 'vos://null', then the service will generate
+                        a new name for the node.
+                        The client cannot use this method to set the list of views accepted or provided by the node.
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+        </xsd:sequence>
+    </xsd:complexType>
+    
+    <xsd:complexType name="MoveNodeResponseType">
+        <xsd:sequence>
+            <xsd:element name="node" type="vos.types.1.0:NodeType">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        Details of the new node.
+                        For extended node types this will be replaced by the full element for the extended type,
+                        using xsi:type to indicate the node type.
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+        </xsd:sequence>
+    </xsd:complexType>
+    
+    <xsd:complexType name="CopyNodeRequestType">
+        <xsd:sequence>
+            <xsd:element name="source" type="xsd:anyURI">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        The source node identifier.
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+            <xsd:element name="destination" type="vos.types.1.0:NodeType">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        A template for the new node.
+                        This can include values for any of the user modifiable node properties.
+                        If the node identifier is set to 'vos://null', then the service will generate
+                        a new name for the node.
+                        The client cannot use this method to set the list of views accepted or provided by the node.
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+        </xsd:sequence>
+    </xsd:complexType>
+    
+    <xsd:complexType name="CopyNodeResponseType">
+        <xsd:sequence>
+            <xsd:element name="node" type="vos.types.1.0:NodeType">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        Details of the new node.
+                        For extended node types this will be replaced by the full element for the extended type,
+                        using xsi:type to indicate the node type.
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+        </xsd:sequence>
+    </xsd:complexType>
+    
+    <xsd:complexType name="GetNodeRequestType">
+        <xsd:sequence>
+            <xsd:element name="target" type="xsd:anyURI">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        The target node identifier.
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+        </xsd:sequence>
+    </xsd:complexType>
+    
+    <xsd:complexType name="GetNodeResponseType">
+        <xsd:sequence>
+            <xsd:element name="node" type="vos.types.1.0:NodeType">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        Details of the node.
+                        For extended node types this will be replaced by the full element for the extended type,
+                        using xsi:type to indicate the node type.
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+        </xsd:sequence>
+    </xsd:complexType>
+    
+    <xsd:complexType name="SetNodeRequestType">
+        <xsd:sequence>
+            <xsd:element name="node" type="vos.types.1.0:NodeType">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        A node element containing a list of properties to change with their new values.
+                        A property with no value will empty the property.
+                        To remove a property, set the xsi:nill attribute to true.
+                        The client cannot use this method to modify the node type.
+                        The client cannot use this method to modify the list of views accepted or provided by the node.
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+        </xsd:sequence>
+    </xsd:complexType>
+    
+    <xsd:complexType name="SetNodeResponseType">
+        <xsd:sequence>
+            <xsd:element name="node" type="vos.types.1.0:NodeType">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        Updated details of the node.
+                        For extended node types this will be replaced by the full element for the extended type,
+                        using xsi:type to indicate the node type.
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <!-- ======== Node list messages ======== -->
+
+    <xsd:complexType name="NodeListType">
+        <xsd:annotation>
+            <xsd:documentation>
+                A container element for the ListNodes request and response messages.
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:sequence>
+            <xsd:element name="token" type="xsd:string" minOccurs="0" maxOccurs="1">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        An optional continuation token from a previous request.
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+            <xsd:element name="limit" type="xsd:int" minOccurs="0" maxOccurs="1" >
+                <xsd:annotation>
+                    <xsd:documentation>
+                        An optional limit indicating the maximum number of results in a response.
+                        If no limit is specified, the service may return all the results in one list,
+                        or it may impose its own internal limit. 
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+            <xsd:element name="detail" minOccurs="0" maxOccurs="1">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        An enumeration indicating the level of detail required.
+                    </xsd:documentation>
+                </xsd:annotation>
+                <xsd:simpleType>
+                    <xsd:restriction base="xsd:string">
+                        <xsd:enumeration value="min">
+                            <xsd:annotation>
+                                <xsd:documentation>
+                                    The minimum level of detail, returning simple node elements with no child elements.
+                                </xsd:documentation>
+                            </xsd:annotation>
+                        </xsd:enumeration>
+                        <xsd:enumeration value="properties">
+                            <xsd:annotation>
+                                <xsd:documentation>
+                                    An intermediate level of detail, returning basic node elements including
+                                    the node properties.
+                                    Note - this hides the underlying node type.
+                                </xsd:documentation>
+                            </xsd:annotation>
+                        </xsd:enumeration>
+                        <xsd:enumeration value="max">
+                            <xsd:annotation>
+                                <xsd:documentation>
+                                    The maximum level of detail, returning complex node elements, including the
+                                    full details of any extended node types.
+                                    This uses the xsi:type attribute to include the type specific elements of any
+                                    extended node types.
+                                </xsd:documentation>
+                            </xsd:annotation>
+                        </xsd:enumeration>
+                    </xsd:restriction>
+                </xsd:simpleType>
+            </xsd:element>
+            <xsd:element name="nodes" minOccurs="0" maxOccurs="1">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        The list of nodes.
+                    </xsd:documentation>
+                </xsd:annotation>
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element name="node" type="vos.types.1.0:NodeType" minOccurs="0" maxOccurs="unbounded">
+                            <xsd:annotation>
+                                <xsd:documentation>
+                                    At the maximum level of detail this will be replaced by the full element
+                                    for the extended type, using xsi:type to indicate the node type.
+                                </xsd:documentation>
+                            </xsd:annotation>
+                        </xsd:element>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="ListNodesRequestType">
+        <xsd:sequence>
+            <xsd:element name="request" type="vos.types.1.0:NodeListType"/>
+        </xsd:sequence>
+    </xsd:complexType>
+    
+    <xsd:complexType name="ListNodesResponseType">
+        <xsd:sequence>
+            <xsd:element name="response" type="vos.types.1.0:NodeListType"/>
+        </xsd:sequence>
+    </xsd:complexType>
+    
+    <!-- ======== Transfer types ======== -->
+    
+    <xsd:complexType name="TransferType">
+        <xsd:annotation>
+            <xsd:documentation>
+                A container element for transfer information.
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:sequence>
+            <xsd:element name="view" type="vos.types.1.0:ViewType" minOccurs="0" maxOccurs="1">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        For an import message, this indicates the data type being sent.
+                        For an export message, this indicates which view to request the data from.
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+            <xsd:element name="protocol" type="vos.types.1.0:ProtocolType" minOccurs="0" maxOccurs="unbounded">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        A list of protocols to use for the transfer.
+                        In a request, this should contain a list of the protocols that the client can use.
+                        In a response, this should contain the subset of requested protocols that the service can support.
+                        The service should fill in the endpoint and parameters for each protocol.
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <!-- ======== Data transfer messages ======== -->
+
+    <xsd:complexType name="PushToVoSpaceRequestType">
+        <xsd:sequence>
+            <xsd:element name="destination" type="vos.types.1.0:NodeType"/>
+            <xsd:element name="transfer"    type="vos.types.1.0:TransferType"/>
+        </xsd:sequence>
+    </xsd:complexType>
+    
+    <xsd:complexType name="PushToVoSpaceResponseType">
+        <xsd:sequence>
+            <xsd:element name="destination" type="vos.types.1.0:NodeType"/>
+            <xsd:element name="transfer"    type="vos.types.1.0:TransferType"/>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="PullToVoSpaceRequestType">
+        <xsd:sequence>
+            <xsd:element name="destination" type="vos.types.1.0:NodeType"/>
+            <xsd:element name="transfer"    type="vos.types.1.0:TransferType"/>
+        </xsd:sequence>
+    </xsd:complexType>
+    
+    <xsd:complexType name="PullToVoSpaceResponseType">
+        <xsd:sequence>
+            <xsd:element name="destination" type="vos.types.1.0:NodeType"/>
+        </xsd:sequence>
+    </xsd:complexType>
+    
+    <xsd:complexType name="PullFromVoSpaceRequestType">
+        <xsd:sequence>
+            <xsd:element name="source"   type="xsd:anyURI"/>
+            <xsd:element name="transfer" type="vos.types.1.0:TransferType"/>
+        </xsd:sequence>
+    </xsd:complexType>
+    
+    <xsd:complexType name="PullFromVoSpaceResponseType">
+        <xsd:sequence>
+            <xsd:element name="transfer" type="vos.types.1.0:TransferType"/>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="PushFromVoSpaceRequestType">
+        <xsd:sequence>
+            <xsd:element name="source"   type="xsd:anyURI"/>
+            <xsd:element name="transfer" type="vos.types.1.0:TransferType"/>
+        </xsd:sequence>
+    </xsd:complexType>
+    
+    <xsd:complexType name="PushFromVoSpaceResponseType">
+    </xsd:complexType>
+    
+    <xsd:attributeGroup name="PropertyAttributeGroup">
+                   <xsd:attribute name="uri" type="xsd:anyURI" use="required">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            If the property has been registered, then the URI should point to the registration document.
+                            Third party tools may use the urn:xxxx syntax to add unregistered properties.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="readonly" type="xsd:boolean" use="optional" default="false">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            A flag to indicate if the property is considered read-only.
+                            Attempting to modify a read-only property should generate a PermissionDenied fault.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+    </xsd:attributeGroup>
+
+</xsd:schema>
