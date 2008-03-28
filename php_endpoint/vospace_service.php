@@ -1,8 +1,9 @@
 <?php 
 
-require_once('properties.php');
+include('config.inc');
 
-require_once('node.php');
+require_once(BACKEND.'properties.php');
+require_once(BACKEND.'node.php');
 
 class VOSpaceService { 
 
