@@ -3,7 +3,7 @@
 // provide a mapping between the endpoint, and a
 // collection in IRODS
 if (! defined('VOSPACE_ROOT')) {
-  define('VOSPACE_ROOT', 'vos://example.org!vospace');
+  define('VOSPACE_ROOT', 'ivo://example.org!vospace');
  }
 
 // File path to simpletest, needed to run unit tests

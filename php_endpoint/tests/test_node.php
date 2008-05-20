@@ -1,13 +1,11 @@
 <?php
 
-if (! defined('SIMPLE_TEST')) {
-  define('SIMPLE_TEST', '/var/www/html/simpletest/');
- }
+include('../config.inc');
 
 require_once(SIMPLE_TEST . 'unit_tester.php');
 require_once(SIMPLE_TEST . 'reporter.php');
 
-require_once('../node.php');
+require_once(BACKEND.'node.php');
 
 class TestNode extends UnitTestCase {
 
@@ -19,7 +17,7 @@ class TestNode extends UnitTestCase {
   function testNewNode() {
     $this->assertNotNull($this->node);
     $this->assertEqual($this->node->uri, 'ivo://example.org!vospace/foo.txt'); 
-    $this->assertEqual($this->node->ipath, '/scecZone/home/rwanger/foo.txt'); 
+    $this->assertEqual($this->node->ipath, '/vospace/foo.txt'); 
   }
 
 }

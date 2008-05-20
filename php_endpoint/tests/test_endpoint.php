@@ -62,6 +62,11 @@ class TestVOSpaceServiceEndpoint extends UnitTestCase {
   function testGetProperties() {
     
     $response = $this->client->GetProperties();
+         print "<pre>";     
+         var_dump($response);
+         print "</pre>"; 
+         barf($this->client);
+
     $accepts = $response->accepts;
     $provides = $response->provides;
     $contains = $response->contains;

@@ -1,0 +1,10 @@
+<?php
+abstract class AbstractVOSpace
+{
+  // Force Extending class to define this method
+  abstract public function findNodes();
+  abstract public function listNodes();
+  abstract public function createNode();
+
+}
+?>

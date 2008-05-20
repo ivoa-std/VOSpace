@@ -1,0 +1,15 @@
+<?php
+abstract class AbstractNode
+{
+
+  public $uri;
+  public $properties;
+  
+  abstract public function getNode();
+  abstract public function setNode();
+  abstract public function copyNode();
+  abstract public function moveNode();
+  abstract public function deleteNode();
+
+}
+?>

@@ -21,7 +21,7 @@ class VOSpaceService {
 
   }
 
-  function GetProperties($message){ 
+  function GetProperties(){ 
 
     global $provided_properties;
 

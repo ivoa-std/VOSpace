@@ -1,7 +1,6 @@
 <?php 
 
-include('config.inc');
-
+include('../config.inc');
 
 require_once("properties.php");
 
@@ -16,7 +15,7 @@ class Node {
     global $provided_properties;
 
     $this->uri = $uri;
-    $this->ipath = str_replace( VOSPACE_ROOT, IRODS_ROOT, $uri );
+    $this->ipath = str_replace( VOSPACE_ROOT, '/vospace', $uri );
     $this->properties = $provided_properties;
     $this->properties[0]["_"] = "1";
 

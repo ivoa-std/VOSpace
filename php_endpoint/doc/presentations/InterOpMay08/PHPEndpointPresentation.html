@@ -1,0 +1,116 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<title>PHPEndpoint</title>
+<!-- metadata -->
+<meta name="generator" content="S5" />
+<meta name="version" content="S5 1.2a2" />
+<meta name="author" content="Eric A. Meyer" />
+<meta name="company" content="Complex Spiral Consulting" />
+<!-- configuration parameters -->
+<meta name="defaultView" content="slideshow" />
+<meta name="controlVis" content="hidden" />
+<!-- style sheet links -->
+<link rel="stylesheet" href="ui/default/slides.css" type="text/css" media="projection" id="slideProj" />
+<link rel="stylesheet" href="ui/default/outline.css" type="text/css" media="screen" id="outlineStyle" />
+<link rel="stylesheet" href="ui/default/print.css" type="text/css" media="print" id="slidePrint" />
+<link rel="stylesheet" href="ui/default/opera.css" type="text/css" media="projection" id="operaFix" />
+<!-- embedded styles -->
+<style type="text/css" media="all">
+.imgcon {width: 525px; margin: 0 auto; padding: 0; text-align: center;}
+#anim {width: 270px; height: 320px; position: relative; margin-top: 0.5em;}
+#anim img {position: absolute; top: 42px; left: 24px;}
+img#me01 {top: 0; left: 0;}
+img#me02 {left: 23px;}
+img#me04 {top: 44px;}
+img#me05 {top: 43px;left: 36px;}
+</style>
+<!-- S5 JS -->
+<script src="ui/default/slides.js" type="text/javascript"></script>
+</head>
+<body>
+
+<div class="layout">
+<div id="controls"><!-- DO NOT EDIT --></div>
+<div id="currentSlide"><!-- DO NOT EDIT --></div>
+<div id="header"></div>
+<div id="footer">
+  <h1><a href="http://code.google.com/p/volute" rel="external">PHPEndpoint</a></h1>
+  <h2>IVOA InterOp GWS &#8226; May 22, 2008</h2>
+</div>
+</div>
+
+<div class="presentation">
+
+<div class="slide">
+
+  <h1><a href="http://code.google.com/p/volute" rel="external">PHPEndpoint</a></h1>
+  <h2>An Extensible, Open-Source VOSpace Server (Eventually)</h2>
+  <h3>Rick Wagner</h3>
+  <h4><a href="http://lca.ucsd.edu/projects/rpwagner" rel="external">University of California, San diego</a></h4>
+  <p style="text-align: right;">
+  <img src="ui/default/bodybg.png" alt="" title="Logo" />
+  </p>
+<div class="handout"></div>
+</div>
+
+<div class="slide">
+  <h1>Motivation</h1>
+<ul class="incremental">
+    <li>Specific: Expose the simulation data in the <a href="http://cadac.sdsc.edu/" rel="external">Computational Astrophysics Data Analysis Center (CADAC)</a> to the VO</li>
+    <li>General: Provide a VOSpace implementation for the <a href="http://srb.sdsc.edu/" rel="external">Storage Resource Broker (SRB)</a> and <a href="http://irods.org" rel="external">iRODS</a></li>
+
+    <li>Really General: Provide the VO community with an extensible VOSpace server that could be configured for different "backend" storage mechanism (file, SRM, database, etc.)</li>
+  </ul>
+</div>
+
+<div class="slide">
+  <h1>Why PHP?</h1>
+  <ul class="incremental show-first">
+    <li>I really didn't want to run an application server (Java or Python), just Apache</li>
+    <li>There isn't a Python client library for iRODS, anyways (Python fanboy warning)</li>
+    <li>However, Sifang Lu at SDSC has written a <a href="foo" rel="external">pure-PHP iRODS client</a></li>
+    <li>PHP is <em>very easy</em> to deploy</li>
+    <li>PHP5 has built-in support for SOAP servers and clients</li>
+    <li>A pure-PHP SRB client is possible</li>
+  </ul>
+</div>
+
+<div class="slide">
+  <h1>Design</h1>
+  <ul>
+    <li>I really didn't want to run an application server (Java or Python), just Apache</li>
+    <li>There isn't a Python client library for iRODS, anyways (Python fanboy warning)</li>
+    <li>However, Sifang Lu at SDSC has written a <a href="foo" rel="external">pure-PHP iRODS client</a></li>
+    <li>PHP is <em>very easy</em> to deploy</li>
+    <li>PHP5 has built-in support for SOAP servers and clients</li>
+  </ul>
+</div>
+
+<div class="slide">
+  <h1>Volute</h1>
+  <ul>
+    <li>I really didn't want to run an application server (Java or Python), just Apache</li>
+    <li>There isn't a Python client library for iRODS, anyways (Python fanboy warning)</li>
+    <li>However, Sifang Lu at SDSC has written a <a href="foo" rel="external">pure-PHP iRODS client</a></li>
+    <li>PHP is <em>very easy</em> to deploy</li>
+    <li>PHP5 has built-in support for SOAP servers and clients</li>
+  </ul>
+</div>
+
+<div class="slide">
+  <h1>Summary &amp; Requests</h1>
+  <ul>
+    <li>Not a high-priority item for me (i.e., months not weeks)</li>
+    <li>Help is welcomed</li>
+    <li>Could really use some clients for testing</li>
+  </ul>
+</div>
+
+</div>
+
+</body>
+</html>
