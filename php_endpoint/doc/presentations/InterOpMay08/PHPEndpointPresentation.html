@@ -80,30 +80,44 @@ img#me05 {top: 43px;left: 36px;}
 </div>
 
 <div class="slide">
-  <h1>Design</h1>
+  <h1>Components</h1>
   <ul>
-    <li>I really didn't want to run an application server (Java or Python), just Apache</li>
-    <li>There isn't a Python client library for iRODS, anyways (Python fanboy warning)</li>
-    <li>However, Sifang Lu at SDSC has written a <a href="foo" rel="external">pure-PHP iRODS client</a></li>
-    <li>PHP is <em>very easy</em> to deploy</li>
-    <li>PHP5 has built-in support for SOAP servers and clients</li>
+    <li>Service class and request handling code</li>
+    <li>Abstract classes based on VOSpace data model</li>
+    <li>Back end specific code for talking to desired resource</li>
+    <li>Configuration file for choosing a backend</li>
+    <li>Unit tests built on <a href="http://simpletest.sourceforge.net/projects/simpletest/">SimpleTest</a></li>
+  </ul>
+</div>
+
+<div class="slide">
+  <h1>VOSpace Data Model</h1>
+  <p style="text-align: center;"><img src="pix/classdiagram.png" width="403" height="440" /></p>
+</div>
+
+<div class="slide">
+  <h1>Division of Labor</h1>
+  <ul>
+    <li>I'm writing the service code and abstract classes</li>
+    <li>Sifang Lu is writing the iRODS subclasses</li>
+    <li>I think this is the best paradigm for porting to more backends</li>
   </ul>
 </div>
 
 <div class="slide">
   <h1>Volute</h1>
   <ul>
-    <li>I really didn't want to run an application server (Java or Python), just Apache</li>
-    <li>There isn't a Python client library for iRODS, anyways (Python fanboy warning)</li>
-    <li>However, Sifang Lu at SDSC has written a <a href="foo" rel="external">pure-PHP iRODS client</a></li>
-    <li>PHP is <em>very easy</em> to deploy</li>
-    <li>PHP5 has built-in support for SOAP servers and clients</li>
+    <li><a href="http://code.google.com/p/volute" rel="external">Volute</a> is a project on <a href="http://code.google.com/" rel="external">Google Code</a></li>
+    <li>Set up by Norman Gray for sharing documents between different VO groups</li>
+    <li>Much easier to collaborate across organizational boundaries</li>
   </ul>
 </div>
 
 <div class="slide">
   <h1>Summary &amp; Requests</h1>
   <ul>
+    <li>Haven't tackled tables, yet</li>
+    <li>Simple file back end likely</li>
     <li>Not a high-priority item for me (i.e., months not weeks)</li>
     <li>Help is welcomed</li>
     <li>Could really use some clients for testing</li>
