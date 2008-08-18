@@ -5,7 +5,7 @@
 
   // file path to PRODS
 if (! defined('PRODS_ROOT')) {
-  define('PRODS_ROOT', '/var/www/html/prods/src/');
+  define('PRODS_ROOT', '/var/www/vos/prods/src/');
  }
 
 // IRODS login info
@@ -36,19 +36,8 @@ if (! defined('IRODS_HOME')) {
 
 // provide a mapping between the endpoint, and a
 // collection in IRODS
-
-if (! defined('VOSPACE_ROOT')) {
-  define('VOSPACE_ROOT', 'vos://example.org!vospace');
- }
-
 if (! defined('IRODS_ROOT')) {
   define('IRODS_ROOT', '/myZone/home/myuser');
- }
-
-
-// File path to simpletest, needed to run unit tests
-if (! defined('SIMPLE_TEST')) {
-  define('SIMPLE_TEST', '/var/www/html/simpletest/');
  }
 
 ?>

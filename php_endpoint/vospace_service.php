@@ -10,14 +10,14 @@ class VOSpaceService {
   function GetViews($message)
   { 
 
-    return $data; 
+    return $data;
 
   }
 
   function GetProtocols($message)
   { 
 
-    return $data; 
+    return $data;
 
   }
 
@@ -26,8 +26,8 @@ class VOSpaceService {
     global $provided_properties;
 
     return array('accepts' => null,
-		     'provides' => $provided_properties,
-		     'contains' => null);
+		 'provides' => $provided_properties,
+		 'contains' => null);
   }
 
   function CreateNode($message)
@@ -47,7 +47,7 @@ class VOSpaceService {
   function MoveNode($message)
   { 
 
-    return $data; 
+    return $data;
 
   }
 
@@ -55,7 +55,7 @@ class VOSpaceService {
   { 
 
 
-    return $data; 
+    return $data;
 
   }
 
