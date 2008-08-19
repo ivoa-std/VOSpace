@@ -52,7 +52,7 @@ class TestVOSpaceService extends UnitTestCase {
     // properties are of a class Property
     $this->assertNotNull($size);
     $this->assertEqual($size["uri"], "ivo://net.ivoa.vospace/properties#size");
-    $this->assertEqual($size["readOnly"], TRUE);
+    $this->assertEqual($size["readonly"], TRUE);
   }
 
   function testGetNode() {

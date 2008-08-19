@@ -2,8 +2,8 @@
 
 require_once('config.inc');
 
-require_once(BACKEND.'properties.php');
 require_once(BACKEND.'node.php');
+require_once(BACKEND.'vospace.php');
 
 class VOSpaceService { 
 
@@ -23,11 +23,10 @@ class VOSpaceService {
 
   function GetProperties(){ 
 
-    global $provided_properties;
+    $vospace = &new VOSpace();
 
-    return array('accepts' => null,
-		 'provides' => $provided_properties,
-		 'contains' => null);
+    $properties = $vospace->getProperties();
+    return $properties;
   }
 
   function CreateNode($message)
@@ -87,7 +86,7 @@ class VOSpaceService {
     $data = array("response"=>array("token" => "foo", "limit" => 100, "detail" => "min", "nodes"=> array()));
     return $data;
   }
- 
+
   function FindNodes($message)
   { 
 
@@ -123,8 +122,10 @@ class VOSpaceService {
     $view = $node->getView();
     $protocols = $node->getProtocols();
 
-    $response = array('view' => $view,
-		      'protocol' => $protocols);
+    // transfer element, with at least a view and protocol element
+    $response = array('transfer'=> 
+		      array('view' => $view,
+			    'protocol' => $protocols));
 
     return $response;
   }

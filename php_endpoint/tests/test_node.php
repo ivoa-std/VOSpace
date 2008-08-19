@@ -6,6 +6,7 @@ require_once(SIMPLE_TEST . 'unit_tester.php');
 require_once(SIMPLE_TEST . 'reporter.php');
 
 require_once(BACKEND.'node.php');
+require_once(BACKEND.'vospace.php');
 
 class TestNode extends UnitTestCase {
 
@@ -34,8 +35,13 @@ class TestNode extends UnitTestCase {
     $this->assertEqual( $this->node->properties[0]["_"], "2821");
     $this->assertEqual( $this->node->properties[1]["_"], DATA_OWNER);
   }
-}
 
+  function testGetProtocols(){
+    $protocols = $this->node->getProtocols();
+    $this->assertEqual( $protocols['endpoint'],
+			'http://cadac-dev.ucsd.edu/vos/vospace/backends/file_system/sample_data/bill_of_rights.txt');
+  }
+}
 
 $test = &new TestNode();
 $test->run(new HtmlReporter());

@@ -7,16 +7,18 @@ class Node {
   public $uri;
   public $file_path;
   public $properties;
+  public $endpoint;
 
   function __construct($uri) {
-
     $this->uri = $uri;
+    $this->properties = array();
     $this->file_path = str_replace( VOSPACE_ROOT.'/', FILE_SYSTEM_ROOT, $uri );
+    $this->endpoint = str_replace( VOSPACE_ROOT.'/', HTTP_ROOT, $uri );
   }
 
   function populateProperties($detail = "min"){
-    // tells the node to fill in it's properties values
-    // file or directory had better exist!
+    // Tells the node to fill in it's properties values.
+    // File or directory had better exist!
     global $provided_properties;
     $f_stats = stat($this->file_path);
     $this->properties = $provided_properties;
@@ -29,10 +31,18 @@ class Node {
   function exists(){
     if( file_exists( $this->file_path ) )
       return True;
-
     return False;
   }
 
+  function getView(){
+    return array('uri' => 'ivo://net.ivoa.vospace/views#identity',
+		 'original'=>True);
+  }
+
+  function getProtocols(){
+    return array('endpoint' => $this->endpoint,
+		 'uri' => 'ivo://net.ivoa.vospace/protocols#http-client');
+  }
 }
 
 ?>

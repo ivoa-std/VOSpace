@@ -116,19 +116,59 @@ class TestVOSpaceServiceEndpoint extends UnitTestCase {
   function testPullFromNodeNotFound() {
 
      try { 
-       $response = $this->client->PullFromVoSpace(array('source' => 'ivo://example.org!vospace/foo.txt',
+       $response = $this->client->PullFromVoSpace(array('source' =>
+							'ivo://example.org!vospace/foo.txt',
 							'transfer' => Null));
      }
      catch (SoapFault $exp) { 
        $this->assertEqual($exp->detail->NodeNotFoundFault->uri, 'ivo://example.org!vospace/foo.txt' );
-     }
- 
+     } 
   }
 
-//   function testListNodes() {
+  function testPullFrom() {
+
+    $view = array('uri' => 'ivo://net.ivoa.vospace/views#identity',
+		  'original'=>True);
+    $protocol = array('uri' => 'ivo://net.ivoa.vospace/protocols#http-client');
+
+    $request = array('source' =>
+		     'ivo://example.org!vospace/bill_of_rights.txt',
+		     'transfer' => array('view'=> $view,
+					 'protocol' => $protocol));
+
+    $response = $this->client->PullFromVoSpace($request);
+    $this->assertNotNull($response->transfer);
+
+    $endpoint = $response->transfer->protocol->endpoint;
+
+    // now we're going to check that the endpoint is
+    // really there
+    $this->assertTrue(url_exists($endpoint));
     
+  }
+
+  function testListNodesNodeNotFound() {
+    $this->client->ListNodes();
+    $this->assertTrue(0);
+  }
+
+  function testListNodesRoot() {   
+    $this->client->ListNodes();
+    $this->assertTrue(0);
+  }
+
+//   function testListNodesContainer() {
 //     $this->client->ListNodes();
 //   }
+
+//   function testListNodesSingleNode() {
+//     $this->client->ListNodes();
+//   }
+
+//   function testListNodesWildcard() {
+//     $this->client->ListNodes();
+//   }
+
 }
 
 $test = &new TestVOSpaceServiceEndpoint();
