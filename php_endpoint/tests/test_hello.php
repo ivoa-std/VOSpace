@@ -9,9 +9,6 @@ require_once('log.php');
 
 
 class TestOfLogging extends UnitTestCase {
-  function TestOfLogging() {
-    $this->UnitTestCase();
-  }
   function testCreatingNewFile() {
     @unlink('/tmp/test.log');
 

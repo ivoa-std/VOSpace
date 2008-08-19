@@ -1,6 +1,6 @@
 <?php 
 
-include('config.inc');
+require_once('config.inc');
 
 require_once(BACKEND.'properties.php');
 require_once(BACKEND.'node.php');
@@ -71,6 +71,7 @@ class VOSpaceService {
 			  "NodeNotFoundFault");
     }
 
+    $node->populateProperties();
     return array('node' => $node);
   }
 
@@ -108,11 +109,24 @@ class VOSpaceService {
 
   }
 
-  function PullFromVoSpace($message)
+  function PullFromVoSpace($request)
   { 
+    $node = new Node($request->source);
+    
+    if(!$node->exists()){
+      $bad_target = $request->source;
+      throw new SoapFault("Server", "Node not found.", " ",
+			  array("uri" => $bad_target),
+			  "NodeNotFoundFault");
+    }
 
-    return $data; 
+    $view = $node->getView();
+    $protocols = $node->getProtocols();
 
+    $response = array('view' => $view,
+		      'protocol' => $protocols);
+
+    return $response;
   }
 
   function PushFromVoSpace($message){ 

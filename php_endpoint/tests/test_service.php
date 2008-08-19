@@ -7,9 +7,17 @@ require_once(SIMPLE_TEST . 'reporter.php');
 
 require_once('../vospace_service.php');
 
+require_once('debug_funcs.php');
+
+class target_node{
+  public $target;
+  function __construct($tg) {
+    $this->target = $tg;
+  }
+}
+
 class TestVOSpaceService extends UnitTestCase {
-  function TestVOSpaceService() {
-    $this->UnitTestCase();
+  function setUp() {
     $this->vospace_server = new SoapServer('../vospace.wsdl', 
 				     array('uri' => 'http://www.ivoa.net/xml/VOSpaceContract-v1.1rc1'));
     $this->vospace_server->SetClass("VOSpaceService");
@@ -35,15 +43,28 @@ class TestVOSpaceService extends UnitTestCase {
 
     $prop_list = $this->service->GetProperties();
 
+    //barf_var($prop_list);
+
     $this->assertNotNull($prop_list);
 
-    $mime_type = $prop_list["provides"]["mime_type"];
+    $size = $prop_list["provides"][0];
 
     // properties are of a class Property
-    $this->assertNotNull($mime_type);    
-    $this->assertEqual($mime_type->uri, "ivo://ivoa.net/vospace/core#mimetype");
-    $this->assertEqual($mime_type->readOnly, TRUE);
+    $this->assertNotNull($size);
+    $this->assertEqual($size["uri"], "ivo://net.ivoa.vospace/properties#size");
+    $this->assertEqual($size["readOnly"], TRUE);
   }
+
+  function testGetNode() {
+    
+    $node = $this->service->GetNode(new target_node('ivo://example.org!vospace/128cubed_hierarchy.png'));
+
+    //barf_var($node);
+
+    $this->assertNotNull($node["node"]);
+    $this->assertEqual($node["node"]->properties[0]["_"], 569516);
+  }
+
 
 }
 
