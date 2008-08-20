@@ -65,7 +65,6 @@ class TestVOSpaceService extends UnitTestCase {
     $this->assertEqual($node["node"]->properties[0]["_"], 569516);
   }
 
-
 }
 
 

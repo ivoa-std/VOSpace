@@ -12,8 +12,8 @@ class Node {
   function __construct($uri) {
     $this->uri = $uri;
     $this->properties = array();
-    $this->file_path = str_replace( VOSPACE_ROOT.'/', FILE_SYSTEM_ROOT, $uri );
-    $this->endpoint = str_replace( VOSPACE_ROOT.'/', HTTP_ROOT, $uri );
+    $this->file_path = str_replace( VOSPACE_ROOT, FILE_SYSTEM_ROOT, $uri );
+    $this->endpoint = str_replace( VOSPACE_ROOT, HTTP_ROOT, $uri );
   }
 
   function populateProperties($detail = "min"){

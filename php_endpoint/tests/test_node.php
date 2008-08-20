@@ -17,7 +17,7 @@ class TestNode extends UnitTestCase {
   function testNewNode() {
     $this->assertNotNull($this->node);
     $this->assertEqual($this->node->uri, 'ivo://example.org!vospace/bill_of_rights.txt'); 
-    $this->assertEqual($this->node->file_path, FILE_SYSTEM_ROOT . 'bill_of_rights.txt'); 
+    $this->assertEqual($this->node->file_path, FILE_SYSTEM_ROOT . '/bill_of_rights.txt'); 
   }
 
   function testNodeExists() {

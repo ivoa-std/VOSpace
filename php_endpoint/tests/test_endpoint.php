@@ -31,13 +31,45 @@ class TestVOSpaceServiceEndpoint extends UnitTestCase {
     $this->assertEqual(count($function_list), 15);
   }
 
+
+  function testGetProtocols() {
+    
+    $response = $this->client->GetProtocols();
+    
+    $accepts = $response->accepts;
+    $provides = $response->provides;
+
+    $this->assertNotNull($accepts);
+    $this->assertNotNull($provides);
+
+    $this->assertEqual($provides->protocol[0]->uri,
+		       'ivo://net.ivoa.vospace/protocols#http-client');
+    $this->assertEqual($accepts->protocol[1]->uri,
+		       'ivo://net.ivoa.vospace/protocols#http-server');
+  }
+
+
+  function testGetViews() {
+    
+    $response = $this->client->GetViews();
+    
+    $accepts = $response->accepts;
+    $provides = $response->provides;
+
+    $this->assertNotNull($accepts);
+    $this->assertNotNull($provides);
+
+    // the 'view' array only has a single element,
+    // so there's no indexing on it
+    $this->assertEqual($provides->view->uri,
+		       'ivo://net.ivoa.vospace/views#identity');
+    $this->assertEqual($accepts->view->uri,
+		       'ivo://net.ivoa.vospace/views#identity');
+  }
+
   function testGetProperties() {
     
     $response = $this->client->GetProperties();
-    //print '<pre>';     
-    //var_dump($response);
-    //print '</pre>'; 
-    //barf($this->client);
     
     $accepts = $response->accepts;
     $provides = $response->provides;
@@ -75,6 +107,7 @@ class TestVOSpaceServiceEndpoint extends UnitTestCase {
 
      try { 
        $response = $this->client->GetNode(array('target' => 'ivo://example.org!vospace/foo.txt'));
+       $this->assertTrue(0, "Should have thrown NodeNotFound");
      }
      catch (SoapFault $exp) { 
        $this->assertEqual($exp->detail->NodeNotFoundFault->uri, 'ivo://example.org!vospace/foo.txt' );
@@ -119,6 +152,7 @@ class TestVOSpaceServiceEndpoint extends UnitTestCase {
        $response = $this->client->PullFromVoSpace(array('source' =>
 							'ivo://example.org!vospace/foo.txt',
 							'transfer' => Null));
+       $this->assertTrue(0, "Should have thrown NodeNotFound");
      }
      catch (SoapFault $exp) { 
        $this->assertEqual($exp->detail->NodeNotFoundFault->uri, 'ivo://example.org!vospace/foo.txt' );
@@ -147,31 +181,92 @@ class TestVOSpaceServiceEndpoint extends UnitTestCase {
     
   }
 
-  function testListNodesNodeNotFound() {
-    $this->client->ListNodes();
-    $this->assertTrue(0);
+  function testListNodesNodeNotFound() {    
+    $request = array('request' => 
+		     array('detail' => 'min',
+			   'nodes' => 
+			   array(array('uri' => 'ivo://example.org!vospace/moo'))));
+
+    try {
+      $response = $this->client->ListNodes($request);
+      $this->assertTrue(0, "Should have thrown NodeNotFound");
+    } catch (SoapFault $exp) { 
+      $this->assertEqual($exp->detail->NodeNotFoundFault->uri, 'ivo://example.org!vospace/moo' );
+    }
+
   }
 
-  function testListNodesRoot() {   
-    $this->client->ListNodes();
-    $this->assertTrue(0);
+  function testListNodes() {
+    
+    $request = array('request' => 
+		     array('detail' => 'min',
+			   'nodes' => 
+			   array(array('uri' => 'ivo://example.org!vospace'))));
+
+    $response = $this->client->ListNodes($request);
+    // crazy example of how to march down the object
+    // the name of the array is actually "node"
+    //     barf_var($response);
+    //     barf_var($response->response);
+    //     barf_var($response->response->nodes);
+    //     barf_var($response->response->nodes->node);
+    //barf_var($response->response->nodes->node[0]);
+    
+    $this->assertEqual(count($response->response->nodes->node), 4);
   }
 
-//   function testListNodesContainer() {
-//     $this->client->ListNodes();
-//   }
+  function testListNodesContainer() {
+    $request = array('request' => 
+		     array('detail' => 'min',
+			   'nodes' => 
+			   array(array('uri' => 'ivo://example.org!vospace/images'))));
 
-//   function testListNodesSingleNode() {
-//     $this->client->ListNodes();
-//   }
+    $response = $this->client->ListNodes($request);
+    
+    $this->assertEqual(count($response->response->nodes->node), 3);
 
-//   function testListNodesWildcard() {
-//     $this->client->ListNodes();
-//   }
+  }
+
+   function testListNodesSingleNode() {
+    $request = array('request' => 
+		     array('detail' => 'min',
+			   'nodes' => 
+			   array(array('uri' => 'ivo://example.org!vospace/images/cl0041_0000_2_lxt_l7_pz.png'))));
+
+    $response = $this->client->ListNodes($request);
+    
+    $this->assertEqual(count($response->response->nodes->node), 1);
+    $this->assertEqual($response->response->nodes->node->uri,
+		       'ivo://example.org!vospace/images/cl0041_0000_2_lxt_l7_pz.png');
+
+   }
+
+   function testListNodesWildcard() {
+    $request = array('request' => 
+		     array('detail' => 'min',
+			   'nodes' => 
+			   array(array('uri' => 'ivo://example.org!vospace/parameters/*0'))));
+
+    $response = $this->client->ListNodes($request);
+    
+    $this->assertEqual(count($response->response->nodes->node), 2);
+
+   }
+
+   function testPushFrom() {
+     
+    try {
+      $response = $this->client->PushFromVoSpace();
+      $this->assertTrue(0, "Should have thrown InternalFault - Not implemented");
+    } catch (SoapFault $exp) { 
+      $this->assertEqual($exp->InternalFault, "");
+    }
+
+   }
 
 }
 
-$test = &new TestVOSpaceServiceEndpoint();
+$test = new TestVOSpaceServiceEndpoint();
 $test->run(new HtmlReporter());
 
 ?>

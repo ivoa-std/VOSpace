@@ -2,64 +2,91 @@
 
 require_once(BACKEND.'config.backend.inc');
 require_once(BACKEND.'properties.php');
+require_once(BACKEND.'views.php');
+require_once(BACKEND.'protocols.php');
 require_once(BACKEND.'node.php');
 
 class VOSpace {
+
+  function getViews(){ 
+    global $provided_views;
+    global $accepted_views;
+    return array('accepts' => $accepted_views,
+		 'provides' => $provided_views);
+  }
+
+  function getProtocols(){ 
+    global $provided_protocols;
+    global $accepted_protocols;
+    return array('accepts' => $accepted_protocols,
+		 'provides' => $provided_protocols);
+  }
 
   function getProperties(){ 
     global $provided_properties;
     return array('accepts' => null,
 		 'provides' => $provided_properties,
-		 'contains' => null);
+		 'contains' => $provided_properties);
   }
 
   function listNodes($node_request) {
-
     // get uri to list
     // need to parse this for cleanliness at some point
     // (trailing slashes, etc.)
-    $uri = $node_request['nodes'][0]['uri'];
+    $uri = $node_request->nodes->node->uri;
 
     $token=null;
     $limit=False;
     $detail='min';
-    
-    if(array_key_exists('token', $node_request))
-      $token = $node_request['token'];
-    if(array_key_exists('limit', $node_request))
-      $token = $node_request['limit'];
-    if(array_key_exists('detail', $node_request))
-      $token = $node_request['detail'];
 
-    // Null for nodes indicates path not found
-    $node_list = array('nodes' => Null,
-		       'detail' => $detail);
+    if($node_request->token)
+      $token = $node_request->token;
+    if($node_request->limit)
+      $limit = $node_request->limit;
+    if($node_request->detail)
+      $detail = $node_request->detail;
 
-    $dir_path = str_replace( VOSPACE_ROOT, FILE_SYSTEM_ROOT, $uri );
-    //     $node_list['dir'] = $dir_path;
-    //     $node_list['uri'] = $uri;
-    //     $node_list['req'] = $node_request;
+    $node_list = array('detail' => $detail,
+		       'nodes' => array());
 
-    if ($handle = opendir($dir_path)) {
-      // empty array for nodes indicates path found,
-      // but no child nodes
-      $node_list['nodes'] = array();
-      $i = 0;
-      while (false !== ($file = readdir($handle))) {
-        if ($file != "." && $file != ".." && $file != ".svn") {
+    $path = str_replace( VOSPACE_ROOT, FILE_SYSTEM_ROOT, $uri );
+    //    error_log(var_export($path.'\n', True), 3, "/var/tmp/my-errors.log");
+    // quick check to see if this is a single file
+    if(is_file($path)){
+      $node_uri = str_replace( FILE_SYSTEM_ROOT, VOSPACE_ROOT,  $path );
 
-	  $node_uri = str_replace( FILE_SYSTEM_ROOT, VOSPACE_ROOT.'/',  $file);
-	  
-	  $node_list['nodes'][$i++] = &new Node($node_uri);
-	  if($detail != 'min')
-	    $node_list['nodes'][$i]->populateProperties();
-        }
+      $new_node = new Node($node_uri);
+      if($detail != 'min')
+	$new_node->populateProperties();
+      $node_list['nodes'][0] = $new_node;
+    }else{
+
+      // look for wildcards and trailing slashes
+      if( strpos($path, "*") === FALSE &&
+	  $path[strlen($path) - 1] != '/' ){
+	$path = $path . "/*";
       }
-      closedir($handle);
-    }
+
+      $i = 0;
+      foreach (glob($path) as $filename) {
+	$file = basename($filename);      
+	if ($file != "." && $file != ".." && $file != ".svn") {
+	  $node_uri = str_replace( FILE_SYSTEM_ROOT, VOSPACE_ROOT,  $filename );
+	  
+	  $new_node = new Node($node_uri);
+	  if($detail != 'min')
+	    $new_node->populateProperties();
+	  $node_list['nodes'][$i++] = $new_node;
+	}
+      }
+    }    
     
+    if(count($node_list['nodes']) == 0)
+      unset($node_list['nodes']);
+  
     return $node_list;
   }
+
 }
 
 ?>
