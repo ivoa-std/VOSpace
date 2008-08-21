@@ -5,7 +5,7 @@
     xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" 
     xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
     xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" 
-   xmlns:wsse="http://schemas.xmlsoap.org/ws/2003/06/secext"
+    xmlns:wsse="http://schemas.xmlsoap.org/ws/2003/06/secext"
     xmlns:vos.contract.1.1="http://www.ivoa.net/xml/VOSpaceContract-v1.1rc1"
     xmlns:vos.types.1.1="http://www.ivoa.net/xml/VOSpaceTypes-v1.1rc1"
     
@@ -153,13 +153,8 @@
         | The Security messages.
         +-->
     <wsdl:message name="wsRequest" >
-	    <wsdl:part name="Security" element="wsse:Security" />
-      </wsdl:message>
-
-<!--    
-    <wsdl:message name="header">
-      <wsdl:part name="helloHeader" element="vos.contract.1.1:helloHeader" />
-    </wsdl:message> -->
+       <wsdl:part name="Security" element="wsse:Security" />
+    </wsdl:message>
 
     <!--+
         | The GetViews messages.
@@ -645,6 +640,7 @@
             <soap:operation soapAction="http://www.ivoa.net/xml/VOSpaceContract-v1.1rc1:GetViews"/>
             <wsdl:input>
                 <soap:body use="literal" parts="message"/>
+		<soap:header use="literal" message="vos.contract.1.1:wsRequest" part="Security"/>
             </wsdl:input>
             <wsdl:output>
                 <soap:body use="literal" parts="message"/>
@@ -665,7 +661,6 @@
             <wsdl:input>
                 <soap:body use="literal" parts="message"/>
 		<soap:header use="literal" message="vos.contract.1.1:wsRequest" part="Security"/>
-        <!--   <soap:header use="literal" message="vos.contract.1.1:header" part="helloHeader" /> -->
             </wsdl:input>
             <wsdl:output>
                 <soap:body use="literal" parts="message"/>
@@ -685,6 +680,7 @@
             <soap:operation soapAction="http://www.ivoa.net/xml/VOSpaceContract-v1.1rc1:GetProperties"/>
             <wsdl:input>
                 <soap:body use="literal" parts="message"/>
+		<soap:header use="literal" message="vos.contract.1.1:wsRequest" part="Security"/>
             </wsdl:input>
             <wsdl:output>
                 <soap:body use="literal" parts="message"/>
@@ -704,6 +700,7 @@
             <soap:operation soapAction="http://www.ivoa.net/xml/VOSpaceContract-v1.1rc1:CreateNode"/>
             <wsdl:input>
                 <soap:body use="literal" parts="message"/>
+		<soap:header use="literal" message="vos.contract.1.1:wsRequest" part="Security"/>
             </wsdl:input>
             <wsdl:output>
                 <soap:body use="literal" parts="message"/>
@@ -735,6 +732,7 @@
             <soap:operation soapAction="http://www.ivoa.net/xml/VOSpaceContract-v1.1rc1:DeleteNode"/>
             <wsdl:input>
                 <soap:body use="literal" parts="message"/>
+		<soap:header use="literal" message="vos.contract.1.1:wsRequest" part="Security"/>
             </wsdl:input>
             <wsdl:output>
                 <soap:body use="literal" parts="message"/>
@@ -763,6 +761,7 @@
             <soap:operation soapAction="http://www.ivoa.net/xml/VOSpaceContract-v1.1rc1:MoveNode"/>
             <wsdl:input>
                 <soap:body use="literal" parts="message"/>
+		<soap:header use="literal" message="vos.contract.1.1:wsRequest" part="Security"/>
             </wsdl:input>
             <wsdl:output>
                 <soap:body use="literal" parts="message"/>
@@ -797,6 +796,7 @@
             <soap:operation soapAction="http://www.ivoa.net/xml/VOSpaceContract-v1.1rc1:CopyNode"/>
             <wsdl:input>
                 <soap:body use="literal" parts="message"/>
+		<soap:header use="literal" message="vos.contract.1.1:wsRequest" part="Security"/>
             </wsdl:input>
             <wsdl:output>
                 <soap:body use="literal" parts="message"/>
@@ -831,6 +831,7 @@
             <soap:operation soapAction="http://www.ivoa.net/xml/VOSpaceContract-v1.1rc1:GetNode"/>
             <wsdl:input>
                 <soap:body use="literal" parts="message"/>
+		<soap:header use="literal" message="vos.contract.1.1:wsRequest" part="Security"/>
             </wsdl:input>
             <wsdl:output>
                 <soap:body use="literal" parts="message"/>
@@ -859,6 +860,7 @@
             <soap:operation soapAction="http://www.ivoa.net/xml/VOSpaceContract-v1.1rc1:SetNode"/>
             <wsdl:input>
                 <soap:body use="literal" parts="message"/>
+		<soap:header use="literal" message="vos.contract.1.1:wsRequest" part="Security"/>
             </wsdl:input>
             <wsdl:output>
                 <soap:body use="literal" parts="message"/>
@@ -890,6 +892,7 @@
             <soap:operation soapAction="http://www.ivoa.net/xml/VOSpaceContract-v1.1rc1:ListNodes"/>
             <wsdl:input>
                 <soap:body use="literal" parts="message"/>
+		<soap:header use="literal" message="vos.contract.1.1:wsRequest" part="Security"/>
             </wsdl:input>
             <wsdl:output>
                 <soap:body use="literal" parts="message"/>
@@ -921,6 +924,7 @@
             <soap:operation soapAction="http://www.ivoa.net/xml/VOSpaceContract-v1.1rc1:FindNodes"/>
             <wsdl:input>
                 <soap:body use="literal" parts="message"/>
+		<soap:header use="literal" message="vos.contract.1.1:wsRequest" part="Security"/>
             </wsdl:input>
             <wsdl:output>
                 <soap:body use="literal" parts="message"/>
@@ -952,6 +956,7 @@
             <soap:operation soapAction="http://www.ivoa.net/xml/VOSpaceContract-v1.1rc1:PushToVoSpace"/>
             <wsdl:input>
                 <soap:body use="literal" parts="message"/>
+		<soap:header use="literal" message="vos.contract.1.1:wsRequest" part="Security"/>
             </wsdl:input>
             <wsdl:output>
                 <soap:body use="literal" parts="message"/>
@@ -989,6 +994,7 @@
             <soap:operation soapAction="http://www.ivoa.net/xml/VOSpaceContract-v1.1rc1:PullToVoSpace"/>
             <wsdl:input>
                 <soap:body use="literal" parts="message"/>
+		<soap:header use="literal" message="vos.contract.1.1:wsRequest" part="Security"/>
             </wsdl:input>
             <wsdl:output>
                 <soap:body use="literal" parts="message"/>
@@ -1032,6 +1038,7 @@
             <soap:operation soapAction="http://www.ivoa.net/xml/VOSpaceContract-v1.1rc1:PullFromVoSpace"/>
             <wsdl:input>
                 <soap:body use="literal" parts="message"/>
+		<soap:header use="literal" message="vos.contract.1.1:wsRequest" part="Security"/>
             </wsdl:input>
             <wsdl:output>
                 <soap:body use="literal" parts="message"/>
@@ -1069,6 +1076,7 @@
             <soap:operation soapAction="http://www.ivoa.net/xml/VOSpaceContract-v1.1rc1:PushFromVoSpace"/>
             <wsdl:input>
                 <soap:body use="literal" parts="message"/>
+		<soap:header use="literal" message="vos.contract.1.1:wsRequest" part="Security"/>
             </wsdl:input>
             <wsdl:output>
                 <soap:body use="literal" parts="message"/>

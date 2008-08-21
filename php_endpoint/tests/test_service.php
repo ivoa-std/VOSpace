@@ -36,7 +36,8 @@ class TestVOSpaceService extends UnitTestCase {
 
     $this->assertNotNull($function_list);
     $this->assertTrue(in_array("ListNodes", $function_list));
-    $this->assertEqual(count($function_list), 15);
+    // includes Security
+    $this->assertEqual(count($function_list), 17);
   }
 
   function testProperties() {

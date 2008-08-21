@@ -91,19 +91,55 @@ class TestVOSpaceAuthorization extends UnitTestCase {
   }
 
   function testUnauthorized(){
-         try { 
-	   $this->secHeader = get_header('jon', 'don');
+    try { 
+      $this->secHeader = get_header('jon', 'don');
+      
+      $response_auth = $this->client->__soapCall('GetProtocols', array('GetProtocols'=>Null), 
+						 null, $this->secHeader ); 
+      
+      $this->assertTrue(0, "Should have thrown not authenticated.");
+    }
+    catch (SoapFault $exp) { 
+      $this->assertEqual($exp->faultstring, "Not authenticated.");
+    }    
+  }
 
-	   $response_auth = $this->client->__soapCall('GetProtocols', array('GetProtocols'=>Null), 
-						      null, $this->secHeader ); 
+  function testGetViewsCompare() {
+    $response_auth = $this->client->__soapCall('GetViews', array('GetViews'=>Null), 
+					       null, $this->secHeader ); 
+    $response = $this->client->GetViews();
+    
+    $this->assertEqual($response_auth, $response);
+  }
 
-	   $this->assertTrue(0, "Should have thrown not authenticated.");
-     }
-     catch (SoapFault $exp) { 
-       $this->assertEqual($exp->faultstring, "Not authenticated.");
-     }
+  function testUnauthorizedViews(){
+    try { 
+      $this->secHeader = get_header('jon', 'don');
+      
+      $response_auth = $this->client->__soapCall('GetViews', array('GetViews'=>Null), 
+						 null, $this->secHeader ); 
+      
+      $this->assertTrue(0, "Should have thrown not authenticated.");
+    }
+    catch (SoapFault $exp) { 
+      $this->assertEqual($exp->faultstring, "Not authenticated.");
+    }    
+   }
+
+  function testGetPropertiesUnAuth() {
+    try { 
+      
+      $response_auth = $this->client->__soapCall('GetProperties', array('GetProperties'=>Null), 
+						 null, $this->secHeader ); 
+      
+      $this->assertTrue(0, "Should have thrown not authorized.");
+    }
+    catch (SoapFault $exp) { 
+      $this->assertEqual($exp->faultstring, "Permission denied.");
+    }    
 
   }
+
 }
 
 $test = new TestVOSpaceAuthorization();

@@ -8,21 +8,39 @@ require_once(BACKEND.'vospace.php');
 
 class VOSpaceService { 
 
+  private $vospace;
+
+  function __construct(){
+    $this->vospace = new VOSpace();
+  }
+
   function GetViews($message){ 
-    $vospace = new VOSpace();
-    $views = $vospace->getViews();
+    if($this->vospace->getAuthorization('GetViews') == False){
+      throw new SoapFault("Server", "Permission denied.", " ",
+			  array(), "PermissionDenied");
+    }
+    
+    $views = $this->vospace->getViews();
     return $views;
   }
 
   function GetProtocols($message){     
-    $vospace = new VOSpace();
-    $protocols = $vospace->getProtocols();
+    if($this->vospace->getAuthorization('GetProtocols') == False){
+      throw new SoapFault("Server", "Permission denied.", " ",
+			  array(), "PermissionDenied");
+    }
+
+    $protocols = $this->vospace->getProtocols();
     return $protocols;
   }
 
   function GetProperties(){ 
-    $vospace = &new VOSpace();
-    $properties = $vospace->getProperties();
+    if($this->vospace->getAuthorization('GetProperties') == False){
+      throw new SoapFault("Server", "Permission denied.", " ",
+			  array(), "PermissionDenied");
+    }
+
+    $properties = $this->vospace->getProperties();
     return $properties;
   }
 
@@ -57,6 +75,10 @@ class VOSpaceService {
 
   function GetNode($target)
   { 
+    if($this->vospace->getAuthorization('GetNode') == False){
+      throw new SoapFault("Server", "Permission denied.", " ",
+			  array(), "PermissionDenied");
+    }
 
     $node = new Node($target->target);
     
@@ -81,9 +103,13 @@ class VOSpaceService {
 
   function ListNodes($node_list_req){
 
-    $vospace = &new VOSpace();
+    if($this->vospace->getAuthorization('ListNodes') == False){
+      throw new SoapFault("Server", "Permission denied.", " ",
+			  array(), "PermissionDenied");
+    }
+
     //    error_log(var_export($node_list_req, True), 3, "/var/tmp/my-errors.log");
-    $node_list = $vospace->listNodes($node_list_req->request);
+    $node_list = $this->vospace->listNodes($node_list_req->request);
 
     if($node_list['nodes'] == Null){
       throw new SoapFault("Server", "Node not found.", " ",
@@ -117,6 +143,11 @@ class VOSpaceService {
 
   function PullFromVoSpace($request)
   { 
+    if($this->vospace->getAuthorization('PullFromVoSpace') == False){
+      throw new SoapFault("Server", "Permission denied.", " ",
+			  array(), "PermissionDenied");
+    }
+
     $node = new Node($request->source);
     
     if(!$node->exists()){
@@ -139,40 +170,11 @@ class VOSpaceService {
 
   function PushFromVoSpace($message){ 
       throw new SoapFault("Server", "Not implemented.", " ",
-			  array(),
-			  "InternalFault");
+			  array(), "InternalFault");
   }
 
-  function Security( $foo ){
-
-    $p = xml_parser_create();
-    xml_parse_into_struct($p, $foo->any, $vals, $index);
-    xml_parser_free($p);
-//     error_log(var_export($vals, True), 3, "/var/tmp/vospace.err.log");
-//     error_log(var_export($index, True), 3, "/var/tmp/vospace.err.log");
-
-    $username = '';
-    $password = '';
-    foreach( $vals as $element){
-      if( strpos($element['tag'],  "USERNAMETOKEN") === FALSE ){
-	if( strpos($element['tag'],  "USERNAME") !== FALSE )
-	  $username = $element['value'];
-	if( strpos($element['tag'],  "PASSWORD") !== FALSE )
-	  $password = $element['value'];
-      }
-    }
-    error_log(var_export($username, True), 3, "/var/tmp/vospace.err.log");
-    error_log(var_export($password, True), 3, "/var/tmp/vospace.err.log");
-
-    if( $username == 'joe' && $password == 'doe' ){
-      $this->Authenticated = True;
-    } else {
-      $this->Authenticated = False;
-       throw new SoapFault("Server", "Not authenticated.", " ",
-			   array(),
-			   "PermissionDeniedFault");
-      
-    }
+  function Security( $wsse_header ){
+    $this->vospace->getAuthInfo($wsse_header);    
   }
 } 
 

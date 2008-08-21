@@ -8,6 +8,49 @@ require_once(BACKEND.'node.php');
 
 class VOSpace {
 
+  private $AuthInfo;
+
+  function __construct(){
+    $this->AuthInfo = array('username' => Null,
+			    'password' => Null,
+			    'authenticated' => False);
+  }
+
+  function getAuthInfo( $sec_header ) {
+
+    $p = xml_parser_create();
+    xml_parse_into_struct($p, $sec_header->any, $vals, $index);
+    xml_parser_free($p);
+
+    $username = '';
+    $password = '';
+    foreach( $vals as $element){
+      if( strpos($element['tag'],  "USERNAMETOKEN") === FALSE ){
+	if( strpos($element['tag'],  "USERNAME") !== FALSE )
+	  $this->AuthInfo['username']  = $element['value'];
+	if( strpos($element['tag'],  "PASSWORD") !== FALSE )
+	  $this->AuthInfo['password'] = $element['value'];
+      }
+    }
+
+    if( $this->AuthInfo['username'] == 'joe' && 
+	$this->AuthInfo['password'] == 'doe' ){
+      $this->AuthInfo['authenticated'] = True;
+    }else{
+      throw new SoapFault("Server", "Not authenticated.", " ",
+			  array(),
+			  "NotAuthenticatedFault");
+    }
+  }
+
+  function getAuthorization($method_name){
+    if( $this->AuthInfo['username'] == 'joe' 
+	&& $method_name == 'GetProperties')
+      return False;
+    else
+      return True;
+  }
+
   function getViews(){ 
     global $provided_views;
     global $accepted_views;
