@@ -13,7 +13,7 @@ class TestVOSpaceServiceEndpoint extends UnitTestCase {
     $this->client = new
       SoapClient(
 		 '../vospace.wsdl',
-		 array('location' => 'http://localhost/vos/vospace/vospace_endpoint.php',
+		 array('location' => 'http://localhost/vospace/vospace_endpoint.php',
 		       'uri' => 'http://www.ivoa.net/xml/VOSpaceContract-v1.1rc1',
 		       'trace'      => 1,
 		       'exceptions' => 1));

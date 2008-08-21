@@ -8,12 +8,12 @@ if (! defined('VOSPACE_ROOT')) {
 
 // File path to simpletest, needed to run unit tests
 if (! defined('SIMPLE_TEST')) {
-  define('SIMPLE_TEST', '/var/www/vos/simpletest/');
+  define('SIMPLE_TEST', '/var/www/html/simpletest/');
  }
 
 // Relative file path to backend being used
 if (! defined('BACKEND')) {
-  define('BACKEND', '/var/www/vos/vospace/backends/file_system/');
+  define('BACKEND', '/var/www/html/vospace/backends/file_system/');
  }
 
 ?>

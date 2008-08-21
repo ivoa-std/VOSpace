@@ -5,7 +5,7 @@
     xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" 
     xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
     xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" 
-
+   xmlns:wsse="http://schemas.xmlsoap.org/ws/2003/06/secext"
     xmlns:vos.contract.1.1="http://www.ivoa.net/xml/VOSpaceContract-v1.1rc1"
     xmlns:vos.types.1.1="http://www.ivoa.net/xml/VOSpaceTypes-v1.1rc1"
     
@@ -30,6 +30,11 @@
                 namespace="http://www.ivoa.net/xml/VOSpaceTypes-v1.1rc1"
                 schemaLocation="VOSpaceTypes-v1.1rc1.xsd"
                 />
+
+	     <xsd:import
+               namespace="http://schemas.xmlsoap.org/ws/2003/06/secext"
+	       schemaLocation="ws-sec.xsd" 
+               />
 
             <!--+
                 | The GetViews message elements.
@@ -139,10 +144,22 @@
 	    <xsd:element name="ContainerNotFoundFault"	  type="vos.types.1.1:ContainerNotFoundFaultType"/>
 	    <xsd:element name="LinkFoundFault"		  type="vos.types.1.1:LinkFoundFaultType"/>
 	    <xsd:element name="PropertyNotFoundFault"	  type="vos.types.1.1:PropertyNotFoundFaultType"/>
-            
+            <xsd:element name="Security" type="wsse:SecurityHeaderType"/>
         </xsd:schema>
-        
+
     </wsdl:types>
+
+    <!--+
+        | The Security messages.
+        +-->
+    <wsdl:message name="wsRequest" >
+	    <wsdl:part name="Security" element="wsse:Security" />
+      </wsdl:message>
+
+<!--    
+    <wsdl:message name="header">
+      <wsdl:part name="helloHeader" element="vos.contract.1.1:helloHeader" />
+    </wsdl:message> -->
 
     <!--+
         | The GetViews messages.
@@ -647,6 +664,8 @@
             <soap:operation soapAction="http://www.ivoa.net/xml/VOSpaceContract-v1.1rc1:GetProtocols"/>
             <wsdl:input>
                 <soap:body use="literal" parts="message"/>
+		<soap:header use="literal" message="vos.contract.1.1:wsRequest" part="Security"/>
+        <!--   <soap:header use="literal" message="vos.contract.1.1:header" part="helloHeader" /> -->
             </wsdl:input>
             <wsdl:output>
                 <soap:body use="literal" parts="message"/>

@@ -39,7 +39,7 @@ class TestNode extends UnitTestCase {
   function testGetProtocols(){
     $protocols = $this->node->getProtocols();
     $this->assertEqual( $protocols['endpoint'],
-			'http://cadac-dev.ucsd.edu/vos/vospace/backends/file_system/sample_data/bill_of_rights.txt');
+			HTTP_ROOT. '/bill_of_rights.txt');
   }
 }
 

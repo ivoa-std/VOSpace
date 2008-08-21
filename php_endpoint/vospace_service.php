@@ -14,7 +14,7 @@ class VOSpaceService {
     return $views;
   }
 
-  function GetProtocols($message){ 
+  function GetProtocols($message){     
     $vospace = new VOSpace();
     $protocols = $vospace->getProtocols();
     return $protocols;
@@ -143,6 +143,37 @@ class VOSpaceService {
 			  "InternalFault");
   }
 
+  function Security( $foo ){
+
+    $p = xml_parser_create();
+    xml_parse_into_struct($p, $foo->any, $vals, $index);
+    xml_parser_free($p);
+//     error_log(var_export($vals, True), 3, "/var/tmp/vospace.err.log");
+//     error_log(var_export($index, True), 3, "/var/tmp/vospace.err.log");
+
+    $username = '';
+    $password = '';
+    foreach( $vals as $element){
+      if( strpos($element['tag'],  "USERNAMETOKEN") === FALSE ){
+	if( strpos($element['tag'],  "USERNAME") !== FALSE )
+	  $username = $element['value'];
+	if( strpos($element['tag'],  "PASSWORD") !== FALSE )
+	  $password = $element['value'];
+      }
+    }
+    error_log(var_export($username, True), 3, "/var/tmp/vospace.err.log");
+    error_log(var_export($password, True), 3, "/var/tmp/vospace.err.log");
+
+    if( $username == 'joe' && $password == 'doe' ){
+      $this->Authenticated = True;
+    } else {
+      $this->Authenticated = False;
+       throw new SoapFault("Server", "Not authenticated.", " ",
+			   array(),
+			   "PermissionDeniedFault");
+      
+    }
+  }
 } 
 
 ?>
