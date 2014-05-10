@@ -1,9 +1,3 @@
-<?xml version="1.0" encoding="ISO-8859-1"?><!-- $Id$ 
-VOSpace 2.1 WD -->
-<!DOCTYPE html
-  PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-
-
 <html>
 <head>
 	<title>VOSpace 2.0 Recommendation</title>
@@ -592,12 +586,12 @@ defines a specific delimiter.
 The rules for the <i>Property</i> identifiers are similar to the rules for namespace URIs in XML schema. The only restriction is that it SHALL be a valid (unique) URI. 
 </p>
 <ul>
-<li> An XML schema namespace identifier can be just a simple URN, e.g. urn:my­namespace 
+<li> An XML schema namespace identifier can be just a simple URN, e.g. urn:myÂ­namespace 
 <li> Within the IVOA, the convention for namespace identifiers is to use a HTTP URL pointing to the namespace schema or a resource describing it 
 </ul><p>
 The current VOSpace schema defines <i>Property</i> identifiers as anyURI. The only restriction is that it SHALL be a valid (unique) URI. 
 </p><ul>
-<li> A <i>Property</i> URI can be a simple URN, e.g. urn:my­property 
+<li> A <i>Property</i> URI can be a simple URN, e.g. urn:myÂ­property 
 </ul><p>
 This may be sufficient for testing and development on a private system, but it is not scalable for use on a public service. 
 </p><p>
@@ -605,7 +599,7 @@ For a production system, any new Properties SHOULD have unique URIs that can be 
 </p><p>
 Ideally, these should be IVO registry URIs that point to a description registered in the IVO registry:
  </p><ul>
-<li> ivo://my­registry/vospace/properties#my­property 
+<li> ivo://myÂ­registry/vospace/properties#myÂ­property 
 </ul><p>
 Using an IVO registry URI to identify Properties has two main advantages : 
 </p><ul>
@@ -639,7 +633,7 @@ Note that at the time of writing, the schema for registering PropertyDescription
 <p>
 If a client is unable to resolve a Property identifier into a description, then it may just display the identifier as a text string: 
 </p><ul>
-<li> urn:modified­date 
+<li> urn:modifiedÂ­date 
 </ul><p>
 If the client can resolve the Property identifier into a description, then the client may use the information in the description to display a human readable name and description of the Property:
  </p><ul>
@@ -837,7 +831,7 @@ A View representation SHALL have the following members:
 <p>
 A simple VOSpace system that stores data as a binary files can just return the contents of the original file. The client supplies a View identifier when it imports the data, and the service uses this information to describe the data to other clients. 
 </p><p>
-A file based system can use the special case identifier 'ivo://ivoa.net/vospace/core#view­any' to indicate that it will accept any data format or 
+A file based system can use the special case identifier 'ivo://ivoa.net/vospace/core#viewÂ­any' to indicate that it will accept any data format or 
 View for a Node. 
 </p><p>
 For example: 
@@ -886,12 +880,12 @@ The VOSpace specification does not mandate what Views a service must provide. Th
 </p><p>
 The rules for the View identifiers are similar to the rules for namespace URIs in XML schema. The only restriction is that it SHALL be a valid (unique) URI. 
 </p><ul>
-<li> An XML schema namespace identifier can be just a simple URN, e.g. urn:my­namespace 
+<li> An XML schema namespace identifier can be just a simple URN, e.g. urn:myÂ­namespace 
 <li> Within the IVOA, the convention for namespace identifiers is to use a HTTP URL pointing to the namespace schema, or a resource describing it 
 </ul><p>
 The current VOSpace schema defines View identifiers as anyURI. The only restriction is that it SHALL be a valid (unique) URI. 
 </p><ul>
-<li> A View URI can be a simple URN, e.g. urn:my­view 
+<li> A View URI can be a simple URN, e.g. urn:myÂ­view 
 </ul><p>
 This may be sufficient for testing and development on a private system, but it is not scalable for use on a public service. 
 </p><p>
@@ -899,7 +893,7 @@ For a production system, any new Views SHOULD have unique URIs that can be resol
 </p><p>
 Ideally, these should be IVO registry URIs that point to a description registered in the IVO registry:
 </p><ul> 
-<li> ivo://my­registry/vospace/views#my­view 
+<li> ivo://myÂ­registry/vospace/views#myÂ­view 
 </ul><p>
 Using an IVO registry URI to identify Views has two main advantages : 
 </p><ul>
@@ -993,12 +987,12 @@ from the service is received.
 
 <p>The rules for the Protocol identifiers are similar to the rules for namespace URIs in XML schema. The only restriction is that it SHALL be a valid (unique) URI </p><ul>
 
-<li> An XML schema namespace identifier can be just a simple URN, e.g. urn:my­namespace 
+<li> An XML schema namespace identifier can be just a simple URN, e.g. urn:myÂ­namespace 
 <li> Within the IVOA, the convention for namespace identifiers is to use a HTTP URL pointing to the namespace schema, or a resource describing it 
 </ul><p>
 The current VOSpace schema defines Protocol identifiers as anyURI. The only restriction is that it SHALL be a valid (unique) URI. 
 </p><ul>
-<li> A Protocol URI can be a simple URN, e.g. urn:my­protocol 
+<li> A Protocol URI can be a simple URN, e.g. urn:myÂ­protocol 
 </ul><p>
 This may be sufficient for testing and development on a private system, but it is not scalable for use on a public service. 
 </p><p>
@@ -1006,7 +1000,7 @@ For a production system, any new Protocols SHOULD have unique URIs that can be r
 </p><p>
 Ideally, these should be IVO registry URIs that point to a description registered in the IVO registry : 
 </p><ul>
-<li> ivo://my­registry/vospace/protocols#my­protocol 
+<li> ivo://myÂ­registry/vospace/protocols#myÂ­protocol 
 </ul><p>
 Using an IVO registry URI to identify Protocols has two main advantages: 
 </p><ul>
@@ -1030,7 +1024,7 @@ However, at the time of writing, the schema for registering ProtocolDescriptions
 <h5><a name="sec3_5_2_1">3.5.2.1 UI display name</a></h5>
 <p>If a client is unable to resolve a Protocol identifier into a description, then it MAY just display the identifier as a text string: 
 </p><ul>
-<li> Download using urn:my­protocol 
+<li> Download using urn:myÂ­protocol 
 </ul><p>
 If the client can resolve the Protocol identifier into a description, then the client MAY use the information in the description to display a human readable name and description of the Protocol: 
 </p><ul>
@@ -1081,7 +1075,7 @@ If an institute has one or more VOSpace services co-located with a number of dat
 </p><p>
 In this case, the local system administrators could register a custom ProtocolDescription which described how to transfer data using their local NFS file system. 
 </p><ul>
-<li> ivo://my.institute/vospace/protocols#internal­nfs 
+<li> ivo://my.institute/vospace/protocols#internalÂ­nfs 
 </ul><p>
 Data transfers using this Protocol would be done using file:// URLs pointing to locations within the local NFS file system: 
 </p><ul>
