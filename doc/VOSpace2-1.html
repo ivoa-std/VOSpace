@@ -108,7 +108,7 @@ Version 2.10-20140505</h1>
   Schaaff</a><br/>			<a
   href="http://www.ivoa.net/twiki/bin/view/IVOA/DougTody">Doug
   Tody</a><br/>         <a
-  href="http://www.ivoa.net/twiki/bin/view/IVOA/DougTody">Brian Major</a>
+  href="http://www.ivoa.net/twiki/bin/view/IVOA/BrianMajor">Brian Major</a>
 		</dd>
 </dl>
 <hr/></div>
@@ -1277,13 +1277,13 @@ limited to pushToVoSpace and pullFromVoSpace operations only where the
 client is requesting endpoint URLs where it can read or write data.
 </p><p>
 As an optimization, the /sync endpoint should support parameter-based
-HTTP GET transfer requests.  Instead of returning a redirect to the transferDetails,
-the GET to /sync immediately returns the endpoint for performing the data transfer.
-Since there is no job created and persisted in this process, there is very little
-error reporting that can occur.  In the case of an error, clients may wish to fall
-back to the HTTP POST to /sync and step through the entire transfer negotiation.
-This is an optimized route because it reduces two redirects that the client has to
-perform in order to start the data transfer. 
+HTTP POST transfer requests.  Instead of returning a redirect to the transfer details,
+the parameter-based request to /sync returns the transferDetails document itself.
+As a further optimzation, if the parameter name value pair REQUEST=redirect is supplied,
+the /sync endpoint should issue a redirect to the first transfer endpoint that would been
+contained in the transfer details.  In the case of an error with the optimized
+transfers, clients may wish to fall back to the HTTP POST to /sync and step through
+the entire transfer negotiation.
 </p><p>
 In addition, the following Nodes, appearing as part of a
 node-path, are reserved:
@@ -2696,15 +2696,10 @@ A transfer may also be initiated by a HTTP POST of a Job
 representation for the transfer to http://rest-endpoint/sync. The
 assumed transport protocol is HTTP GET but transfer negotiation is possible.
 </p>
-<p>There is also an alternate, optimized convenience mode (for example, for web
-browser access):</p>
-<ul><li>A HTTP GET to the /sync endpoint with transfer parameters in the query string will return the data transfer endpoint directly:
-  <ul><li>curl -d "TARGET=vos://nvo.caltech!vospace/mydata1&DIRECTION=pullFromVoSpace&PROTOCOL=ivo://ivoa.net/vospace/core#httpget" "http://localhost:8000/sync"
+<p>There is also an alternate, optimized convenience mode:</p>
+<ul><li>A HTTP GET to the /sync endpoint with transfer parameters in the query string will issue a redirect to the data transfer endpoint directly:
+  <ul><li>curl -d "TARGET=vos://nvo.caltech!vospace/mydata1&DIRECTION=pullFromVoSpace&PROTOCOL=ivo://ivoa.net/vospace/core#httpget&REQUEST=redirct" "http://localhost:8000/sync"
   </ul></ul>
-  <p>The assumed transfer protocol is HTTP GET and the View of the
-  node is its default value, i.e. no alternate Views are possible with
-  this mode. Note that no transfer
-  negotiation is possible with this convenience mode.</p>
   <p>Other values of the URL parameter "view" may be used by individual
   services for particular purposes, e.g., "view=rss" to identify a RSS
   feed on the resource.</p>
