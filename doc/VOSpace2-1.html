@@ -2364,6 +2364,18 @@ The service SHALL ignore any of the requested protocols that it does not underst
 </p><p>
 .auto is the reserved URI to indicate an auto-generated URI for the destination, i.e. vos://service/path/.auto SHALL cause a new unique URI for the node within vos://service/path to be generated. 
 </p>
+
+<p>There are also three alternate, optional modes of forming the request to the /sync endpoint</p>
+<p>
+A transfer may also be initiated by a HTTP POST of a Job representation for the transfer to http://rest-endpoint/sync in three different ways:
+<ul>
+  <li>By posting the job representation to /sync.  The service SHALL respond with a redirect to the job containing the transfer results.</li>
+  <li>By doing a parameter-based post to /sync.  The service may respond with the transfer details directly. (example below)</li>
+  <li>By doing a parameter-based post to /sync with additional parameter REQUEST=redirect.  The service may respond with a redirect to a preferred transfer endpoint. (example below)
+      (Note, however, that since the client wishes to PUT data, the redirect cannot simply be followed, but needs to be read explicitly.)</li>
+</ul> 
+</p>
+
 <p>There is also an alternate convenience mode:</p>
 <ul><li>A HTTP POST of a Job representation for the transfer to
   http://rest-endpoint/sync
@@ -2550,6 +2562,56 @@ the URL reported in the result element:</p>
 <div class="exampleWrapper">
 <p>The FITS image can then be uploaded to the specified HTTP endpoint.</p>
 </div></div>
+<br/>
+<div class="exampleOuter">
+<div class="exampleHeader">Optimized example: pushToVoSpace over /sync</div>
+  <div class="exampleWrapper">
+<pre>
+ <b>curl -v -X POST -d \
+     "TARGET=vos://nvo.caltech!vospace/mydata1? \
+     DIRECTION=pushToVoSpace& \
+     PROTOCOL=ivo://ivoa.net/vospace/core#httpput" \
+     "http://localhost:8000/synctransfers"</b></pre>
+
+</div><div class="exampleInner" style="background-color: rgb(213, 222, 227);">
+<pre>* Connected to localhost (127.0.0.1) port 8000 (#0)
+
+> POST /synctransfers HTTP/1.1
+> User-Agent: curl/7.19.7 (universal-apple-darwin10.0) libcurl/7.19.7 OpenSSL/0.9.8r zlib/1.2.3
+> Host: localhost:8000
+> Accept: */*
+> Content-Length: 477
+> Content-Type: text/html
+>
+< HTTP/1.1 303 See Other
+< Date: Fri, 06 Jun 2014 18:18:08 GMT
+< Location: http://localhost:8000/datastore/mydata
+
+
+> POST /synctransfers HTTP/1.1
+> User-Agent: curl/7.19.4 (universal-apple-darwin10.0) libcurl/7.19.4 OpenSSL/0.9.8l zlib/1.2.3
+> Host: localhost:8000
+> Accept: */*
+> 
+< HTTP/1.1 200 OK
+< Date: Fri, 12 Mar 2010 22:46:17 GMT
+< Content-Length: 316
+< Content-Type: text/html
+< Allow: DELETE, GET, HEAD, POST, PUT
+<
+< 
+&lt;transfer>
+  &lt;target>vos://nvo.caltech!vospace/mydata1&lt;/target>
+  &lt;direction>pushToVoSpace&lt;/direction>
+  &lt;view>ivo://ivoa.net/vospace/core#fits&lt;/view>
+  &lt;protocol uri="ivo://ivoa.net/vospace/core#httpput" authType="ivo://net.ivoa/vospace/core#anon">
+    &lt;endpoint>http://localhost:8000/data/d55814f88d974c21afe5ad50e4e875c8&lt;/endpoint>
+  &lt;/protocol>
+&lt;/transfer>
+* Connection #0 to host localhost left intact
+* Closing connection #0
+</div>
+</div>
 
 	<h4><a name="sec5_4_2">5.4.2 pullToVoSpace</h4>
 <p>Import data into a VOSpace node.
@@ -2676,7 +2738,7 @@ EXECUTING
 * Closing connection #0
 </pre></div></div>
 
-<h3><a name="sec5_4_3">5.4.3 pullFromVoSpace</h3>
+<h4><a name="sec5_4_3">5.4.3 pullFromVoSpace</h4>
 <p>Request a set of URLs that the client can read data from.</p>
 
 <p>The client requests access to the data in a Node, and the server SHALL respond with a set of 
@@ -2692,17 +2754,16 @@ The list of Protocols SHOULD not contain endpoint addresses; the service SHALL s
 The service SHALL ignore any of the requested protocols that it does not understand or is unable to support. 
 </p>
 <p>
-A transfer may also be initiated by a HTTP POST of a Job
-representation for the transfer to http://rest-endpoint/sync. The
-assumed transport protocol is HTTP GET but transfer negotiation is possible.
+A transfer may also be initiated by a HTTP POST of a Job representation for the transfer to http://rest-endpoint/sync in three different ways:
+<ul>
+  <li>By posting the job representation to /sync.  The service SHALL respond with a redirect to the job containing the transfer results.</li>
+  <li>By doing a parameter-based post to /sync.  The service may respond with the transfer details directly.</li>
+  <li>By doing a parameter-based post to /sync with additional parameter REQUEST=redirect.  The service may respond with a redirect to a preferred transfer endpoint. (example below)</li>
+</ul> 
 </p>
-<p>There is also an alternate, optimized convenience mode:</p>
-<ul><li>A HTTP GET to the /sync endpoint with transfer parameters in the query string will issue a redirect to the data transfer endpoint directly:
-  <ul><li>curl -d "TARGET=vos://nvo.caltech!vospace/mydata1&DIRECTION=pullFromVoSpace&PROTOCOL=ivo://ivoa.net/vospace/core#httpget&REQUEST=redirct" "http://localhost:8000/sync"
-  </ul></ul>
-  <p>Other values of the URL parameter "view" may be used by individual
-  services for particular purposes, e.g., "view=rss" to identify a RSS
-  feed on the resource.</p>
+
+<p>Clients may also use the "view" parameter on the getNode method.  Service may support different
+types of views for particular purposes. e.g., "view=rss" to identify a RSS feed on the resource.</p>
 
   <h5><a name="sec5_4_3_2">5.4.3.2 Response</a></h5>
 <ul><li>The initial response for the UWS mode is a HTTP 303 status code
@@ -2879,9 +2940,37 @@ service), the results can be obtained from the result endpoint:</p>
 &lt;/transfer>
 * Connection #0 to host localhost left intact
 * Closing connection #0
-</pre></div></div>
+</pre></div>
+</div>
+<br/>
+<div class="exampleOuter">
+<div class="exampleHeader">Optimized example: pullFromVoSpace over /sync</div>
+  <div class="exampleWrapper">
+<pre>
+ <b>curl -v -X POST -d \
+     "TARGET=vos://nvo.caltech!vospace/mydata1? \
+     DIRECTION=pullFromVoSpace& \
+     PROTOCOL=ivo://ivoa.net/vospace/core#httpget& \
+     REQUEST=redirect" \
+     "http://localhost:8000/synctransfers"</b></pre>
 
-<h3><a name="sec5_4_4">5.4.4 pushFromVoSpace</h3>
+</div><div class="exampleInner" style="background-color: rgb(213, 222, 227);">
+<pre>* Connected to localhost (127.0.0.1) port 8000 (#0)
+
+> POST /synctransfers HTTP/1.1
+> User-Agent: curl/7.19.7 (universal-apple-darwin10.0) libcurl/7.19.7 OpenSSL/0.9.8r zlib/1.2.3
+> Host: localhost:8000
+> Accept: */*
+> Content-Length: 477
+> Content-Type: text/html
+>
+< HTTP/1.1 303 See Other
+< Date: Fri, 06 Jun 2014 18:18:08 GMT
+< Location: http://localhost:8000/data/d27282305c6746889691e914abab9403
+</div>
+</div>
+
+<h4><a name="sec5_4_4">5.4.4 pushFromVoSpace</h4>
 <p>Ask the server to send data to a remote location.
 </p><p>
 The client supplies a list of URLs and asks the server to send the data to the remote location. 
