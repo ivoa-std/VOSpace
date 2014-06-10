@@ -1,11 +1,9 @@
-<?xml version="1.0" encoding="iso-8859-1"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 <html>
 <head>
-	<title>VOSpace 2.0 Recommendation</title>
-	<meta http-equiv="content-type" content="text/html; charset=iso-8859-1" />
-	<meta name="keywords" content="IVOA, International, Virtual, Observatory, Alliance" />
+	<title>VOSpace 2.1 Working Draft</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+	<meta name="keywords" content="IVOA, International, Virtual, Observatory, Alliance" />
 	<meta name="maintainedBy" content="IVOA Document Coordinator, ivoadoc@ivoa.net" />
 	<link rel="stylesheet" href="http://ivoa.net/misc/ivoa_rec.css" type="text/css" />
 <style type="text/css">
@@ -56,13 +54,13 @@ div.schemaHeader { font-weight: bold;
 <div class="head">
 <a href="http://www.ivoa.net/"><img alt="IVOA" src="http://www.ivoa.net/pub/images/IVOA_wb_300.jpg" width="300" height="169"/></a>
 <h1>VOSpace specification<br/>
-Version 2.00-20133029</h1>
-<h2>IVOA Recommendation 2013 March 29</h2>
+Version 2.10-20140505</h1>
+<h2>IVOA Working Draft 05 May 2014</h2>
 
 <dl>
   <dt>This version:</dt>
-  <dd><a href="http://www.ivoa.net/Documents/WD/GWS/REC-VOSpace-2.0-20130329.html">
-      http://www.ivoa.net/Documents/WD/GWS/REC-VOSpace-2.0-20130329.html</a></dd>
+  <dd><a href="http://www.ivoa.net/Documents/WD/GWS/WD-VOSpace-2.1-20140505.html">
+      http://www.ivoa.net/Documents/WD/GWS/WD-VOSpace-2.1-20140505.html</a></dd>
 
   <dt>Latest version:</dt>
 
@@ -70,6 +68,8 @@ Version 2.00-20133029</h1>
       http://www.ivoa.net/Documents/latest/VOSpace-2.0.html</a></dd>
 
   <dt>Previous versions:</dt>
+  <dd><a href="http://www.ivoa.net/Documents/WD/GWS/REC-VOSpace-2.0-20130329.html">
+      http://www.ivoa.net/Documents/WD/GWS/REC-VOSpace-2.0-20130329.html</a></dd>
   <dd><a href="http://www.ivoa.net/Documents/WD/GWS/PR-VOSpace-2.0-20121221.html">
       http://www.ivoa.net/Documents/WD/GWS/PR-VOSpace-2.0-20121221.html</a></dd>
   <dd><a href="http://www.ivoa.net/Documents/WD/GWS/PR-VOSpace-2.0-20120824.html">
@@ -106,13 +106,18 @@ Version 2.00-20133029</h1>
 		  					<a
   href="http://www.ivoa.net/twiki/bin/view/IVOA/AndreSchaaff">Andre
   Schaaff</a><br/>			<a
-  href="http://www.ivoa.net/twiki/bin/view/IVOA/DougTody">Doug Tody</a>
+  href="http://www.ivoa.net/twiki/bin/view/IVOA/DougTody">Doug
+  Tody</a><br/>         <a
+  href="http://www.ivoa.net/twiki/bin/view/IVOA/BrianMajor">Brian Major</a>
 		</dd>
 </dl>
 <hr/></div>
 
 <h2><a name="abstract" id="abstract">Abstract</a></h2>
-<p>VOSpace is the IVOA interface to distributed storage. This specification presents the first RESTful version of the interface, which is functionally equivalent to the SOAP-based VOSpace 1.1 specification. Note that all prior VOSpace clients will not work with this new version of the interface.</p>
+<p>VOSpace is the IVOA interface to distributed storage. This specification presents the second RESTful version of the interface.  Except for minor
+additions to the 2.1 specification, it is functionally equivalent to the SOAP-based VOSpace 1.1 specification. Note that all 1.x VOSpace clients
+will not work with this new version of the interface.  Clients and services written for VOSpace 2.1 will interoperate with 2.0 clients and services,
+however 2.0 clients and services are incompatible with the 2.1 specification.</p>
 
 <div class="status">
 <h2><a name="status" id="status">Status of this Document</a></h2>
@@ -138,10 +143,9 @@ It is appropriate to reference this document only as a recommended standard that
 
 <!--Recommendation
 -->
-<p>This document has been produced by the IVOA Grid and Web Services Working Group.<br/>
-It has been reviewed by IVOA Members and other interested parties, and has been endorsed by the IVOA Executive Committee as an IVOA Recommendation.
-It is a stable document and may be used as reference material or cited as a normative reference from another document. IVOA's role in making the Recommendation is to draw attention to the specification and to promote its widespread deployment.
-This enhances the functionality and interoperability inside the Astronomical Community.</p>
+<p>This is an IVOA Working Draft for review by IVOA members and other interested parties.<br/>
+It is a draft document and may be updated, replaced, or obsoleted by other documents at any time.
+It is inappropriate to use IVOA Working Drafts as reference materials or to cite them as other than work in progress.</p>
 
 A list of <a href="http://www.ivoa.net/Documents/">current IVOA Recommendations and other technical documents</a> can be found at http://www.ivoa.net/Documents/.
 
@@ -250,8 +254,8 @@ Each data object within a VOSpace service is represented as a node and has a des
 
 Nodes in VOSpace have unique identifiers expressed as URIs in the 'vos' scheme, as defined below. </p><p>
 
-VOSpace 2.0 does not introduce any new functionality to that already
-offered by prior (SOAP-based) versions of the interface (<a href="#VOSpace11">VOSpace 1.1</a>) but defines a RESTful binding for the interface. 
+VOSpace 2.0 did not introduce any new functionality to that already
+offered by prior (SOAP-based) versions of the interface (<a href="#VOSpace11">VOSpace 1.1</a>) but defines a RESTful binding for the interface.  VOSpace 2.1 introduces minor, backward compatible functional changes to VOSpace 2.0.
 </p>
 
 <h3><a name="sec1_1">1.1 Typical use of a VOSpace service</a></h3>
@@ -263,10 +267,10 @@ this will be the HTTP identifier for the data file in the VOSpace,
 e.g. http://nvo.caltech.edu/vospace/myData/table123. The description
 will resemble this:</p>
 <pre>
-&lt;node xmlns="http://www.ivoa.net/xml/VOSpaceTypes-v2.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-	uri="vos://nvo.caltech!vospace/mytable1"
-	xsi:type="vost:UnstructuredDataNode">  
+&lt;node xmlns="http://www.ivoa.net/xml/VOSpaceTypes-v2.1"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+    uri="vos://nvo.caltech!vospace/mytable1"
+    xsi:type="vost:UnstructuredDataNode">  
     &lt;properties> 
         &lt;property uri="ivo://ivoa.net/vospace/core#mimetype">text/xml&lt;/property>     
     &lt;/properties> 
@@ -277,7 +281,8 @@ The service will reply with an amended version of the representation containing 
 </p><p>
 The user will then describe the data format (the view) they want to use in uploading the file, e.g. VOTable, and the transport protocol (the protocol) that they want to employ to upload the file, e.g. HTTP PUT. This will result in the HTTP POSTing of a XML description of the transfer request to the appropriate VOSpace URI, e.g. http://nvo.caltech.edu/vospace/myData/table123/transfers. The description will resemble this:
 </p><pre>
-&lt;transfer xmlns="http://www.ivoa.net/xml/VOSpaceTypes-v2.0">
+&lt;transfer xmlns="http://www.ivoa.net/xml/VOSpace/v2.1">
+    &lt;target>vos://nvo.caltech!vospace/mytable1&lt;/target>
     &lt;direction>pushToVoSpace&lt;/direction> 
     &lt;view uri="ivo://ivoa.net/vospace/core#votable"/> 
     &lt;protocol uri="ivo://ivoa.net/vospace/core#http-put"/>  
@@ -292,7 +297,8 @@ about VOSpace - it is only concerned with the server-side management of data sto
 </p><p>
 Similarly, when a user wants to retrieve a data file from a VOSpace service, they will specify the data format (view) they want to use in downloading the file, e.g. VOTable, and the transport protocol (the protocol) that they want to employ to download the file, e.g. HTTP GET, and HTTP POST a XML description of this transfer request to the appropriate VOSpace URI - the transfer URI for the node in the VOSpace, e.g. http://nvo.caltech.edu/vospace/myDataNode/table123/transfers. The description will resemble this:
 </p><pre>
-&lt;transfer xmlns="http://www.ivoa.net/xml/VOSpaceTypes-v2.0">
+&lt;transfer xmlns="http://www.ivoa.net/xml/VOSpace/v2.1">
+    &lt;target>vos://nvo.caltech!vospace/mytable1&lt;/target>
     &lt;direction>pullFromVoSpace&lt;/direction> 
     &lt;view uri="ivo://ivoa.net/vospace/core#votable"/> 
     &lt;protocol uri="ivo://ivoa.net/vospace/core#httpget"/>  
@@ -363,7 +369,7 @@ In <a href="#appA">Appendix A</a>, we formally define the VOSpace
   interface with a machine readable description of its requests and
   responses and in <a href="#appB">Appendix B</a>, we present a
   compliance matrix listing the mandatory behaviour required of a valid
-  VOSpace 2.0 service.
+  VOSpace 2.1 service.
 </p>
 
 
@@ -425,7 +431,7 @@ node in a specific VOSpace service.
 </p>
 
 <p>
-The standardID for this specification SHALL be: ivo://ivoa.net/std/VOSpace/v2.0.
+The standardID for this specification SHALL be: ivo://ivoa.net/std/VOSpace/v2.1.
 </p>
 
 <h3><a name="sec2_1">2.1 Identifier resolution</a></h3>
@@ -912,6 +918,7 @@ Using an IVO registry URI to identify Views has two main advantages :
 <p>A ViewDescription MAY have the following optional members:</p> 
 <ul>
 <li> MimeType : the standard MIME type of the View, if applicable 
+<li> Parameters : a list of required and option parameters the view accepts, if applicable
 </ul><p>
 However, at the time of writing, the schema for registering
 ViewDescriptions in the IVO registry has not been finalized.</p>
@@ -956,7 +963,7 @@ within the service.
 Note, this view is only valid for the data export operations, pullFromVoSpace and pushFromVoSpace. If this view is requested in an import operation, pullToVoSpace and pushToVoSpace, then the service SHOULD throw a ViewNotSupported fault.
 </p>
 <h4><a name="sec3_4_5">3.4.5 Container views</a></h4>
-<p>In VOSpace 2.0, a view of a ContainerNode describes the data representation (format) of a file or data stream that represents the combined contents of the node and its children. If the view describes an archive format (tar, zip, etc.) then a service that accepts this view (format) for a ContainerNode SHALL provide access to the archive contents as children nodes of the container. Whether or not the service actually unpacks the archive is implementation dependent but the service SHALL behave as though it has done so. For example, a client may want to upload a tar file containing several images to a VOSpace service. If they associate it with (upload it to) a (Un)structuredDataNode then it will be treated as a blob and its contents will be not be available. However, if they upload it to a ContainerNode with an accepts view of "tar" then the image files within the tar file will be represented as children nodes of the ContainerNode and accessible like any other data object within the space.
+<p>In VOSpace 2.1, a view of a ContainerNode describes the data representation (format) of a file or data stream that represents the combined contents of the node and its children. If the view describes an archive format (tar, zip, etc.) then a service that accepts this view (format) for a ContainerNode SHALL provide access to the archive contents as children nodes of the container. Whether or not the service actually unpacks the archive is implementation dependent but the service SHALL behave as though it has done so. For example, a client may want to upload a tar file containing several images to a VOSpace service. If they associate it with (upload it to) a (Un)structuredDataNode then it will be treated as a blob and its contents will be not be available. However, if they upload it to a ContainerNode with an accepts view of "tar" then the image files within the tar file will be represented as children nodes of the ContainerNode and accessible like any other data object within the space.
 </p><p>
 If a service provides an archive format (tar, zip, etc.) view of a ContainerNode then the service SHALL package the contents of the container and all its child nodes in the specified format.</p>
 <h3><a name="sec3_5">3.5 Protocols</a></h3>
@@ -966,9 +973,18 @@ A Protocol representation SHALL have the following members:
 </p><ul>
 <li> <i>uri</i>: the Protocol identifier 
 <li> <i>endpoint</i>: the endpoint URL to use for the data transfer 
-<li> <i>param</i>: A list of name-value pairs that specify any
   additional arguments required for the transfer
   </ul>
+<p>A protocol representation MAY have the following members:
+</p><ul>
+<li> <i>param</i>: A list of name-value pairs that specify any
+  additional arguments requried for the transfer
+<li> <i>authType</i> The requested type of authentication method
+    to be used
+  </ul>
+<p>Note: <i>endpoint</i> will only contain a value after the response
+from the service is received.
+</p>
 <h4><a name="sec3_2_3_1">3.5.1 Protocol identifiers</a></h4>
 <p>Every new type of Protocol requires a unique URI to identify the Protocol and how to use it. </p>
 
@@ -1017,15 +1033,22 @@ If the client can resolve the Protocol identifier into a description, then the c
 </p><ul>
 <li> Download using standard HTTP GET 
 </ul>
-<h4><a name="sec3_5_3">3.5.3 Standard protocols</a></h4>
+<h4><a name="sec3_5_3">3.5.3 Standard protocols and authentication types</a></h4>
 <p>Protocol URIs and ProtocolDescriptions for the core set of standard transport protocols are registered under a StandardKeyEnumeration resource [VOStd] in the IVOA registry with the resource identifier ivo://ivoa.net/vospace/core. The following URIs SHALL be used to represent the standard protocols:</p>
 <ul>
 <li> ivo://ivoa.net/vospace/core#httpget SHALL be used as the protocol URI for a HTTP GET transfer
 <li> ivo://ivoa.net/vospace/core#httpput SHALL be used as the protocol URI for a HTTP PUT transfer
 </ul><p>
+<p>AuthenticationType URIs and AuthenticationTypeDescriptions for the core set of standard authentication types are registered under a StandardKeyEnumeration resource [VOStd] in the IVOA registry with the resource identifier ivo://ivoa.net/vospace/core. The following URIs SHALL be used to represent the standard authentication types:</p>
+<ul>
+<li> ivo://ivoa.net/vospace/core#anon SHALL be used as the authentication type URI for no client authentication
+<li> ivo://ivoa.net/vospace/core#httpauth SHALL be used as the authentication type URI for HTTP userid password authentication
+<li> ivo://ivoa.net/vospace/core#x509 SHALL be used as the authentication type URI for X.509 certificate authentication
+<li> ivo://ivoa.net/vospace/core#cookie SHALL be used as the authentication type URI for session-based cookie authentication
+</ul><p>
 However, this is not intended to be a closed list, different
 implementations are free to define and use their own transfer
-Protocols.</p>
+Protocols and authentication types.</p>
 
 <h4><a name="sec3_5_4">3.5.4 Custom protocols</a></h4>
 <p>There are several use cases where a specific VOSpace implementation may want to define and use a custom VOSpace transfer Protocol, either extending an existing Protocol, or defining a new one. </p>
@@ -1156,8 +1179,9 @@ In effect, the client is sending a list of Protocols that it (the client) wants 
  </p><p>
 The service MAY ignore Protocols with URIs that it does not recognize. 
 </p><p>
-The service selects the Protocols from the request that it is capable
-of handling, and builds a Transfer results response containing the selected Protocol elements filling in valid endpoint addresses for each of them. 
+The service selects the Protocols from the request that it is capable of handling, and builds a Transfer results response containing the selected Protocol elements filling in valid endpoint addresses for each of them. 
+</p><p>
+If available, the service may choose to consult the authType in the Protocols to construct correct endpoints.
 </p><p>
 The order of the Protocol elements in the request indicates the order of preference that the client would like to use. However, this is only a suggestion, and the server is free to use its own preferences when generating the list of Protocols in the response. 
 </p><p>
@@ -1255,6 +1279,15 @@ details for synchronous jobs resource: http://rest-endpoint/transfers/(jobid)/re
 limited to pushToVoSpace and pullFromVoSpace operations only where the
 client is requesting endpoint URLs where it can read or write data.
 </p><p>
+As an optimization, the /sync endpoint should support parameter-based
+HTTP POST transfer requests.  Instead of returning a redirect to the transfer details,
+the parameter-based request to /sync returns the transferDetails document itself.
+As a further optimzation, if the parameter name value pair REQUEST=redirect is supplied,
+the /sync endpoint should issue a redirect to the first transfer endpoint that would been
+contained in the transfer details.  In the case of an error with the optimized
+transfers, clients may wish to fall back to the HTTP POST to /sync and step through
+the entire transfer negotiation.
+</p><p>
 In addition, the following Nodes, appearing as part of a
 node-path, are reserved:
 </p>
@@ -1273,7 +1306,17 @@ ivo://ivoa.net/std/VOSpace/v2.0#&lt;resourceName>, e.g., ivo://ivoa.net/std/VOSp
 </p>
 <br/>
 <h2><a name="sec4">4 Access Control</a></h2>
-<p>[NOTE: use HTTPS with client authentication and valid X.509 certificate]
+<p>
+VOSpace implementations may support any of the following authentication methods:
+<ul>
+<li>no authentication (anonymous clients)</li>
+<li>digital signatures with X.509 client certificates</li>
+<li>user ID and password HTTP authentication</li>
+<li>cookies</li>
+</ul>
+When a client is requesting a transfer from the service, the authentication type (authType) may be supplied along side the list of transfer protocols.
+If the service supports the requested authentication type, it may use the authType information to construct the endpoint URL for data transfer, for services may
+encounter situations when the URL for data transfer will depend on the authentication type the client wished to use.
 </p><p>
 The access control policy for a VOSpace is defined by the implementor of that space according to the use cases for which the implementation is intended. 
 </p><p>
@@ -1290,7 +1333,7 @@ No operations to modify the access policy (e.g. to set permissions on an individ
 Where the access policy requires authentication of callers, the VOSpace service SHALL support one of the authentication methods defined in the IVOA Single Sign On profile. </p>
 <br/>
 <h2><a name="sec4">5 Web service operations</a></h2>
-<p>A VOSpace 2.0 service SHALL be a REST service with the following operations:
+<p>A VOSpace 2.1 service SHALL be a REST service with the following operations:
 </p><p>
 Note: The URL http://(rest-endpoint)/nodes denotes the URL of the top node in the VOSpace. The URL http://(rest-endpoint)/nodes/(path) denotes a specific node within the VOSpace.
 </p><p>
@@ -2324,6 +2367,18 @@ The service SHALL ignore any of the requested protocols that it does not underst
 </p><p>
 .auto is the reserved URI to indicate an auto-generated URI for the destination, i.e. vos://service/path/.auto SHALL cause a new unique URI for the node within vos://service/path to be generated. 
 </p>
+
+<p>There are also three alternate modes of forming the request to the /sync endpoint</p>
+<p>
+A transfer may also be initiated by a HTTP POST of a Job representation for the transfer to http://rest-endpoint/sync in three different ways:
+<ul>
+  <li>By posting the job representation to /sync.  The service SHALL respond with a redirect to the job containing the transfer results.</li>
+  <li>By doing a parameter-based post to /sync.  The service may respond with the transfer details directly. (Optional. Example below)</li>
+  <li>By doing a parameter-based post to /sync with additional parameter REQUEST=redirect.  The service may respond with a redirect to a preferred transfer endpoint. (Optional.
+   (Note, however, because the client wishes to PUT data, the redirect cannot simply be followed, but needs to be read explicitly.)</li>
+</ul> 
+</p>
+
 <p>There is also an alternate convenience mode:</p>
 <ul><li>A HTTP POST of a Job representation for the transfer to
   http://rest-endpoint/sync
@@ -2407,8 +2462,8 @@ http://rest-endpoint/transfers/(jobid)/error.</p>
 &lt;vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.0">   
   &lt;vos:target>vos://nvo.caltech!vospace/mydata1&lt;/vos:target>
   &lt;vos:direction>pushToVoSpace&lt;/vos:direction>
-  &lt;vos:view>ivo://net.ivoa/vospace/core#fits&lt;/vos:view>
-  &lt;vos:protocol uri="ivo://net.ivoa/vospace/core#httpput"/>
+  &lt;vos:view uri="ivo://net.ivoa/vospace/core#fits"/>
+  &lt;vos:protocol uri="ivo://net.ivoa/vospace/core#httpput" authType="ivo://net.ivoa/vospace/core#anon"/>
 &lt;/vos:transfer>
 </pre>	
 <pre>
@@ -2465,8 +2520,8 @@ This resource can be found at <a href='http://localhost:8000/transfers/fd5cf0cb1
     &lt;vos:transfer>   
       &lt;vos:target>vos://nvo.caltech!vospace/mydata1&lt;/vos:target>
       &lt;vos:direction>pushToVoSpace&lt;/vos:direction>
-      &lt;vos:view>ivo://net.ivoa/vospace/core#fits&lt;/vos:view>
-      &lt;vos:protocol uri="ivo://net.ivoa/vospace/core#httpput"/>
+      &lt;vos:view uri="ivo://net.ivoa/vospace/core#fits"/>
+      &lt;vos:protocol uri="ivo://net.ivoa/vospace/core#httpput" authType="ivo://net.ivoa/vospace/core#anon"/>
     &lt;/vos:transfer>
   &lt;uws:jobInfo>
   &lt;uws:results>
@@ -2500,7 +2555,7 @@ the URL reported in the result element:</p>
   &lt;target>vos://nvo.caltech!vospace/mydata1&lt;/target>
   &lt;direction>pushToVoSpace&lt;/direction>
   &lt;view>ivo://ivoa.net/vospace/core#fits&lt;/view>
-  &lt;protocol uri="ivo://ivoa.net/vospace/core#httpput">
+  &lt;protocol uri="ivo://ivoa.net/vospace/core#httpput" authType="ivo://net.ivoa/vospace/core#anon">
     &lt;endpoint>http://localhost:8000/data/d55814f88d974c21afe5ad50e4e875c8&lt;/endpoint>
   &lt;/protocol>
 &lt;/transfer>
@@ -2510,6 +2565,56 @@ the URL reported in the result element:</p>
 <div class="exampleWrapper">
 <p>The FITS image can then be uploaded to the specified HTTP endpoint.</p>
 </div></div>
+<br/>
+<div class="exampleOuter">
+<div class="exampleHeader">Optimized example: pushToVoSpace over /sync</div>
+  <div class="exampleWrapper">
+<pre>
+ <b>curl -v -X POST -d \
+     "TARGET=vos://nvo.caltech!vospace/mydata1? \
+     DIRECTION=pushToVoSpace& \
+     PROTOCOL=ivo://ivoa.net/vospace/core#httpput" \
+     "http://localhost:8000/sync"</b></pre>
+
+</div><div class="exampleInner" style="background-color: rgb(213, 222, 227);">
+<pre>* Connected to localhost (127.0.0.1) port 8000 (#0)
+
+> POST /synctransfers HTTP/1.1
+> User-Agent: curl/7.19.7 (universal-apple-darwin10.0) libcurl/7.19.7 OpenSSL/0.9.8r zlib/1.2.3
+> Host: localhost:8000
+> Accept: */*
+> Content-Length: 477
+> Content-Type: text/html
+>
+< HTTP/1.1 303 See Other
+< Date: Fri, 06 Jun 2014 18:18:08 GMT
+< Location: http://localhost:8000/datastore/mydata
+
+
+> POST /synctransfers HTTP/1.1
+> User-Agent: curl/7.19.4 (universal-apple-darwin10.0) libcurl/7.19.4 OpenSSL/0.9.8l zlib/1.2.3
+> Host: localhost:8000
+> Accept: */*
+> 
+< HTTP/1.1 200 OK
+< Date: Fri, 12 Mar 2010 22:46:17 GMT
+< Content-Length: 316
+< Content-Type: text/html
+< Allow: DELETE, GET, HEAD, POST, PUT
+<
+< 
+&lt;transfer>
+  &lt;target>vos://nvo.caltech!vospace/mydata1&lt;/target>
+  &lt;direction>pushToVoSpace&lt;/direction>
+  &lt;view>ivo://ivoa.net/vospace/core#fits&lt;/view>
+  &lt;protocol uri="ivo://ivoa.net/vospace/core#httpput" authType="ivo://net.ivoa/vospace/core#anon">
+    &lt;endpoint>http://localhost:8000/data/d55814f88d974c21afe5ad50e4e875c8&lt;/endpoint>
+  &lt;/protocol>
+&lt;/transfer>
+* Connection #0 to host localhost left intact
+* Closing connection #0
+</div>
+</div>
 
 	<h4><a name="sec5_4_2">5.4.2 pullToVoSpace</h4>
 <p>Import data into a VOSpace node.
@@ -2582,7 +2687,7 @@ http://rest-endpoint/transfers/(jobid)/error.</p>
 &lt;vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.0">
   &lt;vos:target>vos://nvo.caltech!vospace/mydata1&lt;/vos:target>
   &lt;vos:direction>pullToVoSpace&lt;/vos:direction>
-  &lt;vos:view>ivo://ivoa.net/vospace/core#fits&lt;/vos:view>
+  &lt;vos:view uri="ivo://ivoa.net/vospace/core#fits"/>
   &lt;vos:protocol uri="ivo://ivoa.net/vospace/core#httpget">
     &lt;vos:protocolEndpoint>http://some.server.com/here/is/the/data&lt;/vos:protocolEndpoint>
     &lt;/vos:protocol>
@@ -2636,7 +2741,7 @@ EXECUTING
 * Closing connection #0
 </pre></div></div>
 
-<h3><a name="sec5_4_3">5.4.3 pullFromVoSpace</h3>
+<h4><a name="sec5_4_3">5.4.3 pullFromVoSpace</h4>
 <p>Request a set of URLs that the client can read data from.</p>
 
 <p>The client requests access to the data in a Node, and the server SHALL respond with a set of 
@@ -2652,23 +2757,16 @@ The list of Protocols SHOULD not contain endpoint addresses; the service SHALL s
 The service SHALL ignore any of the requested protocols that it does not understand or is unable to support. 
 </p>
 <p>
-A transfer may also be initiated by a HTTP POST of a Job
-representation for the transfer to http://rest-endpoint/sync. The
-assumed transport protocol is HTTP GET but transfer negotiation is possible.
+A transfer may also be initiated by a HTTP POST of a Job representation for the transfer to http://rest-endpoint/sync in three different ways:
+<ul>
+  <li>By posting the job representation to /sync.  The service SHALL respond with a redirect to the job containing the transfer results.</li>
+  <li>By doing a parameter-based post to /sync. (Optional.)</li>
+  <li>By doing a parameter-based post to /sync with additional parameter REQUEST=redirect. (Optional.)</li>
+</ul> 
 </p>
-<p>There is also an alternate convenience mode (for example, for web
-browser access):</p>
-<ul><li>A HTTP GET to the node URL that wants to be read with a
-  parameter of "view = data":
-  <ul><li>http://rest-endpoint/nodes/path?view=data
-  </ul></ul>
-  <p>The assumed transfer protocol is HTTP GET and the View of the
-  node is its default value, i.e. no alternate Views are possible with
-  this mode. Note that no transfer
-  negotiation is possible with this convenience mode.</p>
-  <p>Other values of the URL parameter "view" may be used by individual
-  services for particular purposes, e.g., "view=rss" to identify a RSS
-  feed on the resource.</p>
+
+<p>Clients may also use the "view" parameter on the getNode method.  Service may support different
+types of views for particular purposes. e.g., "view=rss" to identify a RSS feed on the resource.</p>
 
   <h5><a name="sec5_4_3_2">5.4.3.2 Response</a></h5>
 <ul><li>The initial response for the UWS mode is a HTTP 303 status code
@@ -2697,25 +2795,20 @@ element in the Results List SHALL have an id of "transferDetails":</p>
 &lt; /uws:job>
 </pre>
 <p>
-If the transfer was initiated with a HTTP POST to
-http://rest-endpoint/sync then the response is:
+If the transfer was initiated with a HTTP POST to http://rest-endpoint/sync then the response is:
 <ul><li>A HTTP 303 status code with the Location
   header keyword assigned to the endpoint: http://rest-endpoint/transfers/(jobid)/results/transferDetails.
 </ul>
 The HTTP 303 redirect points to a transfer representation with the
 required transfer details and endpoints.
 </p>
-<p>For the alternate convenience mode (HTTP GET to the node):</p>
-<ul><li>A direct byte stream for the node</ul>
-<p>or</p>
-<ul>  
-  <li>A HTTP 303 status code with the Location header keyword assigned
-  to an endpoint where a direct byte stream can be obtained
-  </ul>
-  <p>Although HTTP GET is the assumed transfer protocol in this mode,
-  the HTTP 303 redirect could point to a endpoint supported by an
-  alternate transfer protocol, i.e. a FTP endpoint. The client can
-  check for this on the scheme returned URI.</p> 
+<p>
+If the transfer was initiated with a HTTP POST to http://rest-rendpoint/sync with transfer information TARGET,
+DIRECTION, and PROTOCOL supplied as query string parameters, the service may respond with the transfer details
+directly.  If the parameter REQUEST=redirect is also provided in this POST, then the service
+may respond with a redirect to a preferred endpoint (example below).
+</p>
+
 <h5><a name="sec5_4_3_3">5.4.3.3 Faults</a></h5>
 <p>For all faults using the UWS mode, the service shall set the PHASE to "ERROR" in the Job
 representation. The &lt;errorSummary&gt; element in the Job representation
@@ -2758,8 +2851,8 @@ http://rest-endpoint/transfers/(jobid)/error.</p>
 &lt;vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.0">
   &lt;vos:target>vos://nvo.caltech!vospace/mydata1&lt;/vos:target>
   &lt;vos:direction>pullFromVoSpace&lt;/vos:direction>
-  &lt;vos:view>ivo://ivoa.net/vospace/core#defaultview&lt;/vos:view>
-  &lt;vos:protocol uri="ivo://ivoa.net/vospace/core#httpget"/>
+  &lt;vos:view uri="ivo://ivoa.net/vospace/core#defaultview"/>
+  &lt;vos:protocol uri="ivo://ivoa.net/vospace/core#httpget" authType="ivo://net.ivoa/vospace/core#anon"/>
   &lt;vos:protocol uri="ivo://ivoa.net/vospace/core#ftpget"/>
 &lt;/vos:transfer>
 </pre>
@@ -2835,8 +2928,8 @@ service), the results can be obtained from the result endpoint:</p>
 &lt;transfer>
   &lt;target>vos://nvo.caltech!vospace/mydata1&lt;/target>
   &lt;direction>pullFromVoSpace&lt;/direction>
-  &lt;view>ivo://ivoa.net/vospace/core#defaultview&lt;/view>
-  &lt;protocol uri="ivo://ivoa.net/vospace/core#httpget">
+  &lt;view uri="ivo://ivoa.net/vospace/core#defaultview"/>
+  &lt;protocol uri="ivo://ivoa.net/vospace/core#httpget" authType="ivo://net.ivoa/vospace/core#anon">
     &lt;endpoint>http://localhost:8000/data/d27282305c6746889691e914abab9403&lt;/endpoint>
   &lt;/protocol>
   &lt;protocol uri="ivo://ivoa.net/vospace/core#ftpget">
@@ -2845,9 +2938,37 @@ service), the results can be obtained from the result endpoint:</p>
 &lt;/transfer>
 * Connection #0 to host localhost left intact
 * Closing connection #0
-</pre></div></div>
+</pre></div>
+</div>
+<br/>
+<div class="exampleOuter">
+<div class="exampleHeader">Optimized example: pullFromVoSpace over /sync</div>
+  <div class="exampleWrapper">
+<pre>
+ <b>curl -v -X POST -d
+     "TARGET=vos://nvo.caltech!vospace/mydata1&
+     DIRECTION=pullFromVoSpace&
+     PROTOCOL=ivo://ivoa.net/vospace/core#httpget& 
+     REQUEST=redirect"
+     "http://localhost:8000/sync"</b></pre>
 
-<h3><a name="sec5_4_4">5.4.4 pushFromVoSpace</h3>
+</div><div class="exampleInner" style="background-color: rgb(213, 222, 227);">
+<pre>* Connected to localhost (127.0.0.1) port 8000 (#0)
+
+> POST /synctransfers HTTP/1.1
+> User-Agent: curl/7.19.7 (universal-apple-darwin10.0) libcurl/7.19.7 OpenSSL/0.9.8r zlib/1.2.3
+> Host: localhost:8000
+> Accept: */*
+> Content-Length: 477
+> Content-Type: text/html
+>
+< HTTP/1.1 303 See Other
+< Date: Fri, 06 Jun 2014 18:18:08 GMT
+< Location: http://localhost:8000/data/d27282305c6746889691e914abab9403
+</div>
+</div>
+
+<h4><a name="sec5_4_4">5.4.4 pushFromVoSpace</h4>
 <p>Ask the server to send data to a remote location.
 </p><p>
 The client supplies a list of URLs and asks the server to send the data to the remote location. 
@@ -3001,6 +3122,16 @@ COMPLETED
 <br/>
 
 <h2><a name="sec4">6 Changes since last version</a></h2>
+
+<h4> From version 2.0-20130329 (in progress): </h4>
+<ul>
+  <li> Addition of optimized HTTP GET method of data transfer for pushToVoSpace, pullFromVoSpace
+  <li> Addition of authType to Protocol in XML schema for transfer negotiation.
+  <li> Added preliminary list of standard authType URIs
+  <li> Removed view=data convenience method of data transfer
+  <li> Corrections to minor XML format errors in the examples throughout the document. 
+</ul>
+
 <h4> From version 2.00-20120824: </h4>
 <ul>
   <li> Use of Resource Idenfifier and CDP in Architecture diagram clarified.
@@ -3421,6 +3552,13 @@ the following XML Schema:</p></div>
           &lt;/xsd:annotation>
         &lt;/xsd:element>
       &lt;/xsd:sequence>
+      &lt;/xsd:attribute name="authType" type="xsd:anyURI" minOccurs="0" maxOccurs="unbounded" nillable="true">
+        &lt;xsd:annotation>
+          &lt;xsd:documentation>
+            The supported authentication type(s).
+          &lt;/xsd:documentation>
+        &lt;/xsd:annotation>
+      &lt;/xsd:attribute>
       &lt;xsd:attribute name="uri" type="xsd:anyURI" use="required">
       &lt;xsd:annotation>
         &lt;xsd:documentation>
@@ -3676,8 +3814,8 @@ and optional <i>readonly</i> flag</td><td>3.2 </td></tr>
 <tr><td>25</td><td>An archive format <i>View</i> specified in a data
   export operation on a <i>ContainerNode</i> will package the contents
 of the container and all its child nodes</td><td> 3.4.5<sup>*</sup></td></tr>
-<tr><td>26</td><td>A <i>Protocol</i> has elements: <i>uri,
-  endpoint</i>< and <i>param</i> </i> </td><td>3.5 </td></tr>
+<tr><td>26</td><td>A <i>Protocol</i> has elements: <i>uri</i> and
+  and <i>endpoint</i></td><td>3.5 </td></tr>
 <tr><td>27</td><td>Standard protocols are represented by the specified
 URIs</td><td>3.5.3 </td></tr>
 <tr><td>28</td><td>A <i>Transfer</i> UWS Job representation has elements: <i>target,
