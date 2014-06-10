@@ -114,7 +114,10 @@ Version 2.10-20140505</h1>
 <hr/></div>
 
 <h2><a name="abstract" id="abstract">Abstract</a></h2>
-<p>VOSpace is the IVOA interface to distributed storage. This specification presents the first RESTful version of the interface, which is functionally equivalent to the SOAP-based VOSpace 1.1 specification. Note that all prior VOSpace clients will not work with this new version of the interface.</p>
+<p>VOSpace is the IVOA interface to distributed storage. This specification presents the second RESTful version of the interface.  Except for minor
+additions to the 2.1 specification, it is functionally equivalent to the SOAP-based VOSpace 1.1 specification. Note that all 1.x VOSpace clients
+will not work with this new version of the interface.  Clients and services written for VOSpace 2.1 will interoperate with 2.0 clients and services,
+however 2.0 clients and services are incompatible with the 2.1 specification.</p>
 
 <div class="status">
 <h2><a name="status" id="status">Status of this Document</a></h2>
@@ -2365,14 +2368,14 @@ The service SHALL ignore any of the requested protocols that it does not underst
 .auto is the reserved URI to indicate an auto-generated URI for the destination, i.e. vos://service/path/.auto SHALL cause a new unique URI for the node within vos://service/path to be generated. 
 </p>
 
-<p>There are also three alternate, optional modes of forming the request to the /sync endpoint</p>
+<p>There are also three alternate modes of forming the request to the /sync endpoint</p>
 <p>
 A transfer may also be initiated by a HTTP POST of a Job representation for the transfer to http://rest-endpoint/sync in three different ways:
 <ul>
   <li>By posting the job representation to /sync.  The service SHALL respond with a redirect to the job containing the transfer results.</li>
-  <li>By doing a parameter-based post to /sync.  The service may respond with the transfer details directly. (example below)</li>
-  <li>By doing a parameter-based post to /sync with additional parameter REQUEST=redirect.  The service may respond with a redirect to a preferred transfer endpoint. (example below)
-      (Note, however, that since the client wishes to PUT data, the redirect cannot simply be followed, but needs to be read explicitly.)</li>
+  <li>By doing a parameter-based post to /sync.  The service may respond with the transfer details directly. (Optional. Example below)</li>
+  <li>By doing a parameter-based post to /sync with additional parameter REQUEST=redirect.  The service may respond with a redirect to a preferred transfer endpoint. (Optional.
+   (Note, however, because the client wishes to PUT data, the redirect cannot simply be followed, but needs to be read explicitly.)</li>
 </ul> 
 </p>
 
@@ -2571,7 +2574,7 @@ the URL reported in the result element:</p>
      "TARGET=vos://nvo.caltech!vospace/mydata1? \
      DIRECTION=pushToVoSpace& \
      PROTOCOL=ivo://ivoa.net/vospace/core#httpput" \
-     "http://localhost:8000/synctransfers"</b></pre>
+     "http://localhost:8000/sync"</b></pre>
 
 </div><div class="exampleInner" style="background-color: rgb(213, 222, 227);">
 <pre>* Connected to localhost (127.0.0.1) port 8000 (#0)
@@ -2757,8 +2760,8 @@ The service SHALL ignore any of the requested protocols that it does not underst
 A transfer may also be initiated by a HTTP POST of a Job representation for the transfer to http://rest-endpoint/sync in three different ways:
 <ul>
   <li>By posting the job representation to /sync.  The service SHALL respond with a redirect to the job containing the transfer results.</li>
-  <li>By doing a parameter-based post to /sync.  The service may respond with the transfer details directly.</li>
-  <li>By doing a parameter-based post to /sync with additional parameter REQUEST=redirect.  The service may respond with a redirect to a preferred transfer endpoint. (example below)</li>
+  <li>By doing a parameter-based post to /sync. (Optional.)</li>
+  <li>By doing a parameter-based post to /sync with additional parameter REQUEST=redirect. (Optional.)</li>
 </ul> 
 </p>
 
@@ -2792,25 +2795,20 @@ element in the Results List SHALL have an id of "transferDetails":</p>
 &lt; /uws:job>
 </pre>
 <p>
-If the transfer was initiated with a HTTP POST to
-http://rest-endpoint/sync then the response is:
+If the transfer was initiated with a HTTP POST to http://rest-endpoint/sync then the response is:
 <ul><li>A HTTP 303 status code with the Location
   header keyword assigned to the endpoint: http://rest-endpoint/transfers/(jobid)/results/transferDetails.
 </ul>
 The HTTP 303 redirect points to a transfer representation with the
 required transfer details and endpoints.
 </p>
-<p>For the alternate convenience mode (HTTP GET to the node):</p>
-<ul><li>A direct byte stream for the node</ul>
-<p>or</p>
-<ul>  
-  <li>A HTTP 303 status code with the Location header keyword assigned
-  to an endpoint where a direct byte stream can be obtained
-  </ul>
-  <p>Although HTTP GET is the assumed transfer protocol in this mode,
-  the HTTP 303 redirect could point to a endpoint supported by an
-  alternate transfer protocol, i.e. a FTP endpoint. The client can
-  check for this on the scheme returned URI.</p> 
+<p>
+If the transfer was initiated with a HTTP POST to http://rest-rendpoint/sync with transfer information TARGET,
+DIRECTION, and PROTOCOL supplied as query string parameters, the service may respond with the transfer details
+directly.  If the parameter REQUEST=redirect is also provided in this POST, then the service
+may respond with a redirect to a preferred endpoint (example below).
+</p>
+
 <h5><a name="sec5_4_3_3">5.4.3.3 Faults</a></h5>
 <p>For all faults using the UWS mode, the service shall set the PHASE to "ERROR" in the Job
 representation. The &lt;errorSummary&gt; element in the Job representation
@@ -2947,12 +2945,12 @@ service), the results can be obtained from the result endpoint:</p>
 <div class="exampleHeader">Optimized example: pullFromVoSpace over /sync</div>
   <div class="exampleWrapper">
 <pre>
- <b>curl -v -X POST -d \
-     "TARGET=vos://nvo.caltech!vospace/mydata1? \
-     DIRECTION=pullFromVoSpace& \
-     PROTOCOL=ivo://ivoa.net/vospace/core#httpget& \
-     REQUEST=redirect" \
-     "http://localhost:8000/synctransfers"</b></pre>
+ <b>curl -v -X POST -d
+     "TARGET=vos://nvo.caltech!vospace/mydata1&
+     DIRECTION=pullFromVoSpace&
+     PROTOCOL=ivo://ivoa.net/vospace/core#httpget& 
+     REQUEST=redirect"
+     "http://localhost:8000/sync"</b></pre>
 
 </div><div class="exampleInner" style="background-color: rgb(213, 222, 227);">
 <pre>* Connected to localhost (127.0.0.1) port 8000 (#0)
@@ -3557,7 +3555,7 @@ the following XML Schema:</p></div>
       &lt;/xsd:attribute name="authType" type="xsd:anyURI" minOccurs="0" maxOccurs="unbounded" nillable="true">
         &lt;xsd:annotation>
           &lt;xsd:documentation>
-            The authentication types.
+            The supported authentication type(s).
           &lt;/xsd:documentation>
         &lt;/xsd:annotation>
       &lt;/xsd:attribute>
