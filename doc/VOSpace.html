@@ -2379,14 +2379,6 @@ A transfer may also be initiated by a HTTP POST of a Job representation for the 
 </ul> 
 </p>
 
-<p>There is also an alternate convenience mode:</p>
-<ul><li>A HTTP POST of a Job representation for the transfer to
-  http://rest-endpoint/sync
-  </ul>
-  <p>The assumed transfer protocol is HTTP PUT; however, transfer
-  negotiation in the usual manner is possible with this convenience mode.</p>
-
-
 <h5><a name="sec5_4_1_2">5.4.1.2 Response</a></h5>
 <ul><li>The initial response is a HTTP 303 status code with the
   Location header keyword assigned to the created job.
@@ -2579,29 +2571,15 @@ the URL reported in the result element:</p>
 </div><div class="exampleInner" style="background-color: rgb(213, 222, 227);">
 <pre>* Connected to localhost (127.0.0.1) port 8000 (#0)
 
-> POST /synctransfers HTTP/1.1
+> POST /sync HTTP/1.1
 > User-Agent: curl/7.19.7 (universal-apple-darwin10.0) libcurl/7.19.7 OpenSSL/0.9.8r zlib/1.2.3
 > Host: localhost:8000
 > Accept: */*
 > Content-Length: 477
 > Content-Type: text/html
->
-< HTTP/1.1 303 See Other
-< Date: Fri, 06 Jun 2014 18:18:08 GMT
-< Location: http://localhost:8000/datastore/mydata
-
-
-> POST /synctransfers HTTP/1.1
-> User-Agent: curl/7.19.4 (universal-apple-darwin10.0) libcurl/7.19.4 OpenSSL/0.9.8l zlib/1.2.3
-> Host: localhost:8000
-> Accept: */*
 > 
 < HTTP/1.1 200 OK
 < Date: Fri, 12 Mar 2010 22:46:17 GMT
-< Content-Length: 316
-< Content-Type: text/html
-< Allow: DELETE, GET, HEAD, POST, PUT
-<
 < 
 &lt;transfer>
   &lt;target>vos://nvo.caltech!vospace/mydata1&lt;/target>
@@ -2765,7 +2743,7 @@ A transfer may also be initiated by a HTTP POST of a Job representation for the 
 </ul> 
 </p>
 
-<p>Clients may also use the "view" parameter on the getNode method.  Service may support different
+<p>Clients may also use the "view" parameter on the getNode operation.  Services may support different
 types of views for particular purposes. e.g., "view=rss" to identify a RSS feed on the resource.</p>
 
   <h5><a name="sec5_4_3_2">5.4.3.2 Response</a></h5>
@@ -2955,7 +2933,7 @@ service), the results can be obtained from the result endpoint:</p>
 </div><div class="exampleInner" style="background-color: rgb(213, 222, 227);">
 <pre>* Connected to localhost (127.0.0.1) port 8000 (#0)
 
-> POST /synctransfers HTTP/1.1
+> POST /sync HTTP/1.1
 > User-Agent: curl/7.19.7 (universal-apple-darwin10.0) libcurl/7.19.7 OpenSSL/0.9.8r zlib/1.2.3
 > Host: localhost:8000
 > Accept: */*
