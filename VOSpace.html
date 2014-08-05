@@ -4,9 +4,9 @@
 <head>
     <title>VOSpace 2.0 Recommendation</title>
     <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
-	<meta name="keywords" content="IVOA, International, Virtual, Observatory, Alliance" />
-	<meta name="maintainedBy" content="IVOA Document Coordinator, ivoadoc@ivoa.net" />
-	<link rel="stylesheet" href="http://ivoa.net/misc/ivoa_rec.css" type="text/css" />
+    <meta name="keywords" content="IVOA, International, Virtual, Observatory, Alliance" />
+    <meta name="maintainedBy" content="IVOA Document Coordinator, ivoadoc@ivoa.net" />
+    <link rel="stylesheet" href="http://ivoa.net/misc/ivoa_rec.css" type="text/css" />
 <style type="text/css">
     .issue {background-color: yellow}
     .postponedissue {background-color: yellow}
@@ -55,13 +55,13 @@ div.schemaHeader { font-weight: bold;
 <div class="head">
 <a href="http://www.ivoa.net/"><img alt="IVOA" src="http://www.ivoa.net/pub/images/IVOA_wb_300.jpg" width="300" height="169"/></a>
 <h1>VOSpace specification<br/>
-Version 2.10-20140505</h1>
-<h2>IVOA Working Draft 05 May 2014</h2>
+Version 2.10-20140805</h1>
+<h2>IVOA Working Draft 05 Aug 2014</h2>
 
 <dl>
   <dt>This version:</dt>
-  <dd><a href="http://www.ivoa.net/Documents/WD/GWS/WD-VOSpace-2.1-20140505.html">
-      http://www.ivoa.net/Documents/WD/GWS/WD-VOSpace-2.1-20140505.html</a></dd>
+  <dd><a href="http://www.ivoa.net/Documents/WD/GWS/WD-VOSpace-2.1-20140805.html">
+      http://www.ivoa.net/Documents/WD/GWS/WD-VOSpace-2.1-20140805.html</a></dd>
 
   <dt>Latest version:</dt>
 
@@ -75,7 +75,8 @@ Version 2.10-20140505</h1>
       http://www.ivoa.net/Documents/WD/GWS/PR-VOSpace-2.0-20121221.html</a></dd>
   <dd><a href="http://www.ivoa.net/Documents/WD/GWS/PR-VOSpace-2.0-20120824.html">
       http://www.ivoa.net/Documents/WD/GWS/PR-VOSpace-2.0-20120824.html</a></dd>
-  <dd>PR: <a href="http://www.ivoa.net/Documents/WD/GWS/PR-VOSpace-2.0-20111202.html">http://www.ivoa.net/Documents/WD/GWS/PR-VOSpace-2.0-20111202.html</a></dd>
+  <dd>PR: <a href="http://www.ivoa.net/Documents/WD/GWS/PR-VOSpace-2.0-20111202.html">
+      http://www.ivoa.net/Documents/WD/GWS/PR-VOSpace-2.0-20111202.html</a></dd>
   <dd>WD: <a href="http://www.ivoa.net/Documents/WD/GWS/WD-VOSpace-2.0-20110628.html">
       http://www.ivoa.net/Documents/WD/GWS/WD-VOSpace-2.0-20110628.html</a></dd>
   <dd>WD: <a href="http://www.ivoa.net/Documents/WD/GWS/WD-VOSpace-2.0-20101112.html">
@@ -109,7 +110,8 @@ Version 2.10-20140505</h1>
   Schaaff</a><br/>			<a
   href="http://www.ivoa.net/twiki/bin/view/IVOA/DougTody">Doug
   Tody</a><br/>         <a
-  href="http://www.ivoa.net/twiki/bin/view/IVOA/BrianMajor">Brian Major</a>
+  href="http://www.ivoa.net/twiki/bin/view/IVOA/BrianMajor">Brian
+  Major</a>
 		</dd>
 </dl>
 <hr/></div>
@@ -124,7 +126,8 @@ however 2.0 clients and services are incompatible with the 2.1 specification.</p
 <h2><a name="status" id="status">Status of this Document</a></h2>
 
 <!-- Choose one of the following (and remove the rest)-->
-<!--Note-->
+
+<!-- Note-->
 <!--
 <p>This is an IVOA Note expressing suggestions from and opinions of the authors.<br/>
 It is intended to share best practices, possible approaches, or other perspectives on interoperability with the Virtual Observatory.
@@ -134,7 +137,15 @@ It is a draft document and may be updated, replaced, or obsoleted by other docum
 It is inappropriate to use IVOA Working Drafts as reference materials or to cite them as other than work in progress.</p>
 -->
 
-  <!--Proposed Recommendation
+<!-- Working Draft -->
+<!--
+<p>This is an IVOA Working Draft for review by IVOA members and other interested parties.<br/>
+It is a draft document and may be updated, replaced, or obsoleted by other documents at any time.
+It is inappropriate to use IVOA Working Drafts as reference materials or to cite them as other than work in progress.</p>
+-->
+ 
+<!-- Proposed Recommendation -->
+<!--
 <p>This is an IVOA Proposed Recommendation made available for public review.<br/>
 It is appropriate to reference this document only as a recommended standard that is under review and which may be changed before it is accepted as a full recommendation.</p>
 <p>The first release of this document was 2009 May 13 as a Working
@@ -142,7 +153,13 @@ It is appropriate to reference this document only as a recommended standard that
 </p>
 -->
 
-<!--Recommendation
+<!-- Recommendation
+-->
+<!--
+<p>This document has been produced by the IVOA Grid and Web Services Working Group.<br/>
+It has been reviewed by IVOA Members and other interested parties, and has been endorsed by the IVOA Executive Committee as an IVOA Recommendation.
+It is a stable document and may be used as reference material or cited as a normative reference from another document. IVOA's role in making the Recommendation is to draw attention to the specification and to promote its widespread deployment.
+This enhances the functionality and interoperability inside the Astronomical Community.</p> 
 -->
 <p>This is an IVOA Working Draft for review by IVOA members and other interested parties.<br/>
 It is a draft document and may be updated, replaced, or obsoleted by other documents at any time.
@@ -256,7 +273,8 @@ Each data object within a VOSpace service is represented as a node and has a des
 Nodes in VOSpace have unique identifiers expressed as URIs in the 'vos' scheme, as defined below. </p><p>
 
 VOSpace 2.0 did not introduce any new functionality to that already
-offered by prior (SOAP-based) versions of the interface (<a href="#VOSpace11">VOSpace 1.1</a>) but defines a RESTful binding for the interface.  VOSpace 2.1 introduces minor, backward compatible functional changes to VOSpace 2.0.
+offered by prior (SOAP-based) versions of the interface (<a href="#VOSpace11">VOSpace 1.1</a>) but defines a RESTful binding for the interface.
+VOSpace 2.1 introduces minor functional changes to VOSpace 2.0 addressing access control and optimizations.
 </p>
 
 <h3><a name="sec1_1">1.1 Typical use of a VOSpace service</a></h3>
