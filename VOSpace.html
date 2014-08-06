@@ -85,7 +85,6 @@ Version 2.10-20140805</h1>
       http://www.ivoa.net/Documents/GWS/WD-VOSpace-2.0-20100323.html</a></dd>
   <dd>WD: <a href="http://www.ivoa.net/Documents/GWS/WD-VOSpace-2.0-20090904.html">
       http://www.ivoa.net/Documents/GWS/WD-VOSpace-2.0-20090904.html</a></dd>
-</dl>
   <dd>WD: <a href="http://www.ivoa.net/Documents/GWS/WD-VOSpace-2.0-20090513.doc">
       http://www.ivoa.net/Documents/GWS/WD-VOSpace-2.0-20090513.doc</a></dd>
 </dl>
@@ -1064,6 +1063,7 @@ If the client can resolve the Protocol identifier into a description, then the c
 <li> ivo://ivoa.net/vospace/core#httpauth SHALL be used as the authentication type URI for HTTP userid password authentication
 <li> ivo://ivoa.net/vospace/core#x509 SHALL be used as the authentication type URI for X.509 certificate authentication
 <li> ivo://ivoa.net/vospace/core#cookie SHALL be used as the authentication type URI for session-based cookie authentication
+<li> ivo://ivoa.net/vospace/core#oauth SHALL be used as the authentication type URI for OAuth authentication
 </ul><p>
 However, this is not intended to be a closed list, different
 implementations are free to define and use their own transfer
@@ -1302,7 +1302,7 @@ As an optimization, the /sync endpoint should support parameter-based
 HTTP POST transfer requests.  Instead of returning a redirect to the transfer details,
 the parameter-based request to /sync returns the transferDetails document itself.
 As a further optimzation, if the parameter name value pair REQUEST=redirect is supplied,
-the /sync endpoint should issue a redirect to the first transfer endpoint that would been
+the /sync endpoint should issue a redirect to the first transfer endpoint that would be
 contained in the transfer details.  In the case of an error with the optimized
 transfers, clients may wish to fall back to the HTTP POST to /sync and step through
 the entire transfer negotiation.
@@ -1332,6 +1332,7 @@ VOSpace implementations may support any of the following authentication methods:
 <li>digital signatures with X.509 client certificates</li>
 <li>user ID and password HTTP authentication</li>
 <li>cookies</li>
+<li>OAuth (http://oauth.net)</li>
 </ul>
 When a client is requesting a transfer from the service, the authentication type (authType) may be supplied along side the list of transfer protocols.
 If the service supports the requested authentication type, it may use the authType information to construct the endpoint URL for data transfer, for services may
@@ -2386,18 +2387,15 @@ The service SHALL ignore any of the requested protocols that it does not underst
 </p><p>
 .auto is the reserved URI to indicate an auto-generated URI for the destination, i.e. vos://service/path/.auto SHALL cause a new unique URI for the node within vos://service/path to be generated. 
 </p>
-
-<p>There are also three alternate modes of forming the request to the /sync endpoint</p>
 <p>
-A transfer may also be initiated by a HTTP POST of a Job representation for the transfer to http://rest-endpoint/sync in three different ways:
+A transfer may also be initiated with an HTTP POST of a Job representation of the transfer to http://rest-endpoint/sync in three different ways:
 <ul>
   <li>By posting the job representation to /sync.  The service SHALL respond with a redirect to the job containing the transfer results.</li>
   <li>By doing a parameter-based post to /sync.  The service may respond with the transfer details directly. (Optional. Example below)</li>
   <li>By doing a parameter-based post to /sync with additional parameter REQUEST=redirect.  The service may respond with a redirect to a preferred transfer endpoint. (Optional.
-   (Note, however, because the client wishes to PUT data, the redirect cannot simply be followed, but needs to be read explicitly.)</li>
+   (Note that, because the client wishes to PUT data, the redirect cannot simply be followed, but needs to be read explicitly and reinitiated as a PUT)</li>
 </ul> 
 </p>
-
 <h5><a name="sec5_4_1_2">5.4.1.2 Response</a></h5>
 <ul><li>The initial response is a HTTP 303 status code with the
   Location header keyword assigned to the created job.
@@ -3120,7 +3118,7 @@ COMPLETED
 
 <h2><a name="sec4">6 Changes since last version</a></h2>
 
-<h4> From version 2.0-20130329 (in progress): </h4>
+<h4> From version 2.0-20130329: </h4>
 <ul>
   <li> Addition of optimized HTTP GET method of data transfer for pushToVoSpace, pullFromVoSpace
   <li> Addition of authType to Protocol in XML schema for transfer negotiation.
