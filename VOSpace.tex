@@ -2,6 +2,7 @@
 \input tthdefs
 
 \usepackage[utf8]{inputenc}
+\usepackage{fancyvrb}
 
 \title{VOSpace}
 
@@ -74,13 +75,18 @@ A typical use case for VOSpace is uploading a local data file to a remote VOSpac
 
 Let's consider the first sequence: the user provides a XML description of the data file which they HTTP PUT to the appropriate VOSpace URI - this will be the HTTP identifier for the data file in the VOSpace, e.g. http://nvo.caltech.edu/vospace/nodes/mytable1. The description will resemble this:
 
+\begin{Verbatim}[fontsize=\tiny]
+print "Hello, World"
+again
+\end{Verbatim}
+
 \begin{verbatim}
 <node xmlns="http://www.ivoa.net/xml/VOSpaceTypes-v2.1"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
     uri="vos://nvo.caltech!vospace/mytable1"
     xsi:type="vost:UnstructuredDataNode">  
     <properties> 
-        <property uri="ivo://ivoa.net/vospace/core#mimetype">text/xml</property>     
+        <property uri="ivo://ivoa.net/vospace/core\#mimetype">text/xml</property>     
     </properties> 
 </node> 
 \end{verbatim}
@@ -987,9 +993,9 @@ A UWS Job representation of a Search SHALL have the following parameters:
     \item \emph{detail}: The level of detail in the results
         \begin{itemize}
             \item min: The list contains the minimum detail for each Node with all optional parts removed - the node type should be returned
-            \begin{itemize}
-                \item e.g. \begin{verbatim}<node uri="vos://service/name" xsi:type="Node"/>\end{verbatim}
-            \end{itemize}
+                \begin{itemize}
+                    \item e.g. \begin{verbatim}<node uri="vos://service/name" xsi:type="Node"/>\end{verbatim}
+                \end{itemize}
             \item max : The list contains the maximum detail for each Node, including any xsi:type specific extensions
             \item properties : The list contains a basic node element with a list of properties for each Node with no xsi:type specific extensions.
         \end{itemize}
@@ -1018,6 +1024,564 @@ The representation of the results of a Search SHALL have the following members:
 \begin{itemize}
     \item \emph{nodes}: A list containing zero or more Nodes of appropriate detail identifying the target URIs meeting the search criteria
 \end{itemize}
+
+\subsection{REST bindings}
+In a REST (Representational State Transfer) binding of VOSpace, each of the objects defined below is available as a web resource with its own URI.
+
+\vspace{3mm}
+\begin{tabular}{ l p{4cm} }
+    \hline
+    /properties & the properties employed in the space \\
+    \hline
+    /views & the views employed in the space \\
+    \hline
+    /protocols & the protocols employed in the space \\
+    \hline
+    /searches & the searches of the space \\
+    \hline
+    /nodes/(node-path) & a Node under the nodes of the space \\
+    \hline
+    /transfers & the transfers for the space \\
+    \hline
+    /transfers/(job-id)/results/transferDetails & the transfer details for synchronous jobs \\
+    \hline
+\end{tabular}
+\vspace{3mm}
+
+The service implementor is free to choose the names given in parentheses above; the other names are part of the VOSpace 2.0 standard.
+
+The endpoint /sync is also defined to receive HTTP POST requests of synchronous transfer jobs. This should respond with a redirect to the transfer details for synchronous jobs resource:
+\begin{verbatim}
+http://rest-endpoint/transfers/(jobid)/results/transferDetails
+\end{verbatim}
+Synchronous transfers are limited to pushToVoSpace and pullFromVoSpace operations only where the client is requesting endpoint URLs where it can read or write data.
+
+As an optimization, the /sync endpoint should support parameter-based HTTP POST transfer requests. Instead of returning a redirect to the transfer details, the parameter-based request to /sync returns the transferDetails document itself. As a further optimzation, if the parameter name value pair REQUEST=redirect is supplied, the /sync endpoint should issue a redirect to the first transfer endpoint that would be contained in the transfer details. In the case of an error with the optimized transfers, clients may wish to fall back to the HTTP POST to /sync and step through the entire transfer negotiation.
+
+In addition, the following Nodes, appearing as part of a node-path, are reserved:
+
+\begin{itemize}
+    \item .auto indicates that the service should auto-generate an endpoint URI to replace this placeholder (Note: that this is an OPTIONAL feature of a service)
+    \item .null indicates an endpoint that discards all data written to it and provides no data when read from, i.e. a bit bucket
+\end{itemize}
+
+The standardID for the service is: ivo://ivoa.net/std/VOSpace/v2.0. Available resources will then just be ivo://ivoa.net/std/VOSpace/v2.0\#<resourceName>, e.g., ivo://ivoa.net/std/VOSpace/v2.0\#nodes.
+
+\section{Access Control}
+VOSpace implementations may support any of the following authentication methods:
+
+\begin{itemize}
+    \item no authentication (anonymous clients)
+    \item digital signatures with X.509 client certificates
+    \item user ID and password HTTP authentication
+    \item cookies
+    \item OAuth (http://oauth.net)
+\end{itemize}
+
+When a client is requesting a transfer from the service, the authentication type (authType) may be supplied along side the list of transfer protocols. If the service supports the requested authentication type, it may use the authType information to construct the endpoint URL for data transfer, for services may encounter situations when the URL for data transfer will depend on the authentication type the client wished to use.
+The access control policy for a VOSpace is defined by the implementor of that space according to the use cases for which the implementation is intended.
+
+A human-readable description of the implemented access policy must be declared in the registry metadata for the space.
+
+These are the most probable access policies:
+
+\begin{itemize}
+    \item No access control is asserted. Any client can create, read, write and delete nodes anonymously
+    \item No authorization is required, but clients must authenticate an identity (for logging purposes) in each request to the space
+    \item Clients may not create or change nodes (i.e. the contents of the space are fixed by the implementation or set by some interface other than VOSpace), but any client can read any node without authentication
+    \item Nodes are considered to be owned by the user who created them. Only the owner can operate on a node
+\end{itemize}
+
+No operations to modify the access policy (e.g. to set permissions on an individual node) are included in this standard. Later versions may add such operations.
+
+Where the access policy requires authentication of callers, the VOSpace service SHALL support one of the authentication methods defined in the IVOA Single Sign On profile.
+
+\section{Web service operations}
+
+A VOSpace 2.1 service SHALL be a REST service with the following operations:
+
+Note: The URL http://(rest-endpoint)/nodes denotes the URL of the top node in the VOSpace. The URL http://(rest-endpoint)/nodes/(path) denotes a specific node within the VOSpace.
+
+Note: When representing a Fault, the exact specified fault name SHALL be used. If this is followed by some details, the fault SHALL be separated from the subsequent characters by whitespace.
+
+Note: If the service is able to detect an internal system failure (associated with an HTTP 500 status code) then it should indicate this as described below if possible.
+
+\subsection{Service metadata}
+These operations return comprehensive lists of service-level metadata, e.g. all protocols supported by the service. Individual nodes within a service, however, may not necessarily support all of these, i.e. only container nodes may support archive formats such as zip or tar.
+
+\subsubsection{getProtocols}
+Get a list of the transfer Protocols supported by the space service
+
+\paragraph{Request}
+A HTTP request to http://rest-endpoint/protocols
+
+\paragraph{Response}
+\subparagraph{Status code} A HTTP 200 status code
+\subparagraph{Body}
+A Protocols representation giving:
+\begin{itemize}
+    \item accepts: A list of Protocols that the service SHALL accept
+    \begin{itemize}
+        \item In this context 'accepting a protocol' means that the service SHALL act as a client for the protocol
+        \item e.g. 'accepting httpget' means the service can read data from an external HTTP web server
+    \end{itemize}
+    \item provides: A list of Protocols that the service SHALL provide
+    \begin{itemize}
+        \item In this context 'providing a protocol' means that the service SHALL act as a server for the protocol
+        \item e.g. 'providing httpget' means the service can act as a http web server
+    \end{itemize}
+\end{itemize}
+
+\paragraph{Faults}
+\begin{itemize}
+    \item The service SHOULD throw a HTTP 500 status code including an InternalFault fault in the entity body if the operation fails
+\end{itemize}
+
+\paragraph{Example}
+getProtocols
+
+\begin{tabular}{ p{10cm} }
+\hline
+\begin{verbatim}
+> curl -v http://localhost:8000/vospace-2.0/protocols
+\end{verbatim} \\
+\hline
+\begin{verbatim}
+* Connected to localhost (127.0.0.1) port 8000 (#0)
+> GET /protocols HTTP/1.1
+> User-Agent: curl/7.19.4 (universal-apple-darwin10.0) libcurl/7.19.4
+    OpenSSL/0.9.8l zlib/1.2.3
+> Host: localhost:8000
+> Accept: */*
+> 
+< HTTP/1.1 200 OK
+< Date: Tue, 09 Mar 2010 04:59:12 GMT
+< Content-Length: 309
+< Content-Type: text/html
+< Allow: GET, HEAD, POST, PUT
+< Server: CherryPy/3.1.2
+< 
+<protocols xmlns="http://www.ivoa.net/xml/VOSpace/v2.0">
+  <accepts>
+    <protocol uri="ivo://ivoa.net/vospace/core#httpget"/>
+    <protocol uri="ivo://ivoa.net/vospace/core#httpput"/>
+  </accepts>
+  <provides>
+    <protocol uri="ivo://ivoa.net/vospace/core#httpget"/>
+    <protocol uri="ivo://ivoa.net/vospace/core#httpput"/>
+  </provides>
+</protocols>
+* Connection #0 to host localhost left intact
+* Closing connection #0
+\end{verbatim} \\
+\hline
+\end{tabular}
+
+\subsubsection{getViews}
+Get a list of the Views and data formats supported by the space service
+
+\paragraph{Request}
+A HTTP GET to http://rest-endpoint/views
+
+\paragraph{Response}
+\subparagraph{Status code} A HTTP 200 status code
+\subparagraph{Body}
+A Views representation giving:
+\begin{itemize}
+    \item accepts: A list of Views that the service SHALL accept
+    \begin{itemize}
+        \item In this context 'accepting a view' means that the service SHALL receive input data in this format
+        \item A simple file based system may use the reserved View URI ivo://net.ivoa.vospace/views/any to indicate that it can accept data in any format
+    \end{itemize}
+    \item provides: A list of Views that the service SHALL provide
+    \begin{itemize}
+        \item In this context 'providing a view' means that the service SHALL produce output data in this format
+        \item A simple file based system may use the reserved View URI ivo://net.ivoa.vospace/views/any to indicate that it can provide data in any format
+    \end{itemize}
+\end{itemize}
+
+\paragraph{Faults}
+\begin{itemize}
+    \item The service SHOULD throw a HTTP 500 status code including an InternalFault fault in the entity body if the operation fails
+\end{itemize}
+
+\paragraph{Example}
+getViews
+
+\begin{tabular}{ p{10cm} }
+\hline
+\begin{verbatim}
+> curl -v "http://localhost:8000/views"
+\end{verbatim} \\
+\hline
+\begin{verbatim}
+* Connected to localhost (127.0.0.1) port 8000 (#0)
+> GET /views HTTP/1.1
+> User-Agent: curl/7.19.4 (universal-apple-darwin10.0) libcurl/7.19.4
+    OpenSSL/0.9.8l zlib/1.2.3
+> Host: localhost:8000
+> Accept: */*
+> 
+< HTTP/1.1 200 OK
+< Date: Tue, 09 Mar 2010 19:36:17 GMT
+< Content-Length: 181
+< Content-Type: text/html
+< Allow: GET, HEAD, POST, PUT
+< Server: CherryPy/3.1.2
+< 
+<views xmlns="http://www.ivoa.net/xml/VOSpace/v2.0">
+  <accepts>
+    <view uri="ivo://ivoa.net/vospace/core#anyview"/>
+  </accepts>
+  <provides>
+    <view uri="ivo://ivoa.net/vospace/core#defaultview"/>
+  </provides>
+</views>
+* Connection #0 to host localhost left intact
+* Closing connection #0
+\end{verbatim} \\
+\hline
+\end{tabular}
+
+\subsubsection{getProperties}
+
+\paragraph{Request}
+A HTTP request to http://rest-endpoint/properties
+
+\paragraph{Response}
+\subparagraph{Status code} A HTTP 200 status code
+\subparagraph{Body}
+A Properties representation including:
+\begin{itemize}
+    \item accepts: A list of identifiers for the Properties that the service SHALL accept and understand. This refers to metadata (Properties) that is implementation dependent but can be used by a client to control operational aspects of the service: for example, a VOSpace implementation might allow individual users to control the permissions on data objects via a Property called "permissions". If the VOSpace receives a data object with this Property then it 'understands' what this property refers to and can deal with it accordingly.
+    \item provides: A list of identifiers for the Properties that the service SHALL provide
+    \item contains: A list of identifiers for all the Properties currently used by Nodes within the service
+\end{itemize}
+
+\paragraph{Faults}
+\begin{itemize}
+    \item The service SHOULD throw a HTTP 500 status code including an InternalFault fault in the entity body if the operation fails
+\end{itemize}
+
+\paragraph{Example}
+getProperties
+
+\begin{tabular}{ p{10cm} }
+\hline
+\begin{verbatim}
+> curl -v "http://localhost:8000/properties"
+\end{verbatim} \\
+\hline
+\begin{verbatim}
+* Connected to localhost (127.0.0.1) port 8000 (#0)
+> GET /properties HTTP/1.1
+> User-Agent: curl/7.19.4 (universal-apple-darwin10.0) libcurl/7.19.4
+    OpenSSL/0.9.8l zlib/1.2.3
+> Host: localhost:8000
+> Accept: */*
+> 
+< HTTP/1.1 200 OK
+< Date: Tue, 09 Mar 2010 19:43:23 GMT
+< Content-Length: 644
+< Content-Type: text/html
+< Allow: GET, HEAD, POST, PUT
+< Server: CherryPy/3.1.2
+< 
+<properties xmlns="http://www.ivoa.net/xml/VOSpace/v2.0">
+  <accepts>
+    <property uri="ivo://ivoa.net/vospace/core#title"/>
+    <property uri="ivo://ivoa.net/vospace/core#creator"/>
+    <property uri="ivo://ivoa.net/vospace/core#description"/>
+  </accepts>
+ <provides>
+    <property uri="ivo://ivoa.net/vospace/core#availableSpace"/>
+    <property uri="ivo://ivoa.net/vospace/core#httpput"/>
+  </provides>
+  <contains>
+    <property uri="ivo://ivoa.net/vospace/core#availableSpace"/>
+    <property uri="ivo://ivoa.net/vospace/core#title"/>
+    <property uri="ivo://ivoa.net/vospace/core#creator"/>
+    <property uri="ivo://ivoa.net/vospace/core#description"/>
+  </contains>
+</properties>
+* Connection #0 to host localhost left intact
+* Closing connection #0
+\end{verbatim} \\
+\hline
+\end{tabular}
+
+\subsection{Creating and manipulating data nodes}
+
+\subsubsection{createNode}
+Create a new node at a specified location
+
+\paragraph{Request}
+A HTTP PUT of a node representation to the node URL:
+\begin{itemize}
+    \item \emph{node}: A template Node (as defined in Section 3.1) for the node to be created
+\end{itemize}
+
+A valid uri attribute SHALL be required. The name .auto is a reserved URI to indicate an auto-generated URI for the destination, i.e. given the following URI vos://service/path/.auto a service SHALL create a new unique URI for the node within vos://service/path.
+
+If the Node xsi:type is not specified then a generic node of type Node is implied.
+
+The permitted values of xsi:type are:
+
+\begin{itemize}
+    \item vos:Node
+    \item vos:DataNode
+    \item vos:UnstructuredDataNode
+    \item vos:StructuredDataNode
+    \item vos:ContainerNode
+    \item vos:LinkNode
+\end{itemize}
+
+When creating a new Node the service MAY substitute a valid subtype, i.e. If xsi:type is set to vos:DataNode then this may be implemented as a DataNode, StructuredDataNode or an UnstructuredDataNode.
+
+The properties of the new Node can be set by adding Properties to the template. Attempting to set a Property that the service considers to be 'readOnly' SHALL cause a PermissionDenied fault. The accepts and provides lists of Views for the Node cannot be set using this method.
+
+The capabilities list for the Node cannot be set using this method.
+
+\paragraph{Response}
+\subparagraph{Status code} A HTTP 201 status code
+\subparagraph{Body}
+A node representation including
+\begin{itemize}
+    \item \emph{node}: details of the new Node
+\end{itemize}
+
+The \emph{accepts} list of Views for the Node SHALL be filled in by the service based on service capabilities.
+
+The \emph{provides} list of Views for the Node MAY not be filled in until some data has been imported into the Node.
+
+The \emph{capabilities} list for the Node MAY not be filled in until some data has been imported into the Node.
+
+\paragraph{Faults}
+\begin{itemize}
+    \item The service SHOULD throw a HTTP 500 status code including an InternalFault fault in the entity body if the operation fails
+    \item The service SHALL throw a HTTP 409 status code including a DuplicateNode fault in the entity body if a Node already exists with the same URI
+    \item The service SHALL throw a HTTP 400 status code including an InvalidURI fault in the entity body if the requested URI is invalid
+    \item The service SHALL throw a HTTP 400 status code including a TypeNotSupported fault in the entity body if the type specified in xsi:type is not supported
+    \item The service SHALL throw a HTTP 401 status code including PermissionDenied fault in the entity body if the user does not have permissions to perform the operation
+    \item If a parent node in the URI path does not exist then the service SHALL throw a HTTP 404 status code including a ContainerNotFound fault in the entity body.
+    \begin{itemize}
+        \item For example, given the URI path /a/b/c, the service must throw a HTTP 404 status code including a ContainerNotFound fault in the entity body if either /a or /a/b do not exist.
+    \end{itemize}
+    \item If a parent node in the URI path is a LinkNode, the service SHALL throw a HTTP 400 status code including a LinkFound fault in the entity body.
+        \begin{itemize}
+        \item For example, given the URI path /a/b/c, the service must throw a HTTP 400 status code including a LinkFound fault in the entity body if either /a or /a/b are LinkNodes.
+    \end{itemize}
+\end{itemize}
+
+\paragraph{Example}
+createNode
+
+\begin{tabular}{ p{10cm} }
+The node to be created (newNode.xml) is:
+\begin{verbatim}
+<node xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:type="vos:UnstructuredDataNode"
+    xmlns="http://www.ivoa.net/xml/VOSpace/v2.0"
+        uri="vos://nvo.caltech!vospace/mydata1">
+  <properties>
+    <property uri="ivo://ivoa.net/vospace/core#description">
+        My important results</property>
+  </properties>
+  <accepts/>
+  <provides/>
+  <capabilities/>
+</node>
+\end{verbatim}
+\begin{verbatim}
+> curl -v -X PUT -d @newNode.xml "http://localhost:8000/nodes/mydata1"
+\end{verbatim} \\
+\hline
+\begin{verbatim}
+* Connected to localhost (127.0.0.1) port 8000 (#0)
+> PUT /nodes/mydata1 HTTP/1.1
+> User-Agent: curl/7.19.4 (universal-apple-darwin10.0) libcurl/7.19.4
+    OpenSSL/0.9.8l zlib/1.2.3
+> Host: localhost:8000
+> Accept: */*
+> Content-Length: 267
+> Content-Type: application/x-www-form-urlencoded
+> 
+< HTTP/1.1 200 Created
+< Date: Wed, 10 Mar 2010 00:10:27 GMT
+< Content-Length: 323
+< Content-Type: text/html
+< Allow: GET, HEAD, POST, PUT
+< Server: CherryPy/3.1.2
+< 
+* Connection #0 to host localhost left intact
+* Closing connection #0
+<node xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="http://www.ivoa.net/xml/VOSpace/v2.0"
+      xsi:type="vos:UnstructuredDataNode" 
+  uri="vos://nvo.caltech!vospace/mydata1">
+  <properties>
+    <property uri="ivo://ivoa.net/vospace/core#description">
+        My important results</property>
+  </properties>
+  <accepts>
+    <view uri="ivo://ivoa.net/vospace/core#anyview"/>
+  </accepts>
+  <provides/>
+  <capabilities/>
+</node>
+\end{verbatim} \\
+\end{tabular}
+
+\subsubsection{moveNode}
+Move a node within a VOSpace service.
+
+Note that this does not cover moving data between two separate VOSpace services.
+
+Moving nodes between separate VOSpace services SHOULD be handled by the client, using the import, export and delete methods.
+
+When the source is a ContainerNode, all its children (the contents of the container) SHALL also be moved to the new destination.
+
+When the destination is an existing ContainerNode, the source SHALL be placed under it (i.e. within the container).
+
+The Node type cannot be changed using this method.
+
+\paragraph{Request}
+\begin{itemize}
+    \item A HTTP POST of a Job representation for the transfer (see section 3.6) to http://rest-endpoint/transfers.
+\end{itemize}
+
+.auto is a reserved URI to indicate an autogenerated URI for the destination, i.e. vos://service/path/.auto SHALL cause a new unique URI for the node within vos://service/path to be generated.
+
+\paragraph{Response}
+\subparagraph{Status code} The initial response is a HTTP 303 status code with the Location header keyword assigned to the created job.
+\subparagraph{Body}
+If an autogenerated URI for the destination was specified in the request then its value SHALL be specified as a result in the Results List for the completed transfer with the id of "destination":
+\begin{verbatim}
+<uws:job>
+  ...
+  <uws:jobInfo>
+    <vos:direction>vos://nvo.caltech!vospace/mjg/.auto</vos:direction>
+  ...
+  <uws:results>
+    <uws:result id="destination">vos://nvo.caltech!vospace/mjg/abc123</uws:result>
+  </uws:results>
+  ...
+</uws:job>
+\end{verbatim}
+
+\paragraph{Faults}
+
+For all faults, the service shall set the PHASE to "ERROR" in the Job representation. The <errorSummary> element in the Job representation shall be set to the appropriate value for the fault type and the appropriate fault representation (see section 5.5) provided at the error URI: http://rest-endpoint/transfers/(jobid)/error.
+
+\vspace{3mm}
+\begin{tabular}{ p{5cm} l p{4cm} }
+\textbf{Fault description} & \textbf{errorSummary} & \textbf{Fault representation} \\
+\hline
+Operation fails & Internal Fault & InternalFault \\
+\hline
+User does not have permissions to perform the operation &Permission Denied & PermissionDenied \\
+\hline
+Source node does not exist & Node Not Found & NodeNotFound \\
+\hline
+Destination node already exists and it is not a ContainerNode & Duplicate Node & DuplicateNode \\
+\hline
+A specified URI is invalid & Invalid URI & InvalidURI \\
+\hline
+\end{tabular}
+\vspace{3mm}
+
+\paragraph{Example}
+moveNode
+
+{\indent
+The Job to be submitted (newJob.xml) is:
+\begin{verbatim}
+<node xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.0" >
+  <vos:target>vos://nvo.caltech!vospace/mydata1</vos:target>
+  <vos:direction>vos://nvo.caltech!vospace/mydata2</vos:direction>
+  <vos:keepBytes>false</vos:keepBytes>
+</vos:transfer>
+\end{verbatim}
+\begin{verbatim}
+> curl -v -X POST -d @newJob.xml "http://localhost:8000/transfers"
+\end{verbatim}
+\rule[0.5ex]{\linewidth}{1pt}
+\begin{verbatim}
+* Connected to localhost (127.0.0.1) port 8000 (#0)
+> POST /transfers HTTP/1.1
+> User-Agent: curl/7.19.4 (universal-apple-darwin10.0) libcurl/7.19.4
+    OpenSSL/0.9.8l zlib/1.2.3
+> Host: localhost:8000
+> Accept: */*
+> Content-Length: 762
+> Content-Type: application/x-www-form-urlencoded
+> 
+< HTTP/1.1 303 See Other
+< Content-Length: 174
+< Server: CherryPy/3.1.2
+< Location: http://localhost:8080/transfers/
+    ec200b5ff77641fb841978a85d1f7245
+< Allow: GET, HEAD, POST, PUT
+< Date: Thu, 11 Mar 2010 19:54:00 GMT
+< Content-Type: text/html
+< 
+* Connection #0 to host localhost left intact
+* Closing connection #0
+\end{verbatim}
+This resource can be found at http://localhost:8000/transfers/
+    ec200b5ff77641fb841978a85d1f7245. 
+\rule[0.5ex]{\linewidth}{1pt}
+\begin{verbatim}
+The status of the job can now be polled at the job location:
+> curl -v "http://localhost:8000/transfers/
+    ec200b5ff77641fb841978a85d1f7245"
+\end{verbatim}
+\rule[0.5ex]{\linewidth}{1pt}
+\Huge
+\begin{Verbatim}[fontsize=\scriptsize, frame=single, framesep=5mm, fontfamily=courier]
+* Connected to localhost (127.0.0.1) port 8000 (#0)
+> GET /transfers/ccfd4ba0dd9f4406b2039c4358ba8ef3 HTTP/1.1
+> User-Agent: curl/7.19.4 (universal-apple-darwin10.0) libcurl/7.19.4
+    OpenSSL/0.9.8l zlib/1.2.3
+> Host: localhost:8000
+> Accept: */*
+> 
+< HTTP/1.1 200 OK
+< Date: Thu, 11 Mar 2010 19:54:02 GMT
+< Content-Length: 802
+< Content-Type: text/html
+< Allow: GET, HEAD, POST, PUT
+< Server: CherryPy/3.1.2
+< 
+<uws:job xmlns:uws="http://www.ivoa.net/xml/UWS/v1.0" xmlns:xlink=
+    "http://www.w3.org/1999/xlink"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.0"
+    xsi:schemaLocation="http://www.ivoa.net/xml/UWS/v1.0 UWS.xsd ">
+  <uws:jobId>ec200b5ff77641fb841978a85d1f7245</uws:jobId>
+  <uws:ownerId xsi:nil="true"/>
+  <uws:phase>EXECUTING</uws:phase>
+  <uws:startTime>2010-03-11T19:54:00.433058</uws:startTime>
+  <uws:endTime xsi:nil="true"/>
+  <uws:executionDuration>0</uws:executionDuration>
+  <uws:destruction xsi:nil="true"/>
+  <uws:jobInfo>
+    <vos:transfer>
+      <vos:target>vos://nvo.caltech!vospace/mydata1</vos:target>
+      <vos:direction>vos://nvo.caltech!vospace/mydata2</vos:direction>
+      <vos:keepBytes>false</vos:keepBytes>
+    </vos:transfer>
+  </uws:jobInfo>
+  <uws:results/>
+* Connection #0 to host localhost left intact
+* Closing connection #0
+</uws:job>
+\end{Verbatim}
+}
+
+
+
 
 
 
