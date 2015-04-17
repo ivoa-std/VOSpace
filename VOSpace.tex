@@ -3,6 +3,14 @@
 
 \usepackage[utf8]{inputenc}
 \usepackage{fancyvrb}
+\usepackage{listings}
+
+\lstset{
+    language=sh,
+    basicstyle=\small,
+    columns=fullflexible,
+    keepspaces=true
+}
 
 \title{VOSpace}
 
@@ -75,12 +83,7 @@ A typical use case for VOSpace is uploading a local data file to a remote VOSpac
 
 Let's consider the first sequence: the user provides a XML description of the data file which they HTTP PUT to the appropriate VOSpace URI - this will be the HTTP identifier for the data file in the VOSpace, e.g. http://nvo.caltech.edu/vospace/nodes/mytable1. The description will resemble this:
 
-\begin{Verbatim}[fontsize=\tiny]
-print "Hello, World"
-again
-\end{Verbatim}
-
-\begin{verbatim}
+\begin{lstlisting}
 <node xmlns="http://www.ivoa.net/xml/VOSpaceTypes-v2.1"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
     uri="vos://nvo.caltech!vospace/mytable1"
@@ -89,33 +92,33 @@ again
         <property uri="ivo://ivoa.net/vospace/core\#mimetype">text/xml</property>     
     </properties> 
 </node> 
-\end{verbatim}
+\end{lstlisting}
 
 The service will reply with an amended version of the representation containing service-specific details in addition to the information supplied by the user. These will include data formats that the service can handle for the type of node created in the VOSpace, third-party interfaces (capabilities) to the data that the service offers and system metadata.
 
 The user will then describe the data format (the view) they want to use in uploading the file, e.g. VOTable, and the transport protocol (the protocol) that they want to employ to upload the file, e.g. HTTP PUT. This will result in the HTTP POSTing of a XML description of the transfer request to the appropriate VOSpace URI, e.g. http://nvo.caltech.edu/vospace/myData/table123/transfers. The description will resemble this:
 
-\begin{verbatim}
+\begin{lstlisting}
 <transfer xmlns="http://www.ivoa.net/xml/VOSpace/v2.1">
     <target>vos://nvo.caltech!vospace/mytable1</target>
     <direction>pushToVoSpace</direction> 
     <view uri="ivo://ivoa.net/vospace/core#votable"/> 
     <protocol uri="ivo://ivoa.net/vospace/core#http-put"/>  
 </transfer>
-\end{verbatim}
+\end{lstlisting}
 
 will then use a regular HTTP client to transfer (PUT) the local file to the specified endpoint. This illustrates an important point about VOSpace - it is only concerned with the server-side management of data storage and transfer. A client negotiates the details of a data transfer with a VOSpace service but the actual transfer of bytes across a network is handled by other tools.
 
 Similarly, when a user wants to retrieve a data file from a VOSpace service, they will specify the data format (view) they want to use in downloading the file, e.g. VOTable, and the transport protocol (the protocol) that they want to employ to download the file, e.g. HTTP GET, and HTTP POST a XML description of this transfer request to the appropriate VOSpace URI - the transfer URI for the node in the VOSpace, e.g. http://nvo.caltech.edu/vospace/myDataNode/table123/transfers. The description will resemble this:
 
-\begin{verbatim}
+\begin{lstlisting}
 <transfer xmlns="http://www.ivoa.net/xml/VOSpace/v2.1">
     <target>vos://nvo.caltech!vospace/mytable1</target>
     <direction>pullFromVoSpace</direction> 
     <view uri="ivo://ivoa.net/vospace/core#votable"/> 
     <protocol uri="ivo://ivoa.net/vospace/core#httpget"/>  
 </transfer>
-\end{verbatim}
+\end{lstlisting}
 
 The service will reply with the URL for the user to use, e.g. http://nvo.caltech.edu/vospace/myDataNode/table123/transfers/3df89ab4. The user can then download the data file by pointing an HTTP client (e.g. web browser) at the specified endpoint.
 
@@ -179,9 +182,9 @@ The naming authority for a VOSpace node SHALL be the VOSpace service through whi
 
 This is an example of a possible VOSpace identifier.
 
-\begin{verbatim}
+\begin{lstlisting}
 vos://nvo.caltech!vospace/myresults/siap-out-1.vot
-\end{verbatim}
+\end{lstlisting}
 
 The URI scheme is \emph{vos}
 
@@ -1010,14 +1013,14 @@ A UWS Job representation of a Search SHALL have the following parameters:
 
 This representation will be used as a child of the jobInfo element in a UWS Job representation. For example:
 
-\begin{verbatim}
+\begin{lstlisting}
 <uws:jobInfo>
   <vos:search>
     <vos:detail>properties</vos:detail>
     <vos:matches>ivo://ivoa.net/vospace/core#description='galax'</vos:matches>
   <vos:search>
 <uws:jobInfo>
-\end{verbatim}
+\end{lstlisting}
 
 The representation of the results of a Search SHALL have the following members:
 
@@ -1138,19 +1141,19 @@ A Protocols representation giving:
 \end{itemize}
 
 \paragraph{Example}
-getProtocols
+Get the VOSpace protocols
 
 \begin{tabular}{ p{10cm} }
-\hline
-\begin{verbatim}
+\\
+\textbf{request} \\
+\begin{lstlisting}
 > curl -v http://localhost:8000/vospace-2.0/protocols
-\end{verbatim} \\
-\hline
-\begin{verbatim}
+\end{lstlisting} \\
+\textbf{response} \\
+\begin{lstlisting}
 * Connected to localhost (127.0.0.1) port 8000 (#0)
 > GET /protocols HTTP/1.1
-> User-Agent: curl/7.19.4 (universal-apple-darwin10.0) libcurl/7.19.4
-    OpenSSL/0.9.8l zlib/1.2.3
+> User-Agent: curl/7.19.4 (universal-apple-darwin10.0) libcurl/7.19.4 OpenSSL/0.9.8l zlib/1.2.3
 > Host: localhost:8000
 > Accept: */*
 > 
@@ -1173,8 +1176,7 @@ getProtocols
 </protocols>
 * Connection #0 to host localhost left intact
 * Closing connection #0
-\end{verbatim} \\
-\hline
+\end{lstlisting}
 \end{tabular}
 
 \subsubsection{getViews}
@@ -1206,15 +1208,16 @@ A Views representation giving:
 \end{itemize}
 
 \paragraph{Example}
-getViews
+Get the VOSpace views
 
 \begin{tabular}{ p{10cm} }
-\hline
-\begin{verbatim}
+\\
+\textbf{request} \\
+\begin{lstlisting}
 > curl -v "http://localhost:8000/views"
-\end{verbatim} \\
-\hline
-\begin{verbatim}
+\end{lstlisting} \\
+\textbf{response} \\
+\begin{lstlisting}
 * Connected to localhost (127.0.0.1) port 8000 (#0)
 > GET /views HTTP/1.1
 > User-Agent: curl/7.19.4 (universal-apple-darwin10.0) libcurl/7.19.4
@@ -1239,8 +1242,7 @@ getViews
 </views>
 * Connection #0 to host localhost left intact
 * Closing connection #0
-\end{verbatim} \\
-\hline
+\end{lstlisting}
 \end{tabular}
 
 \subsubsection{getProperties}
@@ -1264,15 +1266,16 @@ A Properties representation including:
 \end{itemize}
 
 \paragraph{Example}
-getProperties
+Get the VOSpace properties
 
 \begin{tabular}{ p{10cm} }
-\hline
-\begin{verbatim}
+\\
+\textbf{request} \\
+\begin{lstlisting}
 > curl -v "http://localhost:8000/properties"
-\end{verbatim} \\
-\hline
-\begin{verbatim}
+\end{lstlisting} \\
+\textbf{response} \\
+\begin{lstlisting}
 * Connected to localhost (127.0.0.1) port 8000 (#0)
 > GET /properties HTTP/1.1
 > User-Agent: curl/7.19.4 (universal-apple-darwin10.0) libcurl/7.19.4
@@ -1306,8 +1309,7 @@ getProperties
 </properties>
 * Connection #0 to host localhost left intact
 * Closing connection #0
-\end{verbatim} \\
-\hline
+\end{lstlisting} \\
 \end{tabular}
 
 \subsection{Creating and manipulating data nodes}
@@ -1374,11 +1376,12 @@ The \emph{capabilities} list for the Node MAY not be filled in until some data h
 \end{itemize}
 
 \paragraph{Example}
-createNode
+Create a node
 
 \begin{tabular}{ p{10cm} }
-The node to be created (newNode.xml) is:
-\begin{verbatim}
+\\
+\textbf{The node to be created (newNode.xml)} \\
+\begin{lstlisting}
 <node xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:type="vos:UnstructuredDataNode"
     xmlns="http://www.ivoa.net/xml/VOSpace/v2.0"
@@ -1391,12 +1394,13 @@ The node to be created (newNode.xml) is:
   <provides/>
   <capabilities/>
 </node>
-\end{verbatim}
-\begin{verbatim}
+\end{lstlisting} \\
+\textbf{request} \\
+\begin{lstlisting}
 > curl -v -X PUT -d @newNode.xml "http://localhost:8000/nodes/mydata1"
-\end{verbatim} \\
-\hline
-\begin{verbatim}
+\end{lstlisting} \\
+\textbf{response} \\
+\begin{lstlisting}
 * Connected to localhost (127.0.0.1) port 8000 (#0)
 > PUT /nodes/mydata1 HTTP/1.1
 > User-Agent: curl/7.19.4 (universal-apple-darwin10.0) libcurl/7.19.4
@@ -1429,7 +1433,7 @@ The node to be created (newNode.xml) is:
   <provides/>
   <capabilities/>
 </node>
-\end{verbatim} \\
+\end{lstlisting}
 \end{tabular}
 
 \subsubsection{moveNode}
@@ -1456,7 +1460,7 @@ The Node type cannot be changed using this method.
 \subparagraph{Status code} The initial response is a HTTP 303 status code with the Location header keyword assigned to the created job.
 \subparagraph{Body}
 If an autogenerated URI for the destination was specified in the request then its value SHALL be specified as a result in the Results List for the completed transfer with the id of "destination":
-\begin{verbatim}
+\begin{lstlisting}
 <uws:job>
   ...
   <uws:jobInfo>
@@ -1467,7 +1471,7 @@ If an autogenerated URI for the destination was specified in the request then it
   </uws:results>
   ...
 </uws:job>
-\end{verbatim}
+\end{lstlisting}
 
 \paragraph{Faults}
 
@@ -1491,23 +1495,25 @@ A specified URI is invalid & Invalid URI & InvalidURI \\
 \vspace{3mm}
 
 \paragraph{Example}
-moveNode
+Move a node
 
-{\indent
-The Job to be submitted (newJob.xml) is:
-\begin{verbatim}
+\begin{tabular}{ p{10cm} }
+\\
+\textbf{The Job to be submitted (newJob.xml)} \\
+\begin{lstlisting}
 <node xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 <vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.0" >
   <vos:target>vos://nvo.caltech!vospace/mydata1</vos:target>
   <vos:direction>vos://nvo.caltech!vospace/mydata2</vos:direction>
   <vos:keepBytes>false</vos:keepBytes>
 </vos:transfer>
-\end{verbatim}
-\begin{verbatim}
+\end{lstlisting} \\
+\textbf{request} \\
+\begin{lstlisting}
 > curl -v -X POST -d @newJob.xml "http://localhost:8000/transfers"
-\end{verbatim}
-\rule[0.5ex]{\linewidth}{1pt}
-\begin{verbatim}
+\end{lstlisting} \\
+\textbf{response} \\
+\begin{lstlisting}
 * Connected to localhost (127.0.0.1) port 8000 (#0)
 > POST /transfers HTTP/1.1
 > User-Agent: curl/7.19.4 (universal-apple-darwin10.0) libcurl/7.19.4
@@ -1528,22 +1534,24 @@ The Job to be submitted (newJob.xml) is:
 < 
 * Connection #0 to host localhost left intact
 * Closing connection #0
-\end{verbatim}
-This resource can be found at http://localhost:8000/transfers/
-    ec200b5ff77641fb841978a85d1f7245. 
-\rule[0.5ex]{\linewidth}{1pt}
-\begin{verbatim}
-The status of the job can now be polled at the job location:
-> curl -v "http://localhost:8000/transfers/
-    ec200b5ff77641fb841978a85d1f7245"
-\end{verbatim}
-\rule[0.5ex]{\linewidth}{1pt}
-\Huge
-\begin{Verbatim}[fontsize=\scriptsize, frame=single, framesep=5mm, fontfamily=courier]
+\end{lstlisting} \\
+\end{tabular}
+\paragraph{}
+\begin{tabular}{ p{10cm} }
+\\
+\textbf{This resource can be found at} \\
+\begin{lstlisting}
+ http://localhost:8000/transfers/ec200b5ff77641fb841978a85d1f7245. 
+\end{lstlisting} \\
+\textbf{The status of the job can now be polled at the job location:} \\
+\begin{lstlisting}
+> curl -v "http://localhost:8000/transfers/ec200b5ff77641fb841978a85d1f7245"
+\end{lstlisting} \\
+\textbf{response} \\
+\begin{lstlisting}
 * Connected to localhost (127.0.0.1) port 8000 (#0)
 > GET /transfers/ccfd4ba0dd9f4406b2039c4358ba8ef3 HTTP/1.1
-> User-Agent: curl/7.19.4 (universal-apple-darwin10.0) libcurl/7.19.4
-    OpenSSL/0.9.8l zlib/1.2.3
+> User-Agent: curl/7.19.4 (universal-apple-darwin10.0) libcurl/7.19.4 OpenSSL/0.9.8l zlib/1.2.3
 > Host: localhost:8000
 > Accept: */*
 > 
@@ -1577,8 +1585,205 @@ The status of the job can now be polled at the job location:
 * Connection #0 to host localhost left intact
 * Closing connection #0
 </uws:job>
-\end{Verbatim}
-}
+\end{lstlisting}
+\end{tabular}
+
+\subsubsection{copyNode}
+Copy a node with a VOSpace service.
+Note that this does not cover copying data between two separate VOSpace services.
+Copying nodes between separate VOSpace services SHOULD be handled by the client, using the import and export methods.
+When the source is a ContainerNode, all its children (the full contents of the container) SHALL get copied, i.e. this is a deep recursive copy.
+When the destination is an existing ContainerNode, the copy SHALL be placed under it (i.e. within the container).
+The Node type cannot be changed using this method.
+
+\paragraph{Request}
+A HTTP POST of a Job representation for the transfer (see section 3.6) to http://rest-endpoint/transfers.
+.auto is the reserved URI to indicate an auto-generated URI for the destination, i.e. vos://service/path/.auto SHALL cause a new unique URI for the node within vos://service/path to be generated.
+
+\paragraph{Response}
+The initial response is a HTTP 303 status code with the Location header keyword assigned to the created job.
+If an autogenerated URI for the destination was specified in the request then its value SHALL be specified as a result in the Results List for the completed transfer with the id of "destination":
+
+\begin{lstlisting}
+<uws:job>
+  ...
+  <uws:jobInfo>
+    <vos:direction>vos://nvo.caltech!vospace/mjg/.auto</vos:direction>
+  ...
+  <uws:results>
+    <uws:result id="destination">vos://nvo.caltech!vospace/mjg/abc123</uws:result>
+  </uws:results>
+  ...
+</uws:job>
+\end{lstlisting}
+
+\paragraph{Faults}
+For all faults, the service shall set the PHASE to "ERROR" in the Job representation. The <errorSummary> element in the Job representation shall be set to the appropriate value for the fault type and the appropriate fault representation (see section 5.5) provided at the error URI: http://rest-endpoint/transfers/(jobid)/error.
+
+\vspace{3mm}
+\begin{tabular}{ p{5cm} l p{4cm} }
+\textbf{Fault description} & \textbf{errorSummary} & \textbf{Fault representation} \\
+\hline
+Operation fails & Internal Fault & InternalFault \\
+\hline
+User does not have permissions to perform the operation & Permission Denied & PermissionDenied \\
+\hline
+Source node does not exist & Node Not Found & NodeNotFound \\
+\hline
+Destination node already exists and it is not a ContainerNode & Duplicate Node & DuplicateNode \\
+\hline
+A specified URI is invalid & Invalid URI & InvalidURI \\
+\hline
+\end{tabular}
+\vspace{3mm}
+
+\paragraph{Example}
+Copy a VOSpace node
+
+\begin{tabular}{ p{10cm} }
+\\
+\textbf{The Job to be submitted (newJob.xml)} \\
+\begin{lstlisting}
+<vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.0">
+  <vos:target>vos://nvo.caltech!vospace/mydata1</vos:target>
+  <vos:direction>vos://nvo.caltech!vospace/mydir/.auto</vos:direction>
+  <vos:keepBytes>true</vos:keepBytes>
+</vos:transfer>
+\end{lstlisting} \\
+\textbf{request} \\
+\begin{lstlisting}
+> curl -v -X POST -d @newJob.xml "http://localhost:8000/transfers"
+\end{lstlisting} \\
+\textbf{response} \\
+\begin{lstlisting}
+* Connected to localhost (127.0.0.1) port 8000 (#0)
+> POST /transfers HTTP/1.1
+> User-Agent: curl/7.19.4 (universal-apple-darwin10.0) libcurl/7.19.4 OpenSSL/0.9.8l zlib/1.2.3
+> Host: localhost:8000
+> Accept: */*
+> Content-Length: 765
+> Content-Type: application/x-www-form-urlencoded
+> 
+< HTTP/1.1 303 See Other
+< Content-Length: 174
+< Server: CherryPy/3.1.2
+< Location: http://localhost:8080/transfers/6fbb28afec94417ba256d705f5e1f966
+< Allow: GET, HEAD, POST, PUT
+< Date: Thu, 11 Mar 2010 21:28:19 GMT
+< Content-Type: text/html
+< 
+* Connection #0 to host localhost left intact
+* Closing connection #0
+\end{lstlisting} \\
+\end{tabular}
+\paragraph{}
+\begin{tabular}{ p{10cm} }
+\\
+\textbf{This resource can be found at:} \\
+\begin{lstlisting}
+http://localhost:8000/transfers/6fbb28afec94417ba256d705f5e1f966.
+\end{lstlisting} \\
+\textbf{The status of the job can now be polled at the job location:} \\
+\begin{lstlisting}
+> curl -v "http://localhost:8000/transfers/63fa39fb18f244c18c991ed2f96d26cd"
+* Connected to localhost (127.0.0.1) port 8000 (#0)
+> GET /transfers/63fa39fb18f244c18c991ed2f96d26cd HTTP/1.1
+> User-Agent: curl/7.19.4 (universal-apple-darwin10.0) libcurl/7.19.4 OpenSSL/0.9.8l zlib/1.2.3
+> Host: localhost:8000
+> Accept: */*
+> 
+< HTTP/1.1 200 OK
+< Date: Thu, 11 Mar 2010 21:28:21 GMT
+< Content-Length: 950
+< Content-Type: text/html
+< Allow: GET, HEAD, POST, PUT
+< Server: CherryPy/3.1.2
+< 
+<uws:job xmlns:uws="http://www.ivoa.net/xml/UWS/v1.0" xmlns:xlink="http://www.w3.org/1999/xlink"
+     xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+     xsi:schemaLocation="http://www.ivoa.net/xml/UWS/v1.0 UWS.xsd ">
+  <uws:jobId>6fbb28afec94417ba256d705f5e1f966</uws:jobId>
+  <uws:ownerId xsi:nil="true"/>
+  <uws:phase>COMPLETED</uws:phase>
+  <uws:startTime>2010-03-11T21:28:19.200324</uws:startTime>
+  <uws:endTime>2010-03-11T21:28:19.200529</uws:endTime>
+  <uws:executionDuration>0</uws:executionDuration>
+  <uws:destruction xsi:nil="true"/>
+  <uws:jobInfo>
+    <vos:transfer>
+      <vos:keepBytes>true</vos:keepBytes>
+      <vos:direction>vos://nvo.caltech!vospace/mydir/.auto</vos:direction>
+      <vos:target>vos://nvo.caltech!vospace/mydata1</vos:target>
+    </vos:transfer>
+  <uws:jobInfo>
+  <uws:results>
+    <uws:result id="destination" xlink:href="vos://nvo.caltech!vospace/mydir/ef9ce281f5bd4bff92c8991580cddff4"/>
+  </uws:results>
+* Connection #0 to host localhost left intact
+* Closing connection #0
+</uws:job>
+\end{lstlisting}
+\end{tabular}
+
+\subsubsection{deleteNode}
+Delete a node.
+When the target is a ContainerNode, all its children (the contents of the container) SHALL also be deleted.
+Note that the same operation can also be achieved with a moveNode (see 5.2.2) with a .null node as the direction (destination node).
+
+\paragraph{Request}
+A HTTP DELETE to the URL of an existing node
+
+\paragraph{Response}
+A HTTP 204 status code
+
+\paragraph{Faults}
+\begin{itemize}
+    \item The service SHOULD throw a HTTP 500 status code including an InternalFault fault in the entity-body if the operation fails
+    \item The service SHALL throw a HTTP 401 status code including a PermissionDenied fault in the entity-body if the user does not have permissions to perform the operation
+    \item The service SHALL throw a HTTP 404 status code including a NodeNotFound fault in the entity-body if the target node does not exist
+    \item If a parent node in the URI path does not exist then the service SHALL throw a HTTP 404 status code including a ContainerNotFound fault in the entity-body
+    \begin{itemize}
+        \item For example, given the URI path /a/b/c, the service must throw a HTTP 404 status code including a ContainerNotFound fault in the entity-body if either /a or /a/b do not exist.
+    \end{itemize}
+    \item If a parent node in the URI path is a LinkNode, the service SHALL throw a HTTP 400 status code including a LinkFound fault in the entity-body.
+    \begin{itemize}
+        \item For example, given the URI path /a/b/c, the service must throw a HTTP 400 status code including a LinkFound fault in the entity-body if either /a or /a/b are LinkNodes.
+    \end{itemize}
+    \item If the target node in the URI path does not exist, the service SHALL throw a HTTP 404 status code including a NodeNotFound fault in the entity-body.
+    \begin{itemize}
+        \item For example, given the URI path /a/b/c, the service must throw a HTTP 404 status code including a NodeNotFound fault in the entity-body if /a/b/c does not exist.
+    \end{itemize}
+\end{itemize}
+
+\paragraph{Example}
+Delete a VOSpace node
+
+\begin{tabular}{ p{10cm} }
+\\
+\textbf{request} \\
+\begin{lstlisting}
+> curl -v -X DELETE "http://localhost:8000/nodes/mydata1"
+\end{lstlisting} \\
+\textbf{response} \\
+\begin{lstlisting}
+* Connected to localhost (127.0.0.1) port 8000 (#0)
+> DELETE /nodes/mydata1 HTTP/1.1
+> User-Agent: curl/7.19.4 (universal-apple-darwin10.0) libcurl/7.19.4 OpenSSL/0.9.8l zlib/1.2.3
+> Host: localhost:8000
+> Accept: */*
+> 
+< HTTP/1.1 200 OK
+< Date: Thu, 11 Mar 2010 22:08:22 GMT
+< Content-Length: 0
+< Content-Type: text/html
+< Allow: DELETE, GET, HEAD, POST, PUT
+< Server: CherryPy/3.1.2
+< 
+* Connection #0 to host localhost left intact
+* Closing connection #0
+\end{lstlisting}
+\end{tabular}
+
 
 
 
