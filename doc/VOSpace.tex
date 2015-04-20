@@ -9,7 +9,9 @@
     language=sh,
     basicstyle=\small,
     columns=fullflexible,
-    keepspaces=true
+    keepspaces=true,
+    breaklines=true,
+    linewidth=14cm
 }
 
 \title{VOSpace}
@@ -1783,6 +1785,1886 @@ Delete a VOSpace node
 * Closing connection #0
 \end{lstlisting}
 \end{tabular}
+
+\subsection{Accessing metadata}
+
+\subsubsection{getNode}
+Get the details for a specific Node.
+
+\paragraph{Request}
+A HTTP GET to the URL of an existing node http://rest-endpoint/nodes/path
+This can take the optional parameters to control the size of the response:
+
+\begin{itemize}
+    \item \emph{detail} with values of:
+    \begin{itemize}
+        \item \emph{min}: the returned record for the node contains minimum detail with all optional parts removed - the node type should be returned
+        \begin{itemize}
+            \item e.g. <Node uri="vos://service/name" xsi:type="Node"/>
+        \end{itemize}
+        \item \emph{max}: the returned record for the node contains the maximum detail, including any xsi:type specific extensions
+        \item \emph{properties}: the returned record for the node contains the basic node element with a list of properties but no xsi:type specific extensions
+    \end{itemize}
+    \item \emph{uri} with a value of a VOSpace identifier, URI-encoded according to RFC2396
+    \item \emph{limit} with an integer value indicating the maximum number of results in the response.
+    \begin{itemize}
+        \item No limit indicates a request for an unpaged list. However the server MAY still impose its own limit on the size of an individual response, splitting the results into more than one page if required
+     \end{itemize}
+\end{itemize}
+The list of supported protocols for a node can be retrieved with:
+
+\begin{itemize}
+    \item A HTTP POST of an empty protocol representation to the URL of an existing node http://rest-endpoint/nodes/path
+\end{itemize}
+    
+\paragraph{Response}
+A HTTP 200 status code and a Node representation in the entity-body
+When no parameters are present in the request, the full expanded record for the node SHALL be returned, including any xsi:type specific extensions; otherwise the appropriate form for the specified value of the "detail" parameter SHALL be returned.
+
+When the node is a container, the returned record will also contain a list of direct children nodes in the container (as <node> subelements under the < nodes> element).
+
+If a "uri" and "offset" are specified in the request then the returned list will consist of the subset of children which begins at the node matching the specified value of the "uri" parameter and with cardinality matching the specified value of the "offset" parameter drawn from an ordered sequence of all children. The ordering is determined by the server but results must always be drawn from the same ordered sequence.
+
+\paragraph{Faults}
+\begin{itemize}
+    \item The service SHOULD throw a HTTP 500 status code including an InternalFault fault in the entity-body if the operation fails
+    \item The service SHALL throw a HTTP 401 status code including a PermissionDenied fault in the entity-body if the user does not have permissions to perform the operation
+    \item The service SHALL throw a HTTP 404 status code including a NodeNotFound fault in the entity-body if the target Node does not exist
+\end{itemize}
+
+\paragraph{Example}
+Get a VOSpace node
+
+\begin{tabular}{ p{10cm} }
+\\
+\textbf{request} \\
+\begin{lstlisting}
+> curl -v "http://localhost:8000/nodes/mydir?detail=min&uri=vos://nvo.caltech!vospace/mydir/ngc3401"
+\end{lstlisting} \\
+\textbf{response} \\
+\begin{lstlisting}
+* Connected to localhost (127.0.0.1) port 8000 (#0)
+> GET /nodes/mydir?detail=min&uri=vos://nvo.caltech!vospace/mydir/ngc3401 HTTP/1.1
+> User-Agent: curl/7.19.4 (universal-apple-darwin10.0) libcurl/7.19.4 OpenSSL/0.9.8l zlib/1.2.3
+> Host: localhost:8000
+> Accept: */*
+> 
+< HTTP/1.1 200 OK
+< Date: Fri, 12 Mar 2010 04:05:39 GMT
+< Content-Length: 593
+< Content-Type: text/html
+< Allow: DELETE, GET, HEAD, POST, PUT
+< Server: CherryPy/3.1.2
+< 
+<node xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:type="vos:ContainerNode" uri="vos://nvo.caltech!vospace/mydir"
+xmlns="http://www.ivoa.net/xml/VOSpace/v2.0">
+  <properties>
+    <property uri="ivo://ivoa.net/vospace/core#description">My award winning images</property>
+  </properties>
+  <accepts>
+    <view uri="ivo://ivoa.net/vospace/core#anyview"/>
+  </accepts>
+  <provides>
+    <view uri="ivo://ivoa/net/vospace/core#defaultview"/>
+  </provides>
+  <capabilities/>
+  <nodes>
+    <node uri="vos://nvo.caltech!vospace/mydir/ngc4323"/>
+    <node uri="vos://nvo.caltech!vospace/mydir/ngc5796"/>
+    <node uri="vos://nvo.caltech!vospace/mydir/ngc6801"/>
+  </nodes>
+</node>
+* Connection #0 to host localhost left intact
+* Closing connection #0
+\end{lstlisting}
+\end{tabular}
+
+\subsubsection{setNode}
+Set the property values for a specific Node
+
+\paragraph{Request}
+A HTTP POST of a Node representation to the URL of an existing node http://rest-endpoint/nodes/path including:
+\begin{itemize}
+    \item \emph{node}: A Node containing the Node uri and a list of the Properties to set (as defined in section 3.1)
+\end{itemize}
+This will add or update the node properties including any xsi:type specific elements.
+
+The operation is the union of existing values and new ones.  An empty value sets the value to blank.  To delete a Property, set the xsi:nil attribute to true
+
+This method cannot be used to modify the Node type.
+
+This method cannot be used to modify the accepts or provides list of Views for the Node.
+
+This method cannot be used to create children of a container Node.
+
+\paragraph{Response}
+A HTTP 200 status code and a Node representation in the entity-body
+The full expanded record for the node SHALL be returned, including any xsi:type specific extensions.
+
+\paragraph{Faults}
+\begin{itemize}
+    \item The service SHOULD throw a HTTP 500 status code including an InternalFault fault in the entity-body if the operation fails
+    \item The service SHALL throw a HTTP 401 status code including a PermissionDenied fault in the entity-body if the request attempts to modify a read-only Property
+    \item The service SHALL throw a HTTP 401 status code including a PermissionDenied fault in the entity-body if the user does not have permissions to perform the operation
+    \item The service SHALL throw a HTTP 404 status code including a NodeNotFound fault in the entity-body if the target Node does not exist
+    \item If a parent node in the URI path does not exist then the service SHALL throw a HTTP 404 status code including a ContainerNotFound fault in the entity-body
+    \begin{itemize}
+        \item For example, given the URI path /a/b/c, the service must throw a HTTP 404 status code including a ContainerNotFound fault in the entity-body if either /a or /a/b do not exist.
+    \end{itemize}
+    \item The service SHALL throw a HTTP 400 status code including an InvalidArgument fault in the entity-body if a specified property value is invalid
+\end{itemize}
+
+\paragraph{Example}
+Set node metadata
+
+\begin{tabular}{ p{10cm} }
+\\
+\textbf{The updated node (newNode.xml) is:} \\
+\begin{lstlisting}
+<node xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:type="vos:UnstructuredDataNode"
+uri="vos://nvo.caltech!vospace/mydata1"
+xmlns="http://www.ivoa.net/xml/VOSpace/v2.0">
+  <properties>
+    <property uri="ivo://ivoa.net/vospace/core#date">2010-03-12</property>
+  </properties>
+  <accepts/>
+  <provides/>
+  <capabilities/>
+</node>
+\end{lstlisting} \\
+\textbf{request} \\
+\begin{lstlisting}
+> curl -v -X POST -d @newNode.xml "http://localhost:8000/nodes/mydata1"
+\end{lstlisting} \\
+\end{tabular}
+\paragraph{}
+\begin{tabular}{ p{10cm} }
+\textbf{response} \\
+\begin{lstlisting}
+* Connected to localhost (127.0.0.1) port 8000 (#0)
+> POST /nodes/mydata1 HTTP/1.1
+> User-Agent: curl/7.19.4 (universal-apple-darwin10.0) libcurl/7.19.4 OpenSSL/0.9.8l zlib/1.2.3
+> Host: localhost:8000
+> Accept: */*
+> Content-Length: 309
+> Content-Type: application/x-www-form-urlencoded
+> 
+< HTTP/1.1 200 OK
+< Date: Fri, 12 Mar 2010 18:49:25 GMT
+< Content-Length: 445
+< Content-Type: text/html
+< Allow: DELETE, GET, HEAD, POST, PUT
+< Server: CherryPy/3.1.2
+< 
+<node xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:type="vos:UnstructuredDataNode" uri="vos://nvo.caltech!vospace/mydata1"
+xmlns="http://www.ivoa.net/xml/VOSpace/v2.0" busy="false">
+  <properties>
+    <property uri="ivo://ivoa.net/vospace/core#description">My important results</property>
+    <property uri="ivo://ivoa.net/vospace/core#date">2010-03-12</property>
+  </properties>
+  <accepts>
+    <view uri="ivo://ivoa.net/vospace/core#anyview"/>
+  </accepts>
+  <provides/>
+  <capabilities/>
+</node>
+* Connection #0 to host localhost left intact
+* Closing connection #0
+\end{lstlisting}
+\end{tabular}
+
+\subsubsection{findNodes}
+Find nodes whose properties match the specified values.
+
+This operation is OPTIONAL.
+
+\paragraph{Request}
+A HTTP POST of a Job representation of a Search (see section 3.7) to http://rest-endpoint/searches
+A null value of the "matches" parameter implies a full listing of the space.
+
+\paragraph{Response}
+The initial response is a HTTP 303 status code with the Location header keyword assigned to the created job.
+
+The search results representation can be retrieved directly from the link reported in the Results List, available from the results endpoint - http://rest-endpoint/searches/(jobid)/results -, the standard UWS location under the results endpoint - http://rest-endpoint/searches/(jobid)/results/searchDetails - (which may well just be a redirect to the former link), or as part of the full Job representation from http://rest-endpoint/searches/(jobid). The result element in the Results List SHALL have an id of "searchDetails":
+
+\begin{lstlisting}
+<uws:job>
+...
+  <uws:results>
+   <uws:result id="searchDetails" xlink:href="http://rest-endpoint/searches/(jobid)/results/listing1"/>
+  </uws:results>
+...
+</uws:job>
+\end{lstlisting}
+
+\paragraph{Faults}
+For all faults, the service shall set the PHASE to "ERROR" in the Job representation. The <errorSummary> element in the Job representation shall be set to the appropriate value for the fault type and the appropriate fault representation (see section 5.5) provided at the error URI: http://rest-endpoint/transfers/(jobid)/error.
+
+\vspace{3mm}
+\begin{tabular}{ p{5cm} l p{4cm} }
+\textbf{Fault description} & \textbf{errorSummary} & \textbf{Fault representation} \\
+\hline
+Operation not supported & Operation Not Supported & OperationNotSupported \\
+\hline
+Operation fails & Internal Fault & InternalFault \\
+\hline
+User does not have permissions to perform the operation	 & Permission Denied & PermissionDenied \\
+\hline
+A particular property is specified and does not exist in the space & Property Not Found & PropertyNotFound \\
+\hline
+\end{tabular}
+\vspace{3mm}
+
+\paragraph{Example}
+Find VOSpace nodes
+
+\begin{tabular}{ p{10cm} }
+\\
+\textbf{The Job to be submitted (newJob.xml) is:} \\
+\begin{lstlisting}
+<vos:search xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.0">
+  <vos:detail>properties</vos:detail>
+  <vos:matches>ivo://ivoa.net/vospace/core#description='galax'</vos:matches>
+<vos:search>
+\end{lstlisting} \\
+\textbf{request} \\
+\begin{lstlisting}
+> curl -v -X POST -d @newJob.xml "http://localhost:8000/searches"
+\end{lstlisting} \\
+\textbf{response} \\
+\begin{lstlisting}
+* Connected to localhost (127.0.0.1) port 8000 (#0)
+> POST /searches HTTP/1.1
+> User-Agent: curl/7.19.4 (universal-apple-darwin10.0) libcurl/7.19.4 OpenSSL/0.9.8l zlib/1.2.3
+> Host: localhost:8000
+> Accept: */*
+> Content-Length: 684
+> Content-Type: application/x-www-form-urlencoded
+> 
+< HTTP/1.1 303 See Other
+< Content-Length: 172
+< Server: CherryPy/3.1.2
+< Location: http://localhost:8080/searches/8c5b0f78cd5a44af8694f10da1b92060
+< Allow: DELETE, GET, HEAD, POST, PUT
+< Date: Fri, 12 Mar 2010 19:50:12 GMT
+< Content-Type: text/html
+< 
+* Connection #0 to host localhost left intact
+* Closing connection #0
+\end{lstlisting} \\
+\end{tabular}
+\paragraph{}
+\begin{tabular}{ p{10cm} }
+\textbf{This resource can be found at:} \\
+\begin{lstlisting}
+http://localhost:8080/searches/8c5b0f78cd5a44af8694f10da1b92060
+\end{lstlisting} \\
+\textbf{The status of the job can now be polled at the job location:} \\
+\begin{lstlisting}
+> curl -v "http://localhost:8000/searches/8c6e7bc53ee848638cda35817e47da65"
+\end{lstlisting} \\
+\textbf{response} \\
+\begin{lstlisting}
+* Connected to localhost (127.0.0.1) port 8000 (#0)
+> GET /searches/8c6e7bc53ee848638cda35817e47da65 HTTP/1.1
+> User-Agent: curl/7.19.4 (universal-apple-darwin10.0) libcurl/7.19.4 OpenSSL/0.9.8l zlib/1.2.3
+> Host: localhost:8000
+> Accept: */*
+> 
+< HTTP/1.1 200 OK
+< Date: Fri, 12 Mar 2010 19:51:24 GMT
+< Content-Length: 891
+< Content-Type: text/html
+< Allow: DELETE, GET, HEAD, POST, PUT
+< Server: CherryPy/3.1.2
+< 
+<uws:job xmlns:uws="http://www.ivoa.net/xml/UWS/v1.0" xmlns:xlink="http://www.w3.org/1999/xlink"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.ivoa.net/xml/UWS/v1.0 UWS.xsd ">
+  <uws:jobId>8c6e7bc53ee848638cda35817e47da65<
+  <uws:ownerId xsi:nil="true"/>
+  <uws:phase>COMPLETED</uws:phase>
+  <uws:startTime>2010-03-12T19:50:56.552278</uws:startTime>
+  <uws:endTime>2010-03-12T19:50:56.562416</uws:endTime>
+  <uws:executionDuration>0</uws:executionDuration>
+  <uws:destruction xsi:nil="true"/>
+  <uws:jobInfo>
+    <vos:search>
+      <vos:detail>properties</vos:detail>
+      <vos:matches>ivo://ivoa.net/vospace/core#description='galax'</vos:matches>
+    <vos:search>
+  <uws:jobInfo>
+  <uws:results>
+    <uws:result id="searchDetails" xlink:href="http://localhost:8000/searches/d55814f88d974c21afe5ad50e4e875c8/results/listing1"/>
+  </uws:results>
+</uws:job>
+* Connection #0 to host localhost left intact
+* Closing connection #0
+\end{lstlisting} \\
+\end{tabular}
+\paragraph{}
+\begin{tabular}{ p{10cm} }
+\textbf{Once the Job has completed, the result can be obtained from the URL reported in the result element:} \\
+\begin{lstlisting}
+> curl -v "http://localhost:8000/searches/d55814f88d974c21afe5ad50e4e875c8/results/listing1"
+\end{lstlisting} \\
+\textbf{response} \\
+\begin{lstlisting}
+* Connected to localhost (127.0.0.1) port 8000 (#0)
+> GET /searches/d55814f88d974c21afe5ad50e4e875c8/results/listing1 HTTP/1.1
+> User-Agent: curl/7.19.4 (universal-apple-darwin10.0) libcurl/7.19.4 OpenSSL/0.9.8l zlib/1.2.3
+> Host: localhost:8000
+> Accept: */*
+> 
+< HTTP/1.1 200 OK
+< Date: Fri, 12 Mar 2010 20:29:25 GMT
+< Content-Length: 586
+< Content-Type: text/html
+< Allow: DELETE, GET, HEAD, POST, PUT
+< Server: CherryPy/3.1.2
+< 
+<nodes xmlns="http://www.ivoa.net/xml/VOSpace/v2.0"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <node uri="vos://nvo.caltech!vospace/mydir/img1" xsi:type="vos:UnstructuredDataNode">
+    <properties>
+      <property uri="ivo://ivoa.net/vospace/core#description">This is an R-band image of the galaxy NGC 3276</property>
+    </properties>
+  </node>
+  <node uri="vos://nvo.caltech!vospace/mydir/img5" xsi:type="vos:StructuredDataNode">
+    <properties>
+      <property uri="ivo://ivoa.net/vospace/core#description">This is a Chandra mosaic of the Fornax cluster of galaxies</property>
+    </properties>
+  </node>
+</nodes>
+* Connection #0 to host localhost left intact
+* Closing connection #0
+\end{lstlisting}
+\end{tabular}
+
+\subsection{Transferring data}
+Two modes are supported for external data transfers: a simple HTTP GET to retrieve data from a service (pullFromVoSpace) and a more general mechanism which employs a UWS-based approach [UWS] for submitting general data transfer requests (see section 3.6). In the latter, four directions are specified in which external data transfers can happen:
+\begin{itemize}
+    \item sending data to a service (pushToVoSpace)
+    \item importing data into a service (pullToVoSpace)
+    \item reading data from a service (pullFromVoSpace)
+    \item sending data from a service (pushFromVoSpace)
+\end{itemize}
+A transfer job is created by a HTTP POST of an appropriate Job representation to the transfers endpoint of the service: http://rest-endpoint/transfers
+
+The service returns the jobid of the transfer and it can then be initiated with a HTTP POST of the single parameter "PHASE=RUN" to the appropriate job endpoint: http://rest-endpoint/transfers/(jobid)/phase. Alternatively the transfer can also be run immediately on creation by adding a "PHASE=RUN" to the initial Job representation.
+
+The status of any transfer can be obtained by polling the phase endpoint for a particular transfer, i.e. a HTTP GET to http://rest-endpoint/transfers/(jobid)/phase.
+
+Once a transfer has completed, any results can be obtained by following the link in the Results List available from the results endpoint for that transfer, i.e. with a HTTP GET to http://rest-endpoint/transfers/(jobid)/results. This pertains particularly to the transfer methods in which data is sent to or read from a service-negotiated URL (pushToVoSpace and pullFromVoSpace).
+
+A transfer can also be aborted at any stage with a HTTP POST of the parameter "PHASE=ABORT" to the endpoint: http://rest-endpoint/transfers/(jobid)/phase
+
+More specific details for each of the four directions are given below.
+
+\subsubsection{pushToVoSpace}
+Request a list of URLs to send data to a VOSpace node.
+
+This method asks the server for a list of one or more URLs that the client can use to send data to.
+
+The data transfer is initiated by the client, after it has received the response from the VOSpace service.
+
+The primary use case for this method is client that wants to send some data directly to a VOSpace service.
+
+This operation is OPTIONAL.
+
+\paragraph{Request}
+A HTTP POST of a Job representation for the transfer to http://rest-endpoint/transfers
+If a Node already exists at the target URI, then the data SHALL be imported into the existing Node and the Node properties SHALL be cleared unless the node is a ContainerNode.
+
+If there is no Node at the target URI, then the service SHALL create a new Node using the uri and the default xsi:type for the space.
+
+The transfer representation contains details of the View and a list of the Protocols that the client wants to use.
+
+The list of Protocols SHOULD not contain endpoint addresses, the service will supply the endpoint addresses in the response.
+
+The service SHALL ignore any of the requested protocols that it does not understand or is unable to support.
+
+.auto is the reserved URI to indicate an auto-generated URI for the destination, i.e. vos://service/path/.auto SHALL cause a new unique URI for the node within vos://service/path to be generated.
+
+A transfer may also be initiated with an HTTP POST of a Job representation of the transfer to http://rest-endpoint/sync in three different ways:
+\begin{itemize}
+    \item By posting the job representation to /sync. The service SHALL respond with a redirect to the job containing the transfer results.
+    \item By doing a parameter-based post to /sync. The service may respond with the transfer details directly. (Optional. Example below)
+    \item By doing a parameter-based post to /sync with additional parameter REQUEST=redirect. The service may respond with a redirect to a preferred transfer endpoint. (Optional. (Note that, because the client wishes to PUT data, the redirect cannot simply be followed, but needs to be read explicitly and reinitiated as a PUT)
+\end{itemize}
+
+\paragraph{Response}
+The initial response is a HTTP 303 status code with the Location header keyword assigned to the created job.
+The service SHALL select which of the requested Protocols it is willing to provide and fill in the operational details for each one in the transfer result representation - this SHOULD normally include specifying the destination URL of the transfer protocol endpoint.
+
+The transfer result SHOULD not include any Protocols that it is unable to support.
+
+The transfer results representation can be retrieved directly from the link reported in the Results List, available either from the results endpoint - http://rest-endpoint/transfers/(jobid)/results - or as part of the full Job representation for the completed transfer available from http://rest-endpoint/transfers/(jobid). The result element in the Results List SHALL have an id of "transferDetails":
+\begin{lstlisting}
+<uws:job>
+...
+  <uws:results>
+   <uws:result id="transferDetails" xlink:href="http://rest-endpoint/transfers/(jobid)/results/details1"/>
+  </uws:results>
+...
+</uws:job>
+\end{lstlisting}
+For the alternate convenience mode:
+\begin{itemize}
+    \item A HTTP 303 status code with the Location header keyword assigned to the endpoint: http://rest-endpoint/transfers/(jobid)/results/transferDetails.
+\end{itemize}
+The HTTP 303 redirect points to a transfer representation with the required transfer details and endpoints.
+
+\paragraph{Faults}
+For all faults using the UWS mode, the service shall set the PHASE to "ERROR" in the Job representation. The <errorSummary> element in the Job representation shall be set to the appropriate value for the fault type and the appropriate fault representation (see section 5.5) provided at the error URI: http://rest-endpoint/transfers/(jobid)/error.
+
+\vspace{3mm}
+\begin{tabular}{ p{5cm} l p{4cm} }
+\textbf{Fault description} & \textbf{errorSummary} & \textbf{Fault representation} \\
+\hline
+Operation not supported & Operation Not Supported & OperationNotSupported \\
+\hline
+Operation fails & Internal Fault & InternalFault \\
+\hline
+User does not have permissions to perform the operation	 & Permission Denied & PermissionDenied \\
+\hline
+Service does not support the requested View & View Not Supported & ViewNotSupported \\
+\hline
+Service supports none of the requested Protocols & Protocol Not Supported &ProtocolNotSupported \\
+\hline
+A View parameter is invalid & Invalid Argument & InvalidArgument \\
+\hline
+A Protocol parameter is invalid & Invalid Argument & InvalidArgument \\
+\hline
+\end{tabular}
+\vspace{3mm}
+
+If an error occurs with the alternate convenience mode, the resultingtransfers document SHOULD have no protocols. The client can then retrieve the Job representation for error information as with asynchronous transfers.
+
+\paragraph{Example}
+pushToVoSpace
+
+\begin{tabular}{ p{10cm} }
+\\
+\textbf{The Job to be submitted (newJob.xml) is:} \\
+\begin{lstlisting}
+<vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.0">   
+  <vos:target>vos://nvo.caltech!vospace/mydata1</vos:target>
+  <vos:direction>pushToVoSpace</vos:direction>
+  <vos:view uri="ivo://net.ivoa/vospace/core#fits"/>
+  <vos:protocol uri="ivo://net.ivoa/vospace/core#httpput" authType="ivo://net.ivoa/vospace/core#anon"/>
+</vos:transfer>
+\end{lstlisting} \\
+\textbf{request} \\
+\begin{lstlisting}
+> curl -v -X POST -d @newJob.xml "http://localhost:8000/transfers"
+\end{lstlisting} \\
+\textbf{response} \\
+\begin{lstlisting}
+* Connected to localhost (127.0.0.1) port 8000 (#0)
+> POST /transfers HTTP/1.1
+> User-Agent: curl/7.19.4 (universal-apple-darwin10.0) libcurl/7.19.4 OpenSSL/0.9.8l zlib/1.2.3
+> Host: localhost:8000
+> Accept: */*
+> Content-Length: 836
+> Content-Type: application/x-www-form-urlencoded
+> 
+< HTTP/1.1 303 See Other
+< Content-Length: 174
+< Server: CherryPy/3.1.2
+< Location: http://localhost:8000/transfers/fd5cf0cb1b6d4fbd84602982abf19ef1
+< Allow: DELETE, GET, HEAD, POST, PUT
+< Date: Fri, 12 Mar 2010 22:12:21 GMT
+< Content-Type: text/html
+< 
+* Connection #0 to host localhost left intact
+* Closing connection #0
+This resource can be found at: http://localhost:8000/transfers/fd5cf0cb1b6d4fbd84602982abf19ef1.
+\end{lstlisting} \\
+\end{tabular}
+\paragraph{}
+\begin{tabular}{ p{10cm} }
+\textbf{The status of the job can now be polled at the job location:} \\
+\begin{lstlisting}
+> curl -v 'http://localhost:8000/transfers/fd5cf0cb1b6d4fbd84602982abf19ef1'
+\end{lstlisting} \\
+\textbf{response} \\
+\begin{lstlisting}
+* Connected to localhost (127.0.0.1) port 8000 (#0)
+> GET /transfers/fd5cf0cb1b6d4fbd84602982abf19ef1 HTTP/1.1
+> User-Agent: curl/7.19.4 (universal-apple-darwin10.0) libcurl/7.19.4 OpenSSL/0.9.8l zlib/1.2.3
+> Host: localhost:8000
+> Accept: */*
+> 
+< HTTP/1.1 200 OK
+< Date: Fri, 12 Mar 2010 22:45:46 GMT
+< Content-Length: 1037
+< Content-Type: text/html
+< Allow: DELETE, GET, HEAD, POST, PUT
+< Server: CherryPy/3.1.2
+< 
+<uws:job xmlns:uws="http://www.ivoa.net/xml/UWS/v1.0" xmlns:xlink="http://www.w3.org/1999/xlink"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.ivoa.net/xml/UWS/v1.0 UWS.xsd">
+  <uws:jobId>fd5cf0cb1b6d4fbd84602982abf19ef1</uws:jobId>
+  <uws:ownerId xsi:nil="true"/>
+  <uws:phase>COMPLETED</uws:phase>
+  <uws:startTime>2010-03-12T22:45:25.568694</uws:startTime>
+  <uws:endTime>2010-03-12T22:45:25.568840</uws:endTime>
+  <uws:executionDuration>0</uws:executionDuration>
+  <uws:destruction xsi:nil="true"/>
+  <uws:jobInfo>
+    <vos:transfer>   
+      <vos:target>vos://nvo.caltech!vospace/mydata1</vos:target>
+      <vos:direction>pushToVoSpace</vos:direction>
+      <vos:view uri="ivo://net.ivoa/vospace/core#fits"/>
+      <vos:protocol uri="ivo://net.ivoa/vospace/core#httpput" authType="ivo://net.ivoa/vospace/core#anon"/>
+    </vos:transfer>
+  <uws:jobInfo>
+  <uws:results>
+    <uws:result id="transferDetails"
+xlink:href="http://localhost:8000/transfers/fd5cf0cb1b6d4fbd84602982abf19ef1/results/details"/>
+  </uws:results>
+</uws:job>
+* Connection #0 to host localhost left intact
+* Closing connection #0
+\end{lstlisting} \\
+\end{tabular}
+\paragraph{}
+\begin{tabular}{ p{10cm} }
+\textbf{The final negotiated details of the transfer can be retrieved from the URL reported in the result element:} \\
+\begin{lstlisting}
+> curl -v "http://localhost:8000/transfers/fd5cf0cb1b6d4fbd84602982abf19ef1/results/details"
+* Connected to localhost (127.0.0.1) port 8000 (#0)
+> GET /transfers/fd5cf0cb1b6d4fbd84602982abf19ef1/results/details HTTP/1.1
+> User-Agent: curl/7.19.4 (universal-apple-darwin10.0) libcurl/7.19.4 OpenSSL/0.9.8l zlib/1.2.3
+> Host: localhost:8000
+> Accept: */*
+> 
+< HTTP/1.1 200 OK
+< Date: Fri, 12 Mar 2010 22:46:17 GMT
+< Content-Length: 316
+< Content-Type: text/html
+< Allow: DELETE, GET, HEAD, POST, PUT
+< Server: CherryPy/3.1.2
+< 
+<transfer>
+  <target>vos://nvo.caltech!vospace/mydata1</target>
+  <direction>pushToVoSpace</direction>
+  <view>ivo://ivoa.net/vospace/core#fits</view>
+  <protocol uri="ivo://ivoa.net/vospace/core#httpput" authType="ivo://net.ivoa/vospace/core#anon">
+    <endpoint>http://localhost:8000/data/d55814f88d974c21afe5ad50e4e875c8</endpoint>
+  </protocol>
+</transfer>
+* Connection #0 to host localhost left intact
+* Closing connection #0
+\end{lstlisting}
+\textbf{The FITS image can then be uploaded to the specified HTTP endpoint.}
+\end{tabular}
+
+\paragraph{Example}
+Optimized pushToVoSpace over /sync
+
+\begin{tabular}{ p{10cm} }
+\\
+\textbf{request} \\
+\begin{lstlisting}
+curl -v -X POST -d "TARGET=vos://nvo.caltech!vospace/mydata1?DIRECTION=pushToVoSpace&PROTOCOL=ivo://ivoa.net/vospace/core#httpput" "http://localhost:8000/sync"
+\end{lstlisting} \\
+\textbf{response} \\
+\begin{lstlisting}
+* Connected to localhost (127.0.0.1) port 8000 (#0)
+> POST /sync HTTP/1.1
+> User-Agent: curl/7.19.7 (universal-apple-darwin10.0) libcurl/7.19.7 OpenSSL/0.9.8r zlib/1.2.3
+> Host: localhost:8000
+> Accept: */*
+> Content-Length: 477
+> Content-Type: text/html
+> 
+< HTTP/1.1 200 OK
+< Date: Fri, 12 Mar 2010 22:46:17 GMT
+< 
+<transfer>
+  <target>vos://nvo.caltech!vospace/mydata1</target>
+  <direction>pushToVoSpace</direction>
+  <view>ivo://ivoa.net/vospace/core#fits</view>
+  <protocol uri="ivo://ivoa.net/vospace/core#httpput" authType="ivo://net.ivoa/vospace/core#anon">
+    <endpoint>http://localhost:8000/data/d55814f88d974c21afe5ad50e4e875c8</endpoint>
+  </protocol>
+</transfer>
+* Connection #0 to host localhost left intact
+* Closing connection #0
+\end{lstlisting} \\
+\end{tabular}
+
+\subsubsection{pullToVoSpace}
+Import data into a VOSpace node.
+
+This method asks the server to fetch data from a remote location.
+
+The data transfer is initiated by the VOSpace service and transferred direct into the target Node.
+
+The data source can be another VOSpace service, or a standard HTTP or FTP server.
+
+The primary use case for this method is transferring data from one server or service to another.
+
+This operation is OPTIONAL.
+
+\paragraph{Request}
+A HTTP POST of a Job representation for the transfer to http://rest-endpoint/transfers
+
+If a Node already exists at the target URI, then the data SHALL be imported into the existing Node and the Node properties SHALL be cleared unless the node is a ContainerNode.
+
+If there is no Node at the target URI, then the service SHALL create a new Node using the uri, and the default xsi:type for the space.
+
+\paragraph{Response}
+The initial response is a HTTP 303 status code with the Location header keyword assigned to the created job.
+
+\paragraph{Faults}\
+For all faults, the service shall set the PHASE to "ERROR" in the Job representation. The <errorSummary> element in the Job representation shall be set to the appropriate value for the fault type and the appropriate fault representation (see section 5.5) provided at the error URI: http://rest-endpoint/transfers/(jobid)/error.
+
+\vspace{3mm}
+\begin{tabular}{ p{5cm} l p{4cm} }
+\textbf{Fault description} & \textbf{errorSummary} & \textbf{Fault representation} \\
+\hline
+Operation not supported & Operation Not Supported & OperationNotSupported \\
+\hline
+Operation fails & Internal Fault & InternalFault \\
+\hline
+User does not have permissions to perform the operation	 & Permission Denied & PermissionDenied \\
+\hline
+Service does not support the requested View & View Not Supported & ViewNotSupported \\
+\hline
+Service supports none of the requested Protocols & Protocol Not Supported &ProtocolNotSupported \\
+\hline
+Destination URI is invalid & Invalid URI & InvalidURI \\
+\hline
+A View parameter is invalid & Invalid Argument & InvalidArgument \\
+\hline
+A Protocol parameter is invalid & Invalid Argument & InvalidArgument \\
+\hline
+Data format does not match the requested View & Invalid Data & InvalidData \\
+\hline
+\end{tabular}
+\vspace{3mm}
+
+\paragraph{Notes}
+If the Job request contains more than one protocol parameter, then the service MAY fail over to use one or more of the options if the first one fails. The service SHOULD try each protocol option in turn until one succeeds or all have been tried.
+
+\paragraph{Example}
+pullToVoSpace
+
+\begin{tabular}{ p{10cm} }
+\\
+\textbf{The Job to be submitted (newJob.xml) is:} \\
+\begin{lstlisting}
+<vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.0">
+  <vos:target>vos://nvo.caltech!vospace/mydata1</vos:target>
+  <vos:direction>pullToVoSpace</vos:direction>
+  <vos:view uri="ivo://ivoa.net/vospace/core#fits"/>
+  <vos:protocol uri="ivo://ivoa.net/vospace/core#httpget">
+    <vos:protocolEndpoint>http://some.server.com/here/is/the/data</vos:protocolEndpoint>
+    </vos:protocol>
+</vos:transfer>
+\end{lstlisting} \\
+\textbf{request} \\
+\begin{lstlisting}
+> curl -v -X POST -d @newJob.xml "http://localhost:8000/transfers"
+\end{lstlisting} \\
+\end{tabular}
+\paragraph{}
+\begin{tabular}{ p{10cm} }
+\textbf{response} \\
+\begin{lstlisting}
+* Connected to localhost (127.0.0.1) port 8000 (#0)
+> POST /transfers HTTP/1.1
+> User-Agent: curl/7.19.4 (universal-apple-darwin10.0) libcurl/7.19.4 OpenSSL/0.9.8l zlib/1.2.3
+> Host: localhost:8000
+> Accept: */*
+> Content-Length: 932
+> Content-Type: application/x-www-form-urlencoded
+> 
+< HTTP/1.1 303 See Other
+< Content-Length: 174
+< Server: CherryPy/3.1.2
+< Location: http://localhost:8000/transfers/ea901be0f7ef41668df9916ca25820f8
+< Allow: DELETE, GET, HEAD, POST, PUT
+< Date: Fri, 12 Mar 2010 23:36:58 GMT
+< Content-Type: text/html
+< 
+* Connection #0 to host localhost left intact
+* Closing connection #0
+This resource can be found at http://localhost:8000/transfers/ea901be0f7ef41668df9916ca25820f8.
+\end{lstlisting} \\
+\end{tabular}
+\paragraph{}
+\begin{tabular}{ p{10cm} }
+\textbf{The status of the job can now be polled at the phase endpoint:} \\
+\begin{lstlisting}
+> curl -v "http://localhost:8000/transfers/ea901be0f7ef41668df9916ca25820f8/phase"
+* Connected to localhost (127.0.0.1) port 8000 (#0)
+> GET /transfers/ea901be0f7ef41668df9916ca25820f8/phase HTTP/1.1
+> User-Agent: curl/7.19.4 (universal-apple-darwin10.0) libcurl/7.19.4 OpenSSL/0.9.8l zlib/1.2.3
+> Host: localhost:8000
+> Accept: */*
+> 
+< HTTP/1.1 200 OK
+< Date: Fri, 12 Mar 2010 23:37:02 GMT
+< Content-Length: 9
+< Content-Type: text/html
+< Allow: DELETE, GET, HEAD, POST, PUT
+< Server: CherryPy/3.1.2
+<
+EXECUTING
+* Connection #0 to host localhost left intact
+* Closing connection #0
+\end{lstlisting}
+\end{tabular}
+
+\subsection{pullFromVoSpace}
+Request a set of URLs that the client can read data from.
+
+The client requests access to the data in a Node, and the server SHALL respond with a set of URLs that the client can read the data from.
+
+\paragraph{Request}
+A HTTP POST of a Job representation for the transfer to http://rest-endpoint/transfers
+The transfer representation SHOULD contain details of the View and a list of the Protocols that the client would like to use.
+
+The list of Protocols SHOULD not contain endpoint addresses; the service SHALL supply the endpoint addresses in the response.
+
+The service SHALL ignore any of the requested protocols that it does not understand or is unable to support.
+
+A transfer may also be initiated by a HTTP POST of a Job representation for the transfer to http://rest-endpoint/sync in three different ways:
+\begin{itemize}
+    \item By posting the job representation to /sync. The service SHALL respond with a redirect to the job containing the transfer results.
+    \item By doing a parameter-based post to /sync. (Optional.)
+    \item By doing a parameter-based post to /sync with additional parameter REQUEST=redirect. (Optional.)
+\end{itemize}
+Clients may also use the "view" parameter on the getNode operation. Services may support different types of views for particular purposes. e.g., "view=rss" to identify a RSS feed on the resource.
+
+\paragraph{Response}
+The initial response for the UWS mode is a HTTP 303 status code with the Location header keyword assigned to the created job
+The service SHALL select which of the requested Protocols it is willing to provide and fill in the operational details for each one in the transfer result representation - this SHOULD normally include specifying the source URL of the transfer protocol endpoint.
+
+The service response SHOULD not include any Protocols that it is unable to support.
+
+The transfer results representation can be retrieved directly from the link reported in the Results List, available either from the results endpoint - http://rest-endpoint/transfers/(jobid)/results - or as part of the full Job representation for the completed transfer available from http://rest-endpoint/transfers/(jobid). In the latter case, the result element in the Results List SHALL have an id of "transferDetails":
+\begin{lstlisting}
+<uws:job>
+...
+  <uws:results>
+   <uws:result id="transferDetails" xlink:href="http://rest-endpoint/transfers/(jobid)/results/details1"/>
+  </uws:results>
+...
+< /uws:job>
+\end{lstlisting}
+If the transfer was initiated with a HTTP POST to http://rest-endpoint/sync then the response is:
+\begin{itemize}
+    \item A HTTP 303 status code with the Location header keyword assigned to the endpoint: http://rest-endpoint/transfers/(jobid)/results/transferDetails.
+\end{itemize}
+The HTTP 303 redirect points to a transfer representation with the required transfer details and endpoints.
+If the transfer was initiated with a HTTP POST to http://rest-rendpoint/sync with transfer information TARGET, DIRECTION, and PROTOCOL supplied as query string parameters, the service may respond with the transfer details directly. If the parameter REQUEST=redirect is also provided in this POST, then the service may respond with a redirect to a preferred endpoint (example below).
+
+\paragraph{Faults}
+For all faults using the UWS mode, the service shall set the PHASE to "ERROR" in the Job representation. The <errorSummary> element in the Job representation shall be set to the appropriate value for the fault type and the appropriate fault representation (see section 5.5) provided at the error URI: http://rest-endpoint/transfers/(jobid)/error.
+
+\vspace{3mm}
+\begin{tabular}{ p{5cm} l p{4cm} }
+\textbf{Fault description} & \textbf{errorSummary} & \textbf{Fault representation} \\
+\hline
+Operation fails & Internal Fault & InternalFault \\
+\hline
+User does not have permissions to perform the operation	 & Permission Denied & PermissionDenied \\
+\hline
+Source Node does not exist & Node Not Found & NodeNotFound \\
+\hline
+Service does not support the requested View & View Not Supported & ViewNotSupported \\
+\hline
+Service supports none of the requested Protocols & Protocol Not Supported &ProtocolNotSupported \\
+\hline
+Destination URI is invalid & Invalid URI & InvalidURI \\
+\hline
+A View parameter is invalid & Invalid Argument & InvalidArgument \\
+\hline
+A Protocol parameter is invalid & Invalid Argument & InvalidArgument \\
+\hline
+\end{tabular}
+\vspace{3mm}
+
+If an error occurs with the alternate convenience mode, the resulting transfers document SHOULD have no protocols. The client can then retrieve the Job representation for error information as with asynchronous transfers.
+
+\paragraph{Notes}
+The endpoint URLs supplied in the UWS response SHOULD be considered as 'one shot' URLs. A VOSpace service connected to a standard web server MAY return the public URL for the data. However, a different implementation MAY create a unique single use URL specifically for this transfer.
+
+\paragraph{Example}
+pullFromVoSpace
+
+\begin{tabular}{ p{10cm} }
+\\
+\textbf{The Job to be submitted (newJob.xml) is:} \\
+\begin{lstlisting}
+<vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.0">
+  <vos:target>vos://nvo.caltech!vospace/mydata1</vos:target>
+  <vos:direction>pullFromVoSpace</vos:direction>
+  <vos:view uri="ivo://ivoa.net/vospace/core#defaultview"/>
+  <vos:protocol uri="ivo://ivoa.net/vospace/core#httpget" authType="ivo://net.ivoa/vospace/core#anon"/>
+  <vos:protocol uri="ivo://ivoa.net/vospace/core#ftpget"/>
+</vos:transfer>
+\end{lstlisting} \\
+\textbf{request} \\
+\begin{lstlisting}
+> curl -v -X POST -d @newJob.xml "http://localhost:8000/transfers"
+\end{lstlisting} \\
+\end{tabular}
+\paragraph{}
+\begin{tabular}{ p{10cm} }
+\textbf{response} \\
+\begin{lstlisting}
+* Connected to localhost (127.0.0.1) port 8000 (#0)
+> POST /transfers HTTP/1.1
+> User-Agent: curl/7.19.4 (universal-apple-darwin10.0) libcurl/7.19.4 OpenSSL/0.9.8l zlib/1.2.3
+> Host: localhost:8000
+> Accept: */*
+> Content-Length: 928
+> Content-Type: application/x-www-form-urlencoded
+> 
+< HTTP/1.1 303 See Other
+< Content-Length: 174
+< Server: CherryPy/3.1.2
+< Location: http://localhost:8000/transfers/1ce91a4346b54432a4fd4a756fc75397
+< Allow: DELETE, GET, HEAD, POST, PUT
+< Date: Fri, 12 Mar 2010 23:46:46 GMT
+< Content-Type: text/html
+< 
+* Connection #0 to host localhost left intact
+* Closing connection #0
+This resource can be found at http://localhost:8000/transfers/1ce91a4346b54432a4fd4a756fc75397.
+\end{lstlisting} \\
+\end{tabular}
+\paragraph{}
+\begin{tabular}{ p{10cm} }
+\textbf{Once the job has completed (by polling the phase endpoint of the service), the results can be obtained from the result endpoint:} \\
+\begin{lstlisting}
+> curl -v "http://localhost:8000/transfers/1ce91a4346b54432a4fd4a756fc75397/results"
+\end{lstlisting} \\
+\textbf{response} \\
+\begin{lstlisting}
+* Connected to localhost (127.0.0.1) port 8000 (#0)
+> GET /transfers/1ce91a4346b54432a4fd4a756fc75397/results HTTP/1.1
+> User-Agent: curl/7.19.4 (universal-apple-darwin10.0) libcurl/7.19.4 OpenSSL/0.9.8l zlib/1.2.3
+> Host: localhost:8000
+> Accept: */*
+> 
+< HTTP/1.1 200 OK
+< Date: Sat, 13 Mar 2010 00:00:20 GMT
+< Content-Length: 239
+< Content-Type: text/html
+< Allow: DELETE, GET, HEAD, POST, PUT
+< Server: CherryPy/3.1.2
+< 
+<ns0:results xmlns:ns0="http://www.ivoa.net/xml/UWS/v1.0">
+  <ns0:result xmlns:ns1="http://www.w3.org/1999/xlink" id="transferDetails"
+  ns1:href="http://localhost:8000/transfers/83c19a500b1c48108d631f1aa020e8bb/results/details"/>
+</ns0:results>
+* Connection #0 to host localhost left intact
+* Closing connection #0
+\end{lstlisting} \\
+\end{tabular}
+\paragraph{}
+\begin{tabular}{ p{10cm} }
+\textbf{The final negotiated details of the transfer can then be retrieved from the URL reported in the result element:} \\
+\begin{lstlisting}
+> curl -v "http://localhost:8000/transfers/83c19a500b1c48108d631f1aa020e8bb/results/details"
+\end{lstlisting} \\
+\textbf{response} \\
+\begin{lstlisting}
+* Connected to localhost (127.0.0.1) port 8000 (#0)
+> GET /transfers/1ce91a4346b54432a4fd4a756fc75397/results/details HTTP/1.1
+> User-Agent: curl/7.19.4 (universal-apple-darwin10.0) libcurl/7.19.4 OpenSSL/0.9.8l zlib/1.2.3
+> Host: localhost:8000
+> Accept: */*
+> 
+< HTTP/1.1 200 OK
+< Date: Sat, 13 Mar 2010 00:13:18 GMT
+< Content-Length: 477
+< Content-Type: text/html
+< Allow: DELETE, GET, HEAD, POST, PUT
+< Server: CherryPy/3.1.2
+< 
+<transfer>
+  <target>vos://nvo.caltech!vospace/mydata1</target>
+  <direction>pullFromVoSpace</direction>
+  <view uri="ivo://ivoa.net/vospace/core#defaultview"/>
+  <protocol uri="ivo://ivoa.net/vospace/core#httpget" authType="ivo://net.ivoa/vospace/core#anon">
+    <endpoint>http://localhost:8000/data/d27282305c6746889691e914abab9403</endpoint>
+  </protocol>
+  <protocol uri="ivo://ivoa.net/vospace/core#ftpget">
+    <endpoint>ftp://localhost:8000/data/0d4824049dd444a290f6a524323dbcd0</endpoint>
+  </protocol>
+</transfer>
+* Connection #0 to host localhost left intact
+* Closing connection #0
+\end{lstlisting} \\
+\end{tabular}
+
+\paragraph{Example}
+Optimized pullFromVoSpace over /sync
+
+\begin{tabular}{ p{10cm} }
+\\
+\textbf{request} \\
+\begin{lstlisting}
+ curl -v -X POST -d "TARGET=vos://nvo.caltech!vospace/mydata1&DIRECTION=pullFromVoSpace&PROTOCOL=ivo://ivoa.net/vospace/core#httpget&REQUEST=redirect" "http://localhost:8000/sync"
+ \end{lstlisting} \\
+ \textbf{response} \\
+ \begin{lstlisting}
+* Connected to localhost (127.0.0.1) port 8000 (#0)
+
+> POST /sync HTTP/1.1
+> User-Agent: curl/7.19.7 (universal-apple-darwin10.0) libcurl/7.19.7 OpenSSL/0.9.8r zlib/1.2.3
+> Host: localhost:8000
+> Accept: */*
+> Content-Length: 477
+> Content-Type: text/html
+>
+< HTTP/1.1 303 See Other
+< Date: Fri, 06 Jun 2014 18:18:08 GMT
+< Location: http://localhost:8000/data/d27282305c6746889691e914abab9403
+\end{lstlisting}
+\end{tabular}
+
+\subsubsection{pushFromVoSpace}
+Ask the server to send data to a remote location.
+
+The client supplies a list of URLs and asks the server to send the data to the remote location.
+
+The transfer is initiated by the server, and the data transferred direct from the server to the remote location.
+
+This operation is OPTIONAL.
+
+\paragraph{Request}
+A HTTP POST of a Job representation for the transfer to http://rest-endpoint/transfers
+
+\paragraph{Response}
+The initial response is a HTTP 303 status code with the Location header keyword assigned to the created job.
+5.4.4.3 Faults
+
+\vspace{3mm}
+\begin{tabular}{ p{5cm} l p{4cm} }
+\textbf{Fault description} & \textbf{errorSummary} & \textbf{Fault representation} \\
+\hline
+Operation not supported & Operation Not Supported & OperationNotSupported \\
+\hline
+Operation fails & Internal Fault & InternalFault \\
+\hline
+User does not have permissions to perform the operation	 & Permission Denied & PermissionDenied \\
+\hline
+Source Node does not exist & Node Not Found & NodeNotFound \\
+\hline
+Service does not support the requested View & View Not Supported & ViewNotSupported \\
+\hline
+Service supports none of the requested Protocols & Protocol Not Supported &ProtocolNotSupported \\
+\hline
+Destination URI is invalid & Invalid URI & InvalidURI \\
+\hline
+A View parameter is invalid & Invalid Argument & InvalidArgument \\
+\hline
+A Protocol parameter is invalid & Invalid Argument & InvalidArgument \\
+\hline
+Data transfer does not complete & Transfer Failed & TransferFailed \\
+\hline
+\end{tabular}
+\vspace{3mm}
+
+\paragraph{Notes}
+If the Job request contains more than one protocol parameter then the service MAY fail over to use one or more of the options if the first one fails. The service SHOULD try each protocol option in turn until one succeeds or all have been tried.
+
+\paragraph{Example}
+pushFromVoSpace
+
+\begin{tabular}{ p{10cm} }
+\\
+\textbf{The Job to be submitted (newJob.xml) is:} \\
+\begin{lstlisting}
+<vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.0">
+  <vos:target>vos://nvo.caltech!vospace/mydata1</uws:parameter>
+  <vos:direction>pushFromVoSpace</uws:parameter>
+  <vos:view>ivo://ivoa.net/vospace/core#defaultview</uws:parameter>
+  <vos:protocol uri="ivo://ivoa.net/vospace/core#httpput">
+    <vos:protocolEndpoint>http://some.server.com/put/the/data/here</vos:protocolEndpoint>
+  </vos:protocol>
+  <vos:protocol uri="ivo://ivoa.net/vospace/core#ftpput">
+    <vos:protocolEndpoint>ftp://some.other.server.com/put/the/data/here</vos:protocolEndpoint>
+  </vos:protocol>
+</vos:transfer>
+\end{lstlisting} \\
+\textbf{request} \\
+\begin{lstlisting}
+> curl -v -X POST -d @newJob.xml "http://localhost:8000/transfers"
+\end{lstlisting} \\
+\end{tabular}
+\paragraph{}
+\begin{tabular}{ p{10cm} }
+\textbf{response} \\
+\begin{lstlisting}
+* Connected to localhost (127.0.0.1) port 8000 (#0)
+> POST /transfers HTTP/1.1
+> User-Agent: curl/7.19.4 (universal-apple-darwin10.0) libcurl/7.19.4 OpenSSL/0.9.8l zlib/1.2.3
+> Host: localhost:8000
+> Accept: */*
+> Content-Length: 942
+> Content-Type: application/x-www-form-urlencoded
+> 
+< HTTP/1.1 303 See Other
+< Content-Length: 174
+< Server: CherryPy/3.1.2
+< Location: http://localhost:8000/transfers/346d5cd27a0d405a8311819c90818cbc
+< Allow: DELETE, GET, HEAD, POST, PUT
+< Date: Sat, 13 Mar 2010 00:41:20 GMT
+< Content-Type: text/html
+< 
+* Connection #0 to host localhost left intact
+* Closing connection #0
+This resource can be found at http://localhost:8000/transfers/346d5cd27a0d405a8311819c90818cbc.
+\end{lstlisting} \\
+\end{tabular}
+\paragraph{}
+\begin{tabular}{ p{10cm} }
+\textbf{The Job can then be started with:} \\
+\begin{lstlisting}
+> curl -v -d PHASE=RUN http://localhost:8000/transfers/346d5cd27a0d405a8311819c90818cbc
+\end{lstlisting} \\
+\textbf{response} \\
+\begin{lstlisting}
+* Connected to localhost (127.0.0.1) port 8000 (#0)
+> POST /transfers HTTP/1.1
+> User-Agent: curl/7.19.4 (universal-apple-darwin10.0) libcurl/7.19.4 OpenSSL/0.9.8l zlib/1.2.3
+> Host: localhost:8000
+> Accept: */*
+> Content-Length: 9
+> Content-Type: application/x-www-form-urlencoded
+> 
+\end{lstlisting} \\
+\end{tabular}
+\paragraph{}
+\begin{tabular}{ p{10cm} }
+\textbf{The status of the job can now be polled at the phase endpoint:} \\
+\begin{lstlisting}
+> curl -v "http://localhost:8000/transfers/346d5cd27a0d405a8311819c90818cbc/phase"
+* Connected to localhost (127.0.0.1) port 8000 (#0)
+> GET /transfers/346d5cd27a0d405a8311819c90818cbc/phase HTTP/1.1
+> User-Agent: curl/7.19.4 (universal-apple-darwin10.0) libcurl/7.19.4 OpenSSL/0.9.8l zlib/1.2.3
+> Host: localhost:8000
+> Accept: */*
+> 
+< HTTP/1.1 200 OK
+< Date: Fri, 12 Mar 2010 23:37:02 GMT
+< Content-Length: 9
+< Content-Type: text/html
+< Allow: DELETE, GET, HEAD, POST, PUT
+< Server: CherryPy/3.1.2
+<
+COMPLETED
+* Connection #0 to host localhost left intact
+* Closing connection #0
+\end{lstlisting} \\
+\end{tabular}
+
+\subsection{Fault arguments}
+Faults reported by a VOSpace service SHALL contain the following information:
+
+\subsubsection{InternalFault}
+This is thrown with a description of the cause of the fault.
+
+\subsubsection{PermissionDenied}
+This is thrown with a description of why the credentials (if any were provided) were rejected.
+
+\subsubsection{InvalidURI}
+This is thrown with details of the invalid URI.
+
+\subsubsection{NodeNotFound}
+This is thrown with the URI of the missing Node.
+
+\subsubsection{DuplicateNode}
+This is thrown with the URI of the duplicate Node.
+
+\subsubsection{InvalidToken}
+This is thrown with the invalid token.
+
+\subsubsection{InvalidArgument}
+This is thrown with a description of the invalid argument, including the View or Protocol URI and the name and value of the parameter that caused the fault.
+
+\subsubsection{TypeNotSupported}
+This is thrown with the QName of the unsupported type.
+
+\subsubsection{ViewNotSupported}
+This is thrown with the uri of the View.
+
+\subsubsection{InvalidData}
+This is thrown with any error message that the data parser produced.
+
+\subsubsection{LinkFoundFault}
+The fault details must contain the full details of the LinkNode.
+
+\section{Changes since last version}
+
+\paragraph{From version 2.0-20130329:}
+\begin{itemize}
+    \item Addition of optimized HTTP GET method of data transfer for pushToVoSpace, pullFromVoSpace
+    \item Addition of authType to Protocol in XML schema for transfer negotiation.
+    \item Added preliminary list of standard authType URIs
+    \item Removed view=data convenience method of data transfer
+    \item Corrections to minor XML format errors in the examples throughout the document.
+\end{itemize}
+
+\paragraph{From version 2.00-20120824:}
+\begin{itemize}
+    \item Use of Resource Idenfifier and CDP in Architecture diagram clarified.
+    \item StandardID defined for this version.
+    \item Various formatting issues.
+    \item Use of HTTP 500 status code clarified.
+    \item HTTP response codes made consistent with RFC 2616.
+\end{itemize}
+
+\paragraph{From version 2.00-20111202:}
+\begin{itemize}
+    \item Clarified use of URI fragments
+    \item Added appendix of standard properties
+    \item Clarified multi-value properties
+    \item Added 404 error codes to getNode and setNode for no parent container ensuring consistent behaviour
+    \item Adjusted pushToVoSpace and pullFromVoSpace convenience methods for self consistency and closer matching to UWS Fault formatting.
+\end{itemize}
+
+\paragraph{From version 2.00-20110628:}
+\begin{itemize}
+    \item Corrected REST binding for synchronous transfer details
+    \item Added endpoint for synchronous job POSTs
+    \item Added properties mtime, ctime, btime
+    \item Changed text to describe use of StandardsRegExt for standard properties, views, capabilities, tranfer protocols
+    \item Changed error code on ContainerNotFound and LinkFound faults
+    \item Added correct failure response for unsupported operations
+\end{itemize}
+
+\paragraph{From version 2.00-20101112:}
+\begin{itemize}
+    \item Examples amended with correct namespaces and root elements
+    \item "~" listed as a valid URI separator character along with "!"
+    \item Core property list added to
+    \item Properties with multiple values clarified
+    \item Optional operations clarified and indicated in conformance matrix
+    \item getNode and findNode operation arguments made consistent
+    \item Synchronous HTTP PUT method added
+    \item createNode response changed to HTTP 200 from HTTP 201
+    \item /{transferDetails} endpoint added
+    \item Support for .auto made optional
+\end{itemize}
+
+\paragraph{From version 2.00-20100323:}
+\begin{itemize}
+    \item Updated UWS details: use uws:jobInfo instead of uws:parameters
+    \item Added IVOA architecture text
+    \item Removed text about WSDL/WADL
+\end{itemize}
+
+\section{Appendix A: Machine readable definitions}
+\subsection{Message schema}
+XML Schema
+The requests and responses of a VOSpace 2.0 service shall adhere to the following XML Schema:
+\begin{lstlisting}[language=xml, basicstyle=\scriptsize]
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema targetNamespace="http://www.ivoa.net/xml/VOSpace/v2.0" elementFormDefault="qualified"
+    attributeFormDefault="unqualified" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.0"
+    xmlns:uws="http://www.ivoa.net/xml/UWS/v1.0"
+    xmlns:xlink="http://www.w3.org/1999/xlink">
+  <xs:import namespace="http://www.ivoa.net/xml/UWS/v1.0" schemaLocation="http://www.ivoa.net/xml/UWS/v1.0"/>
+
+  <!-- ======== Node types ======== -->
+
+  <xsd:complexType name="Node">
+    <xsd:annotation>
+      <xsd:documentation>
+        The base class for all nodes.
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="properties" type="vos:PropertyList" minOccurs="0" maxOccurs="1">
+        <xsd:annotation>
+          <xsd:documentation>
+            The list of node properties.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>            
+    </xsd:sequence>
+    <xsd:attribute name="uri" type="xsd:anyURI" use="required">
+      <xsd:annotation>
+        <xsd:documentation>
+          The node identifier URI.
+        </xsd:documentation>
+      </xsd:annotation>
+    </xsd:attribute>
+  </xsd:complexType>
+
+  <xsd:complexType name="DataNode">
+    <xsd:annotation>
+      <xsd:documentation>
+        The base class for data nodes.
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:complexContent>
+      <xsd:extension base="vos:Node">
+        <xsd:sequence>
+          <xsd:element name="accepts" type="vos:ViewList" minOccurs="0" maxOccurs="1">
+            <xsd:annotation>
+              <xsd:documentation>
+                The list of views or data formats that this node can accept.
+                A simple unstructured node may accept data in any format.
+                A structured node may only accept data in specific formats. 
+              </xsd:documentation>
+            </xsd:annotation>
+          </xsd:element>            
+          <xsd:element name="provides" type="vos:ViewList" minOccurs="0" maxOccurs="1">
+            <xsd:annotation>
+              <xsd:documentation>
+                The list of views or data formats that this node can provide.
+                A simple unstructured node may only provide access to the data in the original format.
+                A structured node may provide different views of the data generated by the service.
+              </xsd:documentation>
+            </xsd:annotation>
+          </xsd:element>            
+	  <xsd:element name="capabilities" type="vos:CapabilityList" minOccurs="0" maxOccurs="1">
+	    <xsd:annotation>
+	      <xsd:documentation>
+	        The list of capabilities that this node can support. 
+	      </xsd:documentation>
+            </xsd:annotation>
+          </xsd:element>
+        </xsd:sequence>
+        <xsd:attribute name="busy" type="xsd:boolean" use="optional" default="false">
+          <xsd:annotation>
+            <xsd:documentation>
+              A flag to indicate if the node content is available.
+              This will be set to false while the data is being imported,
+              or if the underlying service is busy.
+            </xsd:documentation>
+          </xsd:annotation>
+        </xsd:attribute>
+      </xsd:extension>
+    </xsd:complexContent>    
+  </xsd:complexType>
+
+  <xsd:complexType name="UnstructuredDataNode">
+    <xsd:annotation>
+      <xsd:documentation>
+        An unstructured data node, containing unspecified content.
+        The service does not need to understand or interpret the content.
+        This type of node can accept any format, and only provides one view returning the original data.
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:complexContent>
+      <xsd:extension base="vos:DataNode"/>
+    </xsd:complexContent>    
+  </xsd:complexType>
+
+  <xsd:complexType name="StructuredDataNode">
+    <xsd:annotation>
+      <xsd:documentation>
+        A structured data node, containing a specific data format that the service has understands.
+        This type of node may only accept specific data formats, and provide different views of the
+        data generated by the service. 
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:complexContent>
+      <xsd:extension base="vos:DataNode"/>
+    </xsd:complexContent>    
+  </xsd:complexType>
+
+  <xsd:complexType name="ContainerNode">
+    <xsd:annotation>
+      <xsd:documentation>
+        A container node containing any type of node.
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:complexContent>
+      <xsd:extension base="vos:DataNode">
+        <xsd:sequence>
+          <xsd:element name="nodes" minOccurs="1" maxOccurs="1">
+            <xsd:annotation>
+              <xsd:documentation>
+                A list of the direct children that the container has.
+              </xsd:documentation>
+            </xsd:annotation>
+            <xsd:complexType>
+	      <xsd:sequence>
+                <xsd:element name="node" type="vos:Node" minOccurs="0" maxOccurs="unbounded"/>
+	      </xsd:sequence>
+	    </xsd:complexType>
+          </xsd:element>
+        </xsd:sequence>
+      </xsd:extension>
+    </xsd:complexContent>    
+  </xsd:complexType>
+
+  <xsd:complexType name="LinkNode">
+    <xsd:annotation>
+      <xsd:documentation>
+        A node that points to another resource.
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:complexContent>
+      <xsd:extension base="vos:Node">
+	<xsd:sequence>
+          <xsd:element name="target" type="xsd:anyURI" minOccurs="1" maxOccurs="1">
+            <xsd:annotation>
+              <xsd:documentation>
+                The identifier for the object that the LinkNode points to.
+              </xsd:documentation>
+            </xsd:annotation>
+          </xsd:element>
+	</xsd:sequence>
+      </xsd:extension>
+    </xsd:complexContent>    
+  </xsd:complexType>  
+
+  <!-- ======== Property types ======== -->
+
+  <xsd:complexType name="Property">
+    <xsd:simpleContent>
+      <xsd:extension base="xsd:string">
+        <xsd:attributeGroup ref="vos:PropertyAttributeGroup"/>
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  
+  <xsd:complexType name="PropertyList">
+    <xsd:annotation>
+      <xsd:documentation>
+        A container element for a list of properties.
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="property" type="vos:Property" minOccurs="0" maxOccurs="unbounded" nillable="true"/>
+    </xsd:sequence>
+  </xsd:complexType>
+
+  <xsd:complexType name="PropertyReference">
+    <xsd:annotation>
+      <xsd:documentation>
+        A reference to a property description.
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:attributeGroup ref="vos:PropertyAttributeGroup"/>
+  </xsd:complexType>
+
+  <xsd:complexType name="PropertyReferenceList">
+    <xsd:annotation>
+      <xsd:documentation>
+        A container element for a list of property references.
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="property" type="vos:PropertyReference" minOccurs="0" maxOccurs="unbounded" nillable="true"/>
+    </xsd:sequence>
+  </xsd:complexType>
+
+  < xsd:attributeGroup name="PropertyAttributeGroup">
+    < xsd:attribute name="uri" type="xsd:anyURI" use="required">
+      < xsd:annotation>
+	< xsd:documentation>                    
+	  If the property has been registered, then the URI should point to the registration document. Third party 
+          tools may use the urn:xxxx syntax to add unregistered properties.
+        </xsd:documentation>
+      </xsd:annotation>
+    </xsd:attribute>
+    < xsd:attribute name="readOnly" type="xsd:boolean" use="optional" default
+="false">
+      < xsd:annotation>
+        < xsd:documentation>
+          A flag to indicate if the property is considered read-only. Attempting to modify a read-only property
+          should generate a PermissionDenied fault.
+        </xsd:documentation>
+      </xsd:annotation>
+    </xsd:attribute>
+    < xsd:attribute name="xsd:nill" type="xsd:boolean" use="optional" default
+="false">
+      < xsd:annotation>
+        < xsd:documentation>
+          A flag to indicate if the property is null and should be deleted.
+        </xsd:documentation>
+      </xsd:annotation>
+    </xsd:attribute>
+  </xsd:attributeGroup>
+
+  <xsd:complexType name="GetPropertiesResponse">
+    <xsd:sequence>
+      <xsd:element name="accepts" type="vos:PropertyReferenceList">
+        <xsd:annotation>
+          <xsd:documentation>
+            A list of identifiers for the properties that the service accepts and understands.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="provides" type="vos:PropertyReferenceList">
+        <xsd:annotation>
+          <xsd:documentation>
+            A list of identifiers for the properties that the service provides.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="contains" type="vos:PropertyReferenceList">
+        <xsd:annotation>
+          <xsd:documentation>
+            A list of identifiers for all the properties currently used by nodes within the service.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+
+  <!-- ======== View types ======== -->
+
+  <xsd:complexType name="Param">
+    <xsd:annotation>
+      <xsd:documentation>
+        A view or protocol parameter.
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:simpleContent>
+      <xsd:extension base="xsd:string">
+        <xsd:attribute name="uri" type="xsd:anyURI" use="required"/>
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+    
+  <xsd:complexType name="View">
+    <xsd:annotation>
+      <xsd:documentation>
+        An element describing a view of a data-set.
+        A view may just provide the original data, or it could be server generated.
+        Examples of server generated views could include a votable view of data in a database table,
+        or a conversion from one image format to another.
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="param" type="vos:Param" minOccurs="0" maxOccurs="unbounded" nillable="true">
+        <xsd:annotation>
+          <xsd:documentation>
+            A list of parameters for the view.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+    <xsd:attribute name="uri" type="xsd:anyURI" use="required">
+      <xsd:annotation>
+        <xsd:documentation>
+          The view URI.
+          This should point to a resource describing the view format and what parameters it requires.
+        </xsd:documentation>
+      </xsd:annotation>
+    </xsd:attribute>
+    <xsd:attribute name="original" type="xsd:boolean" use="optional" default="true">
+      <xsd:annotation>
+        <xsd:documentation>
+          A flag to indicate if the view provides access to the original data content or a derived form.
+        </xsd:documentation>
+      </xsd:annotation>
+    </xsd:attribute>
+  </xsd:complexType>
+
+  <xsd:complexType name="ViewList">
+    <xsd:annotation>
+      <xsd:documentation>
+        A container element for a list of views.
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="view" type="vos:View" minOccurs="0" maxOccurs="unbounded" nillable="true"/>
+    </xsd:sequence>
+  </xsd:complexType>
+
+  <xsd:complexType name="GetViewsResponse">
+    <xsd:sequence>
+      <xsd:element name="accepts" type="vos:ViewList">
+        <xsd:annotation>
+          <xsd:documentation>
+            A list of identifiers for the views that the service can accept.
+            A simple file based system may accept data in 'any' format. 
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="provides" type="vos:ViewList">
+        <xsd:annotation>
+          <xsd:documentation>
+            A list of identifiers for the views that the service can provide.
+            A simple file based system may only provide data in the original format.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+
+  <!-- ======== Protocol types ======== -->
+
+  <xsd:complexType name="Protocol">
+    <xsd:annotation>
+       <xsd:documentation>
+         A protocol element, containing the protocol URI, the endpoint and any protocol specific parameters.  
+        </xsd:documentation>
+      </xsd:annotation>
+      <xsd:sequence>
+        <xsd:element name="endpoint" type="xsd:anyURI" minOccurs="0" maxOccurs="1">
+          <xsd:annotation>
+            <xsd:documentation>
+              The target endpoint to use for a data transfer.
+            </xsd:documentation>
+          </xsd:annotation>
+        </xsd:element>
+        <xsd:element name="param" type="vos:Param" minOccurs="0" maxOccurs="unbounded" nillable="true">
+          <xsd:annotation>
+            <xsd:documentation>
+              Any additional protocol specific parameters required to use the endpoint.
+              For example, the user name or password to use for ftp access.
+            </xsd:documentation>
+          </xsd:annotation>
+        </xsd:element>
+      </xsd:sequence>
+      </xsd:attribute name="authType" type="xsd:anyURI" minOccurs="0" maxOccurs="unbounded" nillable="true">
+        <xsd:annotation>
+          <xsd:documentation>
+            The supported authentication type(s).
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:attribute>
+      <xsd:attribute name="uri" type="xsd:anyURI" use="required">
+      <xsd:annotation>
+        <xsd:documentation>
+          The protocol identifier.
+        </xsd:documentation>
+      </xsd:annotation>
+    </xsd:attribute>
+  </xsd:complexType>
+
+  <xsd:complexType name="ProtocolList">
+    <xsd:annotation>
+      <xsd:documentation>
+        A container element for a list of protocols.
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="protocol" type="vos:Protocol" minOccurs="0" maxOccurs="unbounded" nillable="true"/>
+    </xsd:sequence>
+  </xsd:complexType>
+
+  <xsd:complexType name="GetProtocolsResponse">
+    <xsd:sequence>
+      <xsd:element name="accepts" type="vos:ProtocolList">
+        <xsd:annotation>
+          <xsd:documentation>
+            A list of identifiers for the protocols that the service can accept.
+            This means that the service can act as a client for the protocol. 
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="provides" type="vos:ProtocolList">
+        <xsd:annotation>
+          <xsd:documentation>
+            A list of identifiers for the protocols that the service can provide.
+            This means that the service can act as a server for the protocol. 
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+
+  <!-- ======== Capability types ======== -->
+
+  <xsd:complexType name="Capability">
+    <xsd:annotation>
+      <xsd:documentation>
+        A capability element, containing the capability URI, the
+    endpoint and any capability specific parameters(?).
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="endpoint" type="xsd:anyURI" minOccurs="0" maxOccurs="1">
+        <xsd:annotation>
+          <xsd:documentation>
+            The target endpoint to use for the third-part interface.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <!--+
+             | Uncommented Capability params.
+             +-->
+      <xsd:element name="param" type="vos:Param" minOccurs="0" maxOccurs="unbounded" nillable="true">
+        <xsd:annotation>
+          <xsd:documentation>
+            Any additional capability specific parameters required to use the endpoint.
+            For example, the user name or password to use for access.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+    <xsd:attribute name="uri" type="xsd:anyURI" use="required">
+      <xsd:annotation>
+        <xsd:documentation>
+          The capability identifier.
+        </xsd:documentation>
+      </xsd:annotation>
+    </xsd:attribute>
+  </xsd:complexType>
+
+  <xsd:complexType name="CapabilityList">
+    <xsd:annotation>
+      <xsd:documentation>
+        A container element for a list of capabilities.
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="capability" type="vos:Capability" minOccurs="0" maxOccurs="unbounded" nillable="true"/>
+    </xsd:sequence>
+  </xsd:complexType>
+
+  <!-- ======== Node list type ======== -->
+    
+  <xsd:complexType name="NodeList">
+    <xsd:annotation>
+      <xsd:documentation>
+        A container element for search responses.
+      </xsd:documentation<
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="nodes" minOccurs="0" maxOccurs="1">
+        <xsd:annotation>
+          <xsd:documentation>
+            The list of nodes.
+          </xsd:documentation>
+	</xsd:annotation>
+	<xsd:complexType>
+	  <xsd:sequence>
+	    <xsd:element name="node" type="vos:Node" minOccurs="0" maxOccurs="unbounded">
+	      <xsd:annotation>
+		<xsd:documentation>
+	          At the maximum level of detail this will be replaced by the full element for the extended type,
+                 using xsi:type to indicate the node type/
+		</xsd:documentation>
+	      </xsd:annotation>
+	    </xsd:element>
+          </xsd:sequence>
+	</xsd:complexType>
+      </xsd:element>	      
+    </xsd:sequence>
+  </xsd:complexType>
+
+  <!-- ======== Transfer type ======== -->
+
+  <xs:complexType name="Transfer">
+    <xsd:annotation>
+      <xsd:documentation>
+        A container element for transfer operations.
+      </xsd:documentation<
+    </xsd:annotation>
+    <xs:sequence>
+      <xs:element name="target" type="xs:anyURI" minOccurs="1" maxOccurs="1">
+        <xsd:annotation>
+          <xsd:documentation>
+            The target of a transfer operation - the node to/from which data is to be transferred.
+          </xsd:documentation>
+	</xsd:annotation>
+      </xsd:element>
+      <xsd:element name="direction" minOccurs="0" maxOccurs="1">
+        <xsd:annotation>
+          <xsd:documentation>
+            The direction of a data transfer - either a URI or one of the specified directions
+          </xsd:documentation>
+	</xsd:annotation>
+        <xsd:simpleType>
+          <xsd:union>
+            <xsd:simpleType>
+              <xsd:restriction base="xsd:anyURI"/>
+            </xsd:simpleType>
+            <xsd:simpleType>   
+              <xsd:restriction base="xs:string">
+                <xsd:enumeration value="pushToVoSpace"/>
+                <xsd:enumeration value="pushFromVoSpace"/>
+                <xsd:enumeration value="pullToVoSpace"/>
+                <xsd:enumeration value="pullFromVoSpace"/>
+              </xsd:restriction>
+            </xsd:simpleType>
+          </xsd:union>
+        </xsd:simpleType>
+      </xsd:element>
+      <xsd:element name="view" type="vos:View" minOccurs="0" maxOccurs="1">
+        <xsd:annotation>
+          <xsd:documentation>
+            The requested view for the transfer.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="protocol" type="vos:Protocol" minOccurs="0" maxOccurs="unbounded">
+        <xsd:annotation>
+          <xsd:documentation>
+            The transfer protocol(s) to use.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="keepBytes" type="xsd:boolean" minOccurs="0" maxOccurs="1">
+        <xsd:annotation>
+          <xsd:documentation>
+            Indicates whether the source object is to be kept in an internal transfer, i.e., distinguishes between a move and a copy.
+          </xsd:documentation>
+        </xsd:annotation>        
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+
+  <!-- ======== Response representations ======== -->
+
+  <xs:element name="protocols" type="vos:ProtocolList"/>
+
+  <xs:element name="views" type="vos:ViewList"/>
+
+  <xs:element name="properties" type="vos:PropertyList"/>
+
+  <xs:element name="transfer" type="vos:Transfer"/>
+ 
+  <xs:element name="searchDetails" type="vos:NodeList"/>
+</xs:schema>
+\end{lstlisting}
+
+\section{Appendix B: Compliance matrix}
+This table summarizes the mandatory behaviour required of a fully compliant VOSpace 2.0 service, i.e. those operations denoted as SHALL and MUST occurring. Note that for faults the general condition is specified but specific details should be checked in the relevant sections. Those associated with optional features are marked with an asterisk in the appropriate section reference - if the service implements an optional feature then it must show this mandatory behaviour.
+
+\hskip-2.0cm\begin{tabular}{ | p {1cm} | p {11cm} | p {4cm} | }
+\hline
+\textbf{Item} & \textbf{Description} & \textbf{Occurs in section(s)} \\ \hline
+1 & VOSpace node identifiers are a URI with the scheme vos:// & 2 \\ \hline
+2 & The naming authority for a VOSpace node URI is the VOSpace service through which the node was created & 2 \\ \hline
+3 & "!" or "~" are used consistently in VOSpace node URIs & 2 \\ \hline
+4 & "!" or "~" are valid separator characters in service requests & 2 \\ \hline
+5 & All ancestors in a node hierarchy are resolvable as containers & 2 \\ \hline
+6 & The bit pattern for data stored in an UnstructuredDataNode is identical for read/write operations & 3.1* \\ \hline
+7 & A Node has elements: uri, properties and capabilities & 3.1 \\ \hline
+8 & A DataNode has elements: uri, properties, capabilities, accepts, provides and busy & 3.1 \\ \hline
+9 & A LinkNode has elements: uri, properties, capabilities and target & 3.1* \\ \hline
+10 & A ContainerNode and a LinkNode have no data bytes associated with them & 3.1* \\ \hline
+11 & A VOSpace service parses XML representations of all node types & 3.1 \\ \hline
+12 & A VOSpace services does not throw a XML parser error in response to requests about unsupported node types & 3.1 \\ \hline
+13 & A Property has elements:uri, endpoint and optional readonly flag & 3.2 \\ \hline
+14 & URIs must be valid (and unique) & 3.2.2, 3.3.2, 3.4.2, 3.5.2, 5.2.1.1, 5.4.1.1, 5.4.2.1 \\ \hline
+15 & A Capability has elements: uri, endpoint and param & 3.3 \\ \hline
+16 & Standard capabilities are represented by the specified URIs & 3.3.5 \\ \hline
+17 & Each Property is identified by a unique URI & 3.2.2 \\ \hline
+18 & Each Capability is identified by a unique URI & 3.3.2 \\ \hline
+19 & Each View is identified by a unique URI & 3.4.2 \\ \hline
+20 & Each Protocol is identified by a unique URI & 3.5.1 \\ \hline
+21 & Standard views are represented by the specified URIs & 3.4.4 \\ \hline
+xx & Standard properties are represented by the specified URIs & 3.2.2 \\ \hline
+22 & Data imported with the default View is treated as a binary BLOB & 3.4.4.1 \\ \hline
+23 & Data exported with the default export View is returned in the most appropriate format & 3.4.4.2 \\ \hline
+24 & An archive format View on a ContainerNode provides access to the archive contents as children nodes of the container & 3.4.5* \\ \hline
+25 & An archive format View specified in a data export operation on a ContainerNode will package the contents of the container and all its child nodes & 3.4.5* \\ \hline
+\end{tabular}
+
+\hskip-2.0cm\begin{tabular}{ | p {1cm} | p {11cm} | p {4cm} | }
+\hline
+\textbf{Item} & \textbf{Description} & \textbf{Occurs in section(s)} \\ \hline
+26 & A Protocol has elements: uri and and endpoint & 3.5 \\ \hline
+27 & Standard protocols are represented by the specified URIs & 3.5.3 \\ \hline
+28 & A Transfer UWS Job representation has elements: target, direction, view, protocol and keepBytes & 3.6 \\ \hline
+29 & A Transfer results representation has elements: target, direction, view, and protocol & 3.6 \\ \hline
+30 & A server responds with a fault if it is unable to handle any of the requested protocols in a data transfer & 3.6.1, 3.6.2 \\ \hline
+31 & A server uses each requested protocol only once in a data transfer & 3.6.1, 3.6.2 \\ \hline
+32 & A data transfer is complete once a specified protocol is successful & 3.6.1, 3.6.2 \\ \hline
+33 & A data transfer has failed if none of the specified protocols has been successful & 3.6.1, 3.6.2 \\ \hline
+34 & A server updates the status flag in the UWS Job representation as appropriate & 3.6.1, 3.6.2 \\ \hline
+35 & A Search UWS Job representation has elements: uri, limit, detail, matches and node & 3.7* \\ \hline
+36 & A Search results representation has elements: nodes & 3.7* \\ \hline
+37 & A VOSpace service has the REST bindings: properties, views, protocols, searches, nodes, and transfers & 3.8 \\ \hline
+38 & Access policies on a VOSpace service are declared in the registered metadata for the service & 4 \\ \hline
+39 & VOSpace authentication employs IVOA SSO supported methods & 4 \\ \hline
+40 & A VOSpace service supports the operations: getProtocols, getViews, getProperties, createNode, deleteNode, moveNode, copyNode, getNode, setNode, pullFromVoSpace. The following are optional operations: findNodes, pushToVoSpace, pullToVoSpace, pushFromVoSpace & 5.1.1, 5.1.2, 5.1.3, 5.2.1, 5.2.2, 5.2.3, 5.2.4, 5.3.1, 5.3.2, 5.3.3*, 5.4.1*, 5.4.2*, 5.4.3, 5.4.4* \\ \hline
+41 & accepts and provides specify entities that the service supports & 5.1.1.2, 5.1.2.2, 5.1.3.2 \\ \hline
+42 & A URI is autogenerated if the reserved URI .auto is used & 3.8*, 5.2.1.1*, 5.2.2.1*, 5.2.3.1*, 5.4.1.1* \\ \hline
+43 & An autogenerated URI is specified as a result in the Results List & 5.2.1.1*, 5.2.2.1*, 5.2.3.1*, 5.4.1.1* \\ \hline
+44 & Any data written to the reserved URI .null is discarded & 3.8 \\ \hline
+45 & accepts is filled in based on service capabilities & 5.2.1.2 \\ \hline
+46 & If a container is deleted then so are its children & 5.2.4 \\ \hline
+47 & If a container is listed, only direct children are listed & 5.3.1.2 \\ \hline
+48 & Results are drawn from the same ordered sequence in any ordering imposed by the server & 5.3.1.2 \\ \hline
+49 & Regex expressions comply with POSIX conventions & 3.7 \\ \hline
+50 & Moving a container moves its children as well & 5.2.2 \\ \hline
+\end{tabular}
+
+\hskip-2.0cm\begin{tabular}{ | p {1cm} | p {11cm} | p {4cm} | }
+\hline
+\textbf{Item} & \textbf{Description} & \textbf{Occurs in section(s)} \\ \hline
+51 & Importing data into an existing container puts the new data within the container & 5.4.1 \\ \hline
+52 & Node types are not changed when a node is moved or copied & 5.2.2.2, 5.2.3.2 \\ \hline
+53 & Copying a container copies its children as well & 5.2.3.2 \\ \hline
+54 & Importing data into an existing node overwrites any preexisting data (unless it is a container) & 5.4.1.1*, 5.4.2.1* \\ \hline
+55 & A HTTP 200 status code is returned if the operation completes successfully & 5.1.1.2, 5.1.2.2, 5.1.3.2, 5.2.1.2, 5.2.4, 5.3.1, 5.3.2 \\ \hline
+56 & A HTTP 303 status code is returned if the operation completes successfully & 5.2.2.2, 5.2.3.2, 5.3.3.2*, 5.4.1.2*, 5.4.2.2*, 5.4.3.2, 5.4.4.2* \\ \hline
+57 & A HTTP 500 status code with an InternalFault fault in the body is thrown if the operation fails & 5.1.1.3, 5.1.2.3, 5.1.3.3, 5.2.1.3, 5.2.4.3, 5.3.1.3, 5.3.2.3, 5.4.3.3 \\ \hline
+58 & A HTTP 400 status code with an InvalidArgument fault in the body is thrown if a specified value is invalid & 5.3.2.3 \\ \hline
+59 & A HTTP 400 status code with an InvalidURI fault in the body is thrown if the specified URI is invalid & 5.2.1.3 \\ \hline
+60 & A HTTP 400 status code with a TypeNotSupported fault in the body is thrown if the specified type is not supported & 5.2.1.3 \\ \hline
+61 & A HTTP 401 status code with a PermissionDenied fault in the body is thrown if the user does not have permission to perform the operation & 5.2.1.3, 5.2.4.3, 5.3.1.3, 5.3.2.3, 5.4.3.3 \\ \hline
+62 & A HTTP 404 status code with a NodeNotFound fault in the body is thrown if... & 5.2.4.3, 5.3.1.3, 5.3.2.3, 5.4.3.3 \\ \hline
+63 & A HTTP 409 status code with a DuplicateFault fault in the body is thrown if the specified node already exists & 5.2.1.3 \\ \hline
+64 & A HTTP 404 status code with a ContainerNotFound fault in the body is thrown if a container is not found & 5.2.1.3, 5.2.4.3 \\ \hline
+65 & A HTTP 400 status code with a LinkFound fault in the body is thrown if a LinkNode is found & 5.2.1.3, 5.2.4.3 \\ \hline
+66 & The PHASE in the UWS Job representation is set to "ERROR" in case of a fault occurring & 5.2.2.3, 5.3.3.3*, 5.4.1.3*, 5.4.2.3*, 5.4.3.3, 5.4.4.3* \\ \hline
+67 & The errorSummary element in the UWS Job representation is set to the appropriate value for the type of fault occurring & 5.2.2.3, 5.3.3.3*, 5.4.1.3*, 5.4.2.3*, 5.4.3.3, 5.4.4.3* \\ \hline
+68 & The appropriate fault representation is provided at the error URI for the job & 5.2.2.3, 5.3.3.3*, 5.4.1.3*, 5.4.2.3*, 5.4.3.3, 5.4.4.3 * \\ \hline
+\end{tabular}
+
+\section{Appendix C: Standard properties}
+This table summarizes the standard properties that SHALL be recognized by a VOSpace service and are registered in the IVOA Registry of Registries.
+
+\hskip-4.0cm\begin{tabular}{ | p {8cm} | p {8cm} | p {2cm} | }
+\hline
+\textbf{Property} & \textbf{Description} & \textbf{Data type} \\ \hline
+ivo://ivoa.net/vospace/core\#availableSpace & the amount of space available within a container & string \\ \hline
+ivo://ivoa.net/vospace/core\#btime & the initial creation time & string \\ \hline
+ivo://ivoa.net/vospace/core\#contributor & an entity responsible for making contributions to this resource & URI \\ \hline
+ivo://ivoa.net/vospace/core\#coverage & a spatial or temporal topic of the resource, the spatial applicability of the resource, or the jurisdiction under which the resource is relevant & string \\ \hline
+ivo://ivoa.net/vospace/core\#creator & an entity primarily responsible for making the resource & URI \\ \hline
+ivo://ivoa.net/vospace/core\#ctime & the status change (aka metadata modification) time & datetime \\ \hline
+ivo://ivoa.net/vospace/core\#date & a point or period of time associated with an event in the lifecycle of the resource & datetime \\ \hline
+ivo://ivoa.net/vospace/core\#description & an account of the resource & string \\ \hline
+ivo://ivoa.net/vospace/core\#format & the file format, physical medium or dimensions of the resource & string \\ \hline
+ivo://ivoa.net/vospace/core\#groupread & the list of groups which can only read this resource & delimiter-separated list \\ \hline
+ivo://ivoa.net/vospace/core\#groupwrite & the list of groups which can read and write to this resource & delimiter-separated list \\ \hline
+ivo://ivoa.net/vospace/core\#identifier & an unambiguous reference to the resource within a given context & string/URI \\ \hline
+ivo://ivoa.net/vospace/core\#language & a language of the resource & string \\ \hline
+ivo://ivoa.net/vospace/core\#length & the length or size of a resource & float \\ \hline
+ivo://ivoa.net/vospace/core\#mtime & the data modification time & datetime \\ \hline
+ivo://ivoa.net/vospace/core\#publicread & whether this resource is world readable & boolean \\ \hline
+ivo://ivoa.net/vospace/core\#publisher & an entity responsible for making the resource available & uri \\ \hline
+ivo://ivoa.net/vospace/core\#quota & the value of a system quota on the resource & string \\ \hline
+ivo://ivoa.net/vospace/core\#relation & a related resource & URI \\ \hline
+ivo://ivoa.net/vospace/core\#rights & information about rights held in and over the resource & string \\ \hline
+ivo://ivoa.net/vospace/core\#source & a related resource from which the described resource is derived & string \\ \hline
+ivo://ivoa.net/vospace/core\#subject & the topic of the resource & string \\ \hline
+ivo://ivoa.net/vospace/core\#title & a name given to the resource & string \\ \hline
+ivo://ivoa.net/vospace/core\#type & the nature or genre of the resource & string \\ \hline
+\end{tabular}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
