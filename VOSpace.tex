@@ -67,9 +67,11 @@ VOSpace is the IVOA interface to distributed storage. It specifies how VO agents
 
 A VOSpace web service is an access point for a distributed storage network. Through this access point, a client can:
 
-add or delete data objects
-manipulate metadata for the data objects
-obtain URIs through which the content of the data objects can be accessed
+\begin{itemize}
+    \item add or delete data objects
+    \item manipulate metadata for the data objects
+    \item obtain URIs through which the content of the data objects can be accessed
+\end{itemize}
 VOSpace does not define how the data is stored or transferred, only the control messages to gain access. Thus, the VOSpace interface can readily be added to an existing storage system.
 
 When we speak of "a VOSpace", we mean the arrangement of data accessible through one particular VOSpace service.
@@ -126,7 +128,7 @@ The service will reply with the URL for the user to use, e.g. http://nvo.caltech
 
 \subsection{Role within the VO Architecture}
 
-The IVOA Architecture [Arch] provides a high-level view of how IVOA standards work together to connect users and applications with providers of data and services, as depicted in the diagram in Figure ~\ref{fig:archdiag}.
+The IVOA Architecture (Figure~\ref{fig:archdiag}) provides a high-level view of how IVOA standards work together to connect users and applications with providers of data and services, as depicted in the diagram in Figure ~\ref{fig:archdiag}.
 
 \begin{figure}
 \centering
@@ -180,33 +182,33 @@ Such a URI SHALL have the following parts with the meanings and encoding rules d
   \item (optional) fragment identifier (with the expected semantics [TODO])
 \end{itemize}
 
-The naming authority for a VOSpace node SHALL be the VOSpace service through which the node was created. The authority part of the URI SHALL be constructed from the IVO registry identifier [IVORN] for that service by deleting the ivo:// prefix and changing all forward-slash characters('/') in the resource key to exclamation marks ('!') or tildes ('~'). Note that a service SHALL be consistent in its use of separator characters ('!' or '~') when referring to its own data but SHALL accept either as valid in URIs in service requests. For the rest of the document, we shall use '!' as the default character.
+The naming authority for a VOSpace node SHALL be the VOSpace service through which the node was created. The authority part of the URI SHALL be constructed from the IVO registry identifier [IVORN] for that service by deleting the ivo:// prefix and changing all forward-slash characters('/') in the resource key to exclamation marks ('!') or tildes ('$\mathtt{\sim}$'). Note that a service SHALL be consistent in its use of separator characters ('!' or '$\mathtt{\sim}$') when referring to its own data but SHALL accept either as valid in URIs in service requests. For the rest of the document, we shall use '!' as the default character.
 
 This is an example of a possible VOSpace identifier.
 
-\begin{lstlisting}
+\begin{verbatim}
 vos://nvo.caltech!vospace/myresults/siap-out-1.vot
-\end{lstlisting}
+\end{verbatim}
 
 The URI scheme is \emph{vos}
 
 Using a separate URI scheme for VOSpace identifiers enables clients to distinguish between IVO registry identifiers and VOSpace identifiers.
 
-\begin{itemize}
-    \item nvo.caltech!vospace
-\end{itemize}
+\begin{verbatim}
+nvo.caltech!vospace
+\end{verbatim}
 
 is the authority part of the URI, corresponding to the IVO registry identifier
 
-\begin{itemize}
-    \item ivo://nvo.caltech/vospace
-\end{itemize}
+\begin{verbatim}
+ivo://nvo.caltech/vospace
+\end{verbati}
 
 This is the IVO registry identifier of the VOSpace service that contains the node.
 
-\begin{itemize}
-    \item /siap-out-1.vot is the URI path
-\end{itemize}
+\begin{verbatim}
+/siap-out-1.vot is the URI path
+\end{verbatim}
 
 Slashes in the URI path imply a hierarchical arrangement of data: the data object identified by vos://nvo.caltech!vospace/myresults/siap-out-1.vot is within the container identified by vos://nvo.caltech!vospace/myresults.
 
@@ -216,7 +218,10 @@ All ancestors in the hierarchy SHALL be resolvable as containers (ContainerNodes
 
 A VOSpace identifier is globally unique, and identifies one specific node in a specific VOSpace service.
 
-The standardID for this specification SHALL be: ivo://ivoa.net/std/VOSpace/v2.1.
+The standardID for this specification SHALL be:
+\begin{verbatim}
+ivo://ivoa.net/std/VOSpace/v2.1
+\end{verbatim}
 
 \subsection{Identifier resolution}
 A VOSpace identifier can be resolved to a HTTP endpoint for accessing representations of the node associated with it. A client SHOULD use the following procedure to resolve access to a VOSpace node from a VOSpace identifier:
@@ -298,7 +303,12 @@ In addition, a \emph{DataNode} representation SHALL have the following elements:
 \begin{itemize}
     \item \emph{accepts}: a list of the views (data formats) that the node can accept
     \item \emph{provides}: a list of the views (data formats) that the node can provide
-    \item \emph{busy}: a boolean flag to indicate that the data associated with the node cannot be accessed
+\end{itemize}
+
+A \emph{DataNode} representation MAY have the following element:
+
+\begin{itemize}
+    \item \emph{busy}: a boolean flag to indicate that the data associated with the node cannot be accessed.
 \end{itemize}
 
 The \emph{busy} flag is used to indicate that an internal operation is in progress, and the node data is not available.
@@ -544,6 +554,7 @@ Capability URIs and CapabilityDescriptions for the core set of Capabilities are 
     \item ivo://ivoa.net/vospace/core\#vospace-1.0 SHALL be used as the capability URI for a VOSpace 1.0 service
     \item ivo://ivoa.net/vospace/core\#vospace-1.1 SHALL be used as the capability URI for a VOSpace 1.1 service
     \item ivo://ivoa.net/vospace/core\#vospace-2.0 SHALL be used as the capability URI for a VOSpace 2.0 service
+    \item ivo://ivoa.net/vospace/core\#vospace-2.1 SHALL be used as the capability URI for a VOSpace 2.1 service
 \end{itemize}
 If a service implementation supports more than one version of the VOSpace interface then these capability URIs can be used with a VOSpace service to identify different VOSpace capabilities for a node.
 
@@ -1103,13 +1114,17 @@ Where the access policy requires authentication of callers, the VOSpace service 
 
 \section{Web service operations}
 
-A VOSpace 2.1 service SHALL be a REST service with the following operations:
+A VOSpace 2.1 service SHALL be a RESTful service with the operations listed in this section.
 
-Note: The URL http://(rest-endpoint)/nodes denotes the URL of the top node in the VOSpace. The URL http://(rest-endpoint)/nodes/(path) denotes a specific node within the VOSpace.
+\paragraph{Notes}
+\begin{itemize}
+    \item The URL http://(rest-endpoint)/nodes denotes the URL of the top node in the VOSpace. The URL http://(rest-endpoint)/nodes/(path) denotes a specific node within the VOSpace.
+    \item When representing a Fault, the exact specified fault name SHALL be used. If this is followed by some details, the fault SHALL be separated from the subsequent characters by whitespace.
+    \item If the service is able to detect an internal system failure (associated with an HTTP 500 status code) then it should indicate this as described below if possible.
+    \item When clients POST or PUT XML documents (such as transfer documents), the Content-Type should be set to either \emph{text/xml} or \emph{application/x-www-form-urlencoded}
+\end{itemize}
 
-Note: When representing a Fault, the exact specified fault name SHALL be used. If this is followed by some details, the fault SHALL be separated from the subsequent characters by whitespace.
 
-Note: If the service is able to detect an internal system failure (associated with an HTTP 500 status code) then it should indicate this as described below if possible.
 
 \subsection{Service metadata}
 These operations return comprehensive lists of service-level metadata, e.g. all protocols supported by the service. Individual nodes within a service, however, may not necessarily support all of these, i.e. only container nodes may support archive formats such as zip or tar.
@@ -1825,6 +1840,8 @@ When the node is a container, the returned record will also contain a list of di
 
 If a "uri" and "offset" are specified in the request then the returned list will consist of the subset of children which begins at the node matching the specified value of the "uri" parameter and with cardinality matching the specified value of the "offset" parameter drawn from an ordered sequence of all children. The ordering is determined by the server but results must always be drawn from the same ordered sequence.
 
+For the target node and for any children returned for a container node, the attribute \emph{xsi:type} SHALL be included in the resulting Node document.  
+
 \paragraph{Faults}
 \begin{itemize}
     \item The service SHOULD throw a HTTP 500 status code including an InternalFault fault in the entity-body if the operation fails
@@ -1870,9 +1887,9 @@ xmlns="http://www.ivoa.net/xml/VOSpace/v2.0">
   </provides>
   <capabilities/>
   <nodes>
-    <node uri="vos://nvo.caltech!vospace/mydir/ngc4323"/>
-    <node uri="vos://nvo.caltech!vospace/mydir/ngc5796"/>
-    <node uri="vos://nvo.caltech!vospace/mydir/ngc6801"/>
+    <node uri="vos://nvo.caltech!vospace/mydir/ngc4323" xsi:type="vos:DataNode"/>
+    <node uri="vos://nvo.caltech!vospace/mydir/ngc5796" xsi:type="vos:DataNode"/>
+    <node uri="vos://nvo.caltech!vospace/mydir/ngc6801" xsi:type="vos:DataNode"/>
   </nodes>
 </node>
 * Connection #0 to host localhost left intact
@@ -1949,7 +1966,7 @@ xmlns="http://www.ivoa.net/xml/VOSpace/v2.0">
 > Host: localhost:8000
 > Accept: */*
 > Content-Length: 309
-> Content-Type: application/x-www-form-urlencoded
+> Content-Type: text/xml
 > 
 < HTTP/1.1 200 OK
 < Date: Fri, 12 Mar 2010 18:49:25 GMT
@@ -2186,7 +2203,7 @@ The list of Protocols SHOULD not contain endpoint addresses, the service will su
 
 The service SHALL ignore any of the requested protocols that it does not understand or is unable to support.
 
-.auto is the reserved URI to indicate an auto-generated URI for the destination, i.e. vos://service/path/.auto SHALL cause a new unique URI for the node within vos://service/path to be generated.
+.auto is the reserved URI to indicate an auto-generated URI for the destination, i.e. vos://service/path/.auto SHALL cause a new unique URI for the node within vos://service/path to be generated.  This URI SHALL be specified as a result in the Results list for the completed transfer with the id of "target".
 
 A transfer may also be initiated with an HTTP POST of a Job representation of the transfer to http://rest-endpoint/sync in three different ways:
 \begin{itemize}
@@ -2949,7 +2966,7 @@ The fault details must contain the full details of the LinkNode.
 \paragraph{From version 2.00-20101112:}
 \begin{itemize}
     \item Examples amended with correct namespaces and root elements
-    \item "~" listed as a valid URI separator character along with "!"
+    \item "$\mathtt{\sim}$" listed as a valid URI separator character along with "!"
     \item Core property list added to
     \item Properties with multiple values clarified
     \item Optional operations clarified and indicated in conformance matrix
@@ -3541,12 +3558,12 @@ This table summarizes the mandatory behaviour required of a fully compliant VOSp
 \textbf{Item} & \textbf{Description} & \textbf{Occurs in section(s)} \\ \hline
 1 & VOSpace node identifiers are a URI with the scheme vos:// & 2 \\ \hline
 2 & The naming authority for a VOSpace node URI is the VOSpace service through which the node was created & 2 \\ \hline
-3 & "!" or "~" are used consistently in VOSpace node URIs & 2 \\ \hline
-4 & "!" or "~" are valid separator characters in service requests & 2 \\ \hline
+3 & "!" or "$\mathtt{\sim}$" are used consistently in VOSpace node URIs & 2 \\ \hline
+4 & "!" or "$\mathtt{\sim}$" are valid separator characters in service requests & 2 \\ \hline
 5 & All ancestors in a node hierarchy are resolvable as containers & 2 \\ \hline
 6 & The bit pattern for data stored in an UnstructuredDataNode is identical for read/write operations & 3.1* \\ \hline
 7 & A Node has elements: uri, properties and capabilities & 3.1 \\ \hline
-8 & A DataNode has elements: uri, properties, capabilities, accepts, provides and busy & 3.1 \\ \hline
+8 & A DataNode has elements: uri, properties, capabilities, accepts, provides & 3.1 \\ \hline
 9 & A LinkNode has elements: uri, properties, capabilities and target & 3.1* \\ \hline
 10 & A ContainerNode and a LinkNode have no data bytes associated with them & 3.1* \\ \hline
 11 & A VOSpace service parses XML representations of all node types & 3.1 \\ \hline
