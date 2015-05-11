@@ -45,11 +45,13 @@ VOSpace is the IVOA interface to distributed storage. This specification present
 \end{abstract}
 
 \section*{Acknowledgments}
+\label{sec:acknowledgments}
 This document derives from discussions among the Grid and Web Services working group of the IVOA.
 
 This document has been developed with support from the National Science Foundation's Information Technology Research Program under Cooperative Agreement AST0122449 with the John Hopkins University, from the UK Science and Technology Facilities Council (STFC), and from the European Commission's Sixth Framework Program via the Optical Infrared Coordination Network (OPTICON).
 
 \section*{Conformance-related definitions}
+\label{sec:conformance-related definitions}
 The words ``MUST'', ``SHALL'', ``SHOULD'', ``MAY'', ``RECOMMENDED'', and
 ``OPTIONAL'' (in upper or lower case) used in this document are to be
 interpreted as described in IETF standard, \citet{std:RFC2119}.
@@ -63,6 +65,7 @@ collaboration of separately funded projects to develop standards and
 infrastructure that enable VO applications.
 
 \section{Introduction}
+\label{sec:introduction}
 VOSpace is the IVOA interface to distributed storage. It specifies how VO agents and applications can use network attached data stores to persist and exchange data in a standard way.
 
 A VOSpace web service is an access point for a distributed storage network. Through this access point, a client can:
@@ -83,6 +86,7 @@ Nodes in VOSpace have unique identifiers expressed as URIs in the 'vos' scheme, 
 VOSpace 2.0 did not introduce any new functionality to that already offered by prior (SOAP-based) versions of the interface (VOSpace 1.1) but defines a RESTful binding for the interface. VOSpace 2.1 introduces minor functional changes to VOSpace 2.0 addressing access control and optimizations.
 
 \subsection{Typical use of a VOSpace service}
+\label{subsec:typical use of a vospace service}
 A typical use case for VOSpace is uploading a local data file to a remote VOSpace service. This is a two-stage process: creating a description of the data file (representation) in the VOSpace including any metadata (its properties) that they want to associate with it (e.g., MIME type), and defining the transfer operation that will actually see the data file bytes uploaded to the VOSpace service. The order of the processes should not matter. The user may want to create the representation first and then perform the transfer or transfer the bytes first and then update the representation with the appropriate metadata.
 
 Let's consider the first sequence: the user provides a XML description of the data file which they HTTP PUT to the appropriate VOSpace URI - this will be the HTTP identifier for the data file in the VOSpace, e.g. http://nvo.caltech.edu/vospace/nodes/mytable1. The description will resemble this:
@@ -127,6 +131,7 @@ Similarly, when a user wants to retrieve a data file from a VOSpace service, the
 The service will reply with the URL for the user to use, e.g. http://nvo.caltech.edu/vospace/myDataNode/table123/transfers/3df89ab4. The user can then download the data file by pointing an HTTP client (e.g. web browser) at the specified endpoint.
 
 \subsection{Role within the VO Architecture}
+\label{subsec:role within the vo architecture}
 
 The IVOA Architecture (Figure~\ref{fig:archdiag}) provides a high-level view of how IVOA standards work together to connect users and applications with providers of data and services, as depicted in the diagram in Figure ~\ref{fig:archdiag}.
 
@@ -148,6 +153,7 @@ The IVOA Architecture (Figure~\ref{fig:archdiag}) provides a high-level view of 
 In this architecture, users employ a variety of tools (from the User Layer) to discover and access archives and services of interest (represented in the Resource Layer). VOSpace provides an interface to storage resources containing the results of using these archives and services and also to other storage solutions, e.g., local disks, where users might want to transfer these results for further work. Items in these resources are referenced by a VOSpace identifier which is related to the standard IVOA Resource Identifier (see section 2). This version of VOSpace employs the UWS design pattern [UWS] to manage data transfers (see section 3.6) and searches (see section 3.7). VOSpace instances may also employ the IVOA Single-Sign-On standard [SSO] for authentication purposes (see section 4) and IVOA Credential Delegation Protocol [CDP] to delegate data transfers.
 
 \subsection{Document roadmap}
+\label{subsec:document roadmap}
 The rest of this document is structured as follows:
 
 In Section 2 (TODO: link these section references), we specify the URI syntax for identifying data objects (nodes) in VOSpace.
@@ -170,6 +176,7 @@ In Section 5, we detail the operations that the VOSpace interface supports. Thes
 In Appendix A, we formally define the VOSpace interface with a machine readable description of its requests and responses and in Appendix B, we present a compliance matrix listing the mandatory behaviour required of a valid VOSpace 2.1 service.
 
 \section{VOSpace identifiers}
+\label{sec:vospace identifiers}
 The identifier for a node in VOSpace SHALL be a URI with the scheme vos.
 
 Such a URI SHALL have the following parts with the meanings and encoding rules defined in RFC2396 [TODO].
@@ -224,6 +231,7 @@ ivo://ivoa.net/std/VOSpace/v2.1
 \end{verbatim}
 
 \subsection{Identifier resolution}
+\label{subsec:identifier resolution}
 A VOSpace identifier can be resolved to a HTTP endpoint for accessing representations of the node associated with it. A client SHOULD use the following procedure to resolve access to a VOSpace node from a VOSpace identifier:
 
 \begin{itemize}
@@ -257,8 +265,10 @@ processing the URI to resolve the VOSpace service would involve :
 Note that any fragment identifier in the identifier SHOULD be removed when resolving the identifier to a HTTP endpoint, consistent with the implied semantics of URI fragments [TODO].
 
 \section{VOSpace data model}
+\label{sec:vospace data model}
 
 \subsection{Nodes and node types}
+\label{subsec:nodes and node types}
 
 We refer to the arrangement of data accessible through one particular VOSpace service as "a VOSpace".
 
@@ -338,6 +348,7 @@ To comply with the standard, a client or service SHALL be able to parse XML repr
 Note: This does not require all services to support all of the Node types, just that it can process an XML request containing any of the types. If the service receives a request for a type that it does not support, the service SHOULD return a \emph{TypeNotSupported} fault. The service SHALL NOT throw an XML parser error if it receives a request for a type that it does not support.
 
 \subsection{Properties}
+\label{subsec:properties}
 \emph{Properties} are simple string-based metadata properties associated with a node.
 
 Individual \emph{Properties} should contain simple short string values, not large blocks of information. If a system needs to attach a large amount of metadata to a node, then it should either use multiple small \emph{Properties}, or a single \emph{Property} containing a URI or URL pointing to an external resource that contains the additional metadata.
@@ -353,6 +364,7 @@ A \emph{Property} representation SHALL have the following elements:
 Properties may be set by the client or the service.
 
 \subsubsection{Property values}
+\label{subsubsec:property values}
 Unless they have special meaning to the service or client, Properties are treated as simple string values.
 
 When a \emph{Property} can take multiple values, e.g., a list of groups which can access a particular resource, these SHOULD be comma-separated, unless the property description defines a specific delimiter.
@@ -360,6 +372,7 @@ When a \emph{Property} can take multiple values, e.g., a list of groups which ca
 Some \emph{Properties} may have meaning to the service; others may have meaning only to one specific type of client. A service implementation does not need to understand the meaning of all the \emph{Properties} of a node. Any Properties that it does not understand can simply be stored as text strings.
 
 \subsubsection{Property identifiers}
+\label{subsubsec:property identifiers}
 Every new type of \emph{Property} SHALL require a unique URI to identify the \emph{Property} and its meaning.
 
 The rules for the \emph{Property} identifiers are similar to the rules for namespace URIs in XML schema. The only restriction is that it SHALL be a valid (unique) URI.
@@ -393,6 +406,7 @@ Using an IVO registry URI to identify Properties has two main advantages:
 \end{itemize}
 
 \subsubsection{Property descriptions}
+\label{subsubsec:property descriptions}
 If the URI for a particular Property is resolvable, i.e. an IVO registry identifier or a HTTP URL, then it SHOULD point to an XML resource that describes the Property.
 
 A Property description SHOULD describe the data type and meaning of a Property.
@@ -447,6 +461,7 @@ Future versions of the VOSpace specification may extend the PropertyDescription 
 Note that at the time of writing, the schema for registering validation rules in PropertyDescriptions has not been finalized.
 
 \subsubsection{Standard properties}
+\label{subsubsec:standard properties}
 Property URIs and PropertyDescriptions for the core set of Properties are registered under a StandardKeyEnumeration resource [VOStd] in the IVOA registry with the resource identifier ivo://ivoa.net/vospace/core. The following URIs SHOULD be used to represent the service properties:
 
 \begin{itemize}
@@ -479,6 +494,7 @@ Property URIs and PropertyDescriptions for the core set of Properties are regist
 However, this is not intended to be a closed list, different implementations are free to define and use their own Properties.
 
 \subsection{Capabilities}
+\label{subsec:capabilities}
 A Capability describes a third-party interface to a node. One application of this would be to enable data access to a node or its contents using a 3rd party service interface.
 
 A Capability representation SHALL have the following members:
@@ -490,11 +506,13 @@ A Capability representation SHALL have the following members:
 \end{itemize}
 
 \subsubsection{Example use cases}
+\label{subsubsec:example use cases}
 A ContainerNode containing image files may offer a DAL SIAP capability so that the images in the container can be accessed using a SIAP service. In this way, a user could create a (DAL enabled) Container in VOSpace, transfer some images into it and then query the set of images using the SIAP interface.
 
 Another example is a DataNode that provides an iRODS capability so that the data replication for this data object can be handled using the iRODS service API.
 
 \subsubsection{Capability identifiers}
+\label{subsubsec:capability identifiers}
 Every new type of Capability SHALL require a unique URI to identify the Capability. The rules for the Capability identifiers are similar to the rules for namespace URIs in XML schema. The only restriction is that it SHALL be a valid (unique) URI.
 
 \begin{itemize}
@@ -522,6 +540,7 @@ Using an IVO registry URI to identify Capabilities has two main advantages:
 \end{itemize}
 
 \subsubsection{Capability descriptions}
+\label{subsubsec:capability descriptions}
 If the URI for a particular Capability is resolvable, i.e. an IVO registry identifier or a HTTP URL then it SHOULD point to an XML resource that describes the Capability.
 
 A CapabilityDescription SHOULD describe the third-party interface and how it should be used in this context. A CapabilityDescription SHOULD have the following members:
@@ -535,6 +554,7 @@ A CapabilityDescription SHOULD describe the third-party interface and how it sho
 Note that at the time of writing, the schema for registering CapabilityDescriptions in the IVO registry has not been finalized.
 
 \subsubsection{UI display name}
+\label{subsubsection:ui display ame}
 If a client is unable to resolve a Capability identifier into a description then it may just display the identifier as a text string:
 
 \begin{itemize}
@@ -548,6 +568,7 @@ If a client can resolve the Capability identifier into a description then the cl
 \end{itemize}
 
 \subsubsection{Standard capabilities}
+\label{subsubsec:standard capabilities}
 Capability URIs and CapabilityDescriptions for the core set of Capabilities are registered under a StandardKeyEnumeration resource [VOStd] in the IVOA registry with the resource identifier ivo://ivoa.net/vospace/core.. The following URIs SHALL be used to represent the service capabilities:
 
 \begin{itemize}
@@ -572,6 +593,7 @@ Other standard service interfaces will also be registered, e.g.
 However, this is not intended to be a closed list and different implementations are free to define and use their own Capabilities.
 
 \subsection{Views}
+\label{subsec:views}
 A View describes the data formats and contents available for importing or exporting data to or from a VOSpace node.
 
 The metadata for a DataNode contains two lists of Views.
@@ -589,6 +611,7 @@ A View representation SHALL have the following members:
 \end{itemize}
 
 \subsubsection{Example use cases}
+\label{subsubsec:example use cases}
 A simple VOSpace system that stores data as a binary files can just return the contents of the original file. The client supplies a View identifier when it imports the data, and the service uses this information to describe the data to other clients.
 
 A file based system can use the special case identifier 'ivo://ivoa.net/vospace/core\#view?any' to indicate that it will accept any data format or View for a Node.
@@ -634,6 +657,7 @@ The service would publish this information as a list of Views in the provides se
 The VOSpace specification does not mandate what Views a service must provide. The VOSpace specification is intended to provide a flexible mechanism enabling services to describe a variety of different Views of data. It is up to the service implementation to decide what Views of the data it can accept and provide.
 
 \subsubsection{View identifiers}
+\label{subsubsec:view identifiers}
 Every new type of View SHALL require a unique URI to identify the View and its content.
 
 The rules for the View identifiers are similar to the rules for namespace URIs in XML schema. The only restriction is that it SHALL be a valid (unique) URI.
@@ -667,6 +691,7 @@ Using an IVO registry URI to identify Views has two main advantages:
 \end{itemize}
 
 \subsubsection{View descriptions}
+\label{subsubsec:view descriptions}
 If the URI for a particular View is resolvable, i.e. an IVO registry identifier or a HTTP URL, then it SHOULD point to an XML resource that describes the View.
 
 A ViewDescription SHOULD describe the data format and/or content of the view.
@@ -705,6 +730,7 @@ If the client can resolve the View identifier into a description, then the clien
 If a VOSpace service provides HTTP access to the data contained in a Node, then if the ViewDescription contains a MimeType field, this SHOULD be included in the appropriate header field of the HTTP response.
 
 \subsubsection{Default views}
+\label{subsubsec:default views}
 The following standard URIs are registered under a StandardKeyEnumeration resource [VOStd] in the IVOA registry with the resource identifier ivo://ivoa.net/vospace/core. They SHALL be used to refer to the default import and export views:
 
 \begin{itemize}
@@ -728,11 +754,13 @@ Note, this view is OPTIONAL, and the server may throw a ViewNotSupported excepti
 Note, this view is only valid for the data export operations, pullFromVoSpace and pushFromVoSpace. If this view is requested in an import operation, pullToVoSpace and pushToVoSpace, then the service SHOULD throw a ViewNotSupported fault.
 
 \subsubsection{Container views}
+\label{subsubsec:container views}
 In VOSpace 2.1, a view of a ContainerNode describes the data representation (format) of a file or data stream that represents the combined contents of the node and its children. If the view describes an archive format (tar, zip, etc.) then a service that accepts this view (format) for a ContainerNode SHALL provide access to the archive contents as children nodes of the container. Whether or not the service actually unpacks the archive is implementation dependent but the service SHALL behave as though it has done so. For example, a client may want to upload a tar file containing several images to a VOSpace service. If they associate it with (upload it to) a (Un)structuredDataNode then it will be treated as a blob and its contents will be not be available. However, if they upload it to a ContainerNode with an accepts view of "tar" then the image files within the tar file will be represented as children nodes of the ContainerNode and accessible like any other data object within the space.
 
 If a service provides an archive format (tar, zip, etc.) view of a ContainerNode then the service SHALL package the contents of the container and all its child nodes in the specified format.
 
 \subsection{Protocols}
+\label{subsec:protocols}
 A Protocol describes the parameters required to perform a data transfer using a particular protocol.
 
 A Protocol representation SHALL have the following members:
@@ -745,13 +773,14 @@ A Protocol representation SHALL have the following members:
 A protocol representation MAY have the following members:
 
 \begin{itemize}
-    \item \emph{param}: A list of name-value pairs that specify any additional arguments requried for the transfer
+    \item \emph{param}: A list of name-value pairs that specify any additional arguments requried to support the protocol
     \item \emph{authType}: The requested type of authentication method to be used
 \end{itemize}
 
 Note: endpoint will only contain a value after the response from the service is received.
 
 \subsubsection{Protocol identifiers}
+\label{subsubsec:protocol identifiers}
 Every new type of Protocol requires a unique URI to identify the Protocol and how to use it.
 
 The rules for the Protocol identifiers are similar to the rules for namespace URIs in XML schema. The only restriction is that it SHALL be a valid (unique) URI
@@ -785,6 +814,7 @@ Using an IVO registry URI to identify Protocols has two main advantages:
 \end{itemize}
 
 \subsubsection{Protocol descriptions}
+\label{subsubsec:protocol descriptions}
 If the URI for a particular Protocol is resolvable, i.e. an IVO registry identifier or a HTTP URL, then it SHOULD point to an XML resource that describes the Protocol.
 
 A ProtocolDescription SHOULD describe the underlying transport protocol, and how it should be used in this context.
@@ -813,7 +843,8 @@ If the client can resolve the Protocol identifier into a description, then the c
     \item Download using standard HTTP GET
 \end{itemize}
 
-\subsubsection{Standard protocols and authentication types}
+\subsubsection{Standard protocols}
+\label{subsubsec:standard protocols}
 Protocol URIs and ProtocolDescriptions for the core set of standard transport protocols are registered under a StandardKeyEnumeration resource [VOStd] in the IVOA registry with the resource identifier ivo://ivoa.net/vospace/core. The following URIs SHALL be used to represent the standard protocols:
 
 \begin{itemize}
@@ -833,6 +864,7 @@ AuthenticationType URIs and AuthenticationTypeDescriptions for the core set of s
 However, this is not intended to be a closed list, different implementations are free to define and use their own transfer Protocols and authentication types.
 
 \subsubsection{Custom protocols}
+\label{subsubsec:custom protocols}
 There are several use cases where a specific VOSpace implementation may want to define and use a custom VOSpace transfer Protocol, either extending an existing Protocol, or defining a new one.
 
 \paragraph{SRB Gateway}
@@ -884,6 +916,7 @@ The two different Protocol URIs and ProtocolDescriptions describe how to use the
 Enabling different groups to define, register and use their own custom Protocols in this way means that systems can be configured to use the best available transport protocols for transferring data, without conflicting with other systems who may be using similar a transport protocol in a different context.
 
 \subsection{Transfers}
+\label{subsec:transfers}
 A Transfer describes the details of a data transfer to or from a space.
 
 A UWS Job representation [UWS] of a Transfer SHALL have the following parameters:
@@ -908,6 +941,7 @@ A UWS Job representation [UWS] of a Transfer SHALL have the following parameters
         \begin{itemize}
             \item For an external data transfer, this parameter is not required.
         \end{itemize}
+    \item \emph{param}: A list of name-value pairs that specify any additional arguments for the transfer.
 \end{itemize}
 
 This representation will be used as a child of the jobInfo element in a UWS Job representation.
@@ -934,6 +968,7 @@ The representation of the results of a Transfer SHALL have the following members
 \end{itemize}
 
 \subsubsection{Service-initiated transfers}
+\label{subsubsec:service-initiated transfers}
 Two of the external data transfers (pullToVoSpace and pushFromVoSpace) rely on the server performing the data transfer itself.
 
 The client constructs a Job request containing details of the View and one or more Protocol elements with valid endpoint addresses.
@@ -959,6 +994,7 @@ Some Protocols MAY require the service to call a callback address when a data tr
 If none of the Protocol options succeed, then the transfer SHALL be considered to have failed, and the service SHALL return a fault containing details of the Protocol options it tried. The status flag will be updated to reflect this.
 
 \subsubsection{Client-initiated transfers}
+\label{subsubsec:client-initiated transfers}
 Two of the VOSpace external transfer methods rely on an external actor performing the data transfer outside the scope of the service call.
 
 In these methods, the client sends a Job request to the server which SHOULD contain details of the View and one or more protocol parameters.
@@ -996,6 +1032,7 @@ Some Protocols MAY require the agent to call a callback address when a data tran
 If none of the Protocol options succeed, then the transfer SHALL be considered to have failed and the status will be updated.
 
 \subsection{Searches}
+\label{subsec:searches}
 A Search describes the details of data objects in the space which meet specified search criteria, i.e. that are the results of a submitted search request.
 
 A UWS Job representation of a Search SHALL have the following parameters:
@@ -1042,6 +1079,7 @@ The representation of the results of a Search SHALL have the following members:
 \end{itemize}
 
 \subsection{REST bindings}
+\label{subsec:rest bindings}
 In a REST (Representational State Transfer) binding of VOSpace, each of the objects defined below is available as a web resource with its own URI.
 
 \vspace{3mm}
@@ -1084,6 +1122,7 @@ In addition, the following Nodes, appearing as part of a node-path, are reserved
 The standardID for the service is: ivo://ivoa.net/std/VOSpace/v2.0. Available resources will then just be ivo://ivoa.net/std/VOSpace/v2.0\#<resourceName>, e.g., ivo://ivoa.net/std/VOSpace/v2.0\#nodes.
 
 \section{Access Control}
+\label{sec:access control}
 VOSpace implementations may support any of the following authentication methods:
 
 \begin{itemize}
@@ -1113,6 +1152,7 @@ No operations to modify the access policy (e.g. to set permissions on an individ
 Where the access policy requires authentication of callers, the VOSpace service SHALL support one of the authentication methods defined in the IVOA Single Sign On profile.
 
 \section{Web service operations}
+\label{sec:web service operations}
 
 A VOSpace 2.1 service SHALL be a RESTful service with the operations listed in this section.
 
@@ -1124,12 +1164,12 @@ A VOSpace 2.1 service SHALL be a RESTful service with the operations listed in t
     \item When clients POST or PUT XML documents (such as transfer documents), the Content-Type should be set to either \emph{text/xml} or \emph{application/x-www-form-urlencoded}
 \end{itemize}
 
-
-
 \subsection{Service metadata}
+\label{subsec:service metadata}
 These operations return comprehensive lists of service-level metadata, e.g. all protocols supported by the service. Individual nodes within a service, however, may not necessarily support all of these, i.e. only container nodes may support archive formats such as zip or tar.
 
 \subsubsection{getProtocols}
+\label{subsubsec:getprotocols}
 Get a list of the transfer Protocols supported by the space service
 
 \paragraph{Request}
@@ -1197,6 +1237,7 @@ Get the VOSpace protocols
 \end{tabular}
 
 \subsubsection{getViews}
+\label{subsubsec:getviews}
 Get a list of the Views and data formats supported by the space service
 
 \paragraph{Request}
@@ -1263,6 +1304,7 @@ Get the VOSpace views
 \end{tabular}
 
 \subsubsection{getProperties}
+\label{subsubsec:getproperties}
 
 \paragraph{Request}
 A HTTP request to http://rest-endpoint/properties
@@ -1330,8 +1372,10 @@ Get the VOSpace properties
 \end{tabular}
 
 \subsection{Creating and manipulating data nodes}
+\label{subsec:creating and manipulating data nodes}
 
 \subsubsection{createNode}
+\label{subsubsec:createnode}
 Create a new node at a specified location
 
 \paragraph{Request}
@@ -1381,7 +1425,7 @@ The \emph{capabilities} list for the Node MAY not be filled in until some data h
     \item The service SHALL throw a HTTP 409 status code including a DuplicateNode fault in the entity body if a Node already exists with the same URI
     \item The service SHALL throw a HTTP 400 status code including an InvalidURI fault in the entity body if the requested URI is invalid
     \item The service SHALL throw a HTTP 400 status code including a TypeNotSupported fault in the entity body if the type specified in xsi:type is not supported
-    \item The service SHALL throw a HTTP 401 status code including PermissionDenied fault in the entity body if the user does not have permissions to perform the operation
+    \item The service SHALL throw a HTTP 403 status code including PermissionDenied fault in the entity body if the user does not have permissions to perform the operation
     \item If a parent node in the URI path does not exist then the service SHALL throw a HTTP 404 status code including a ContainerNotFound fault in the entity body.
     \begin{itemize}
         \item For example, given the URI path /a/b/c, the service must throw a HTTP 404 status code including a ContainerNotFound fault in the entity body if either /a or /a/b do not exist.
@@ -1454,6 +1498,7 @@ Create a node
 \end{tabular}
 
 \subsubsection{moveNode}
+\label{subsubsec:movenode}
 Move a node within a VOSpace service.
 
 Note that this does not cover moving data between two separate VOSpace services.
@@ -1606,6 +1651,7 @@ Move a node
 \end{tabular}
 
 \subsubsection{copyNode}
+\label{subsubsec:copynode}
 Copy a node with a VOSpace service.
 Note that this does not cover copying data between two separate VOSpace services.
 Copying nodes between separate VOSpace services SHOULD be handled by the client, using the import and export methods.
@@ -1743,6 +1789,7 @@ http://localhost:8000/transfers/6fbb28afec94417ba256d705f5e1f966.
 \end{tabular}
 
 \subsubsection{deleteNode}
+\label{subsubsec:deletenode}
 Delete a node.
 When the target is a ContainerNode, all its children (the contents of the container) SHALL also be deleted.
 Note that the same operation can also be achieved with a moveNode (see 5.2.2) with a .null node as the direction (destination node).
@@ -1756,7 +1803,7 @@ A HTTP 204 status code
 \paragraph{Faults}
 \begin{itemize}
     \item The service SHOULD throw a HTTP 500 status code including an InternalFault fault in the entity-body if the operation fails
-    \item The service SHALL throw a HTTP 401 status code including a PermissionDenied fault in the entity-body if the user does not have permissions to perform the operation
+    \item The service SHALL throw a HTTP 403 status code including a PermissionDenied fault in the entity-body if the user does not have permissions to perform the operation
     \item The service SHALL throw a HTTP 404 status code including a NodeNotFound fault in the entity-body if the target node does not exist
     \item If a parent node in the URI path does not exist then the service SHALL throw a HTTP 404 status code including a ContainerNotFound fault in the entity-body
     \begin{itemize}
@@ -1802,8 +1849,10 @@ Delete a VOSpace node
 \end{tabular}
 
 \subsection{Accessing metadata}
+\label{subsec:accessing metadata}
 
 \subsubsection{getNode}
+\label{subsubsec:getnode}
 Get the details for a specific Node.
 
 \paragraph{Request}
@@ -1845,7 +1894,7 @@ For the target node and for any children returned for a container node, the attr
 \paragraph{Faults}
 \begin{itemize}
     \item The service SHOULD throw a HTTP 500 status code including an InternalFault fault in the entity-body if the operation fails
-    \item The service SHALL throw a HTTP 401 status code including a PermissionDenied fault in the entity-body if the user does not have permissions to perform the operation
+    \item The service SHALL throw a HTTP 403 status code including a PermissionDenied fault in the entity-body if the user does not have permissions to perform the operation
     \item The service SHALL throw a HTTP 404 status code including a NodeNotFound fault in the entity-body if the target Node does not exist
 \end{itemize}
 
@@ -1898,6 +1947,7 @@ xmlns="http://www.ivoa.net/xml/VOSpace/v2.0">
 \end{tabular}
 
 \subsubsection{setNode}
+\label{subsubsec:setnode}
 Set the property values for a specific Node
 
 \paragraph{Request}
@@ -1922,8 +1972,8 @@ The full expanded record for the node SHALL be returned, including any xsi:type 
 \paragraph{Faults}
 \begin{itemize}
     \item The service SHOULD throw a HTTP 500 status code including an InternalFault fault in the entity-body if the operation fails
-    \item The service SHALL throw a HTTP 401 status code including a PermissionDenied fault in the entity-body if the request attempts to modify a read-only Property
-    \item The service SHALL throw a HTTP 401 status code including a PermissionDenied fault in the entity-body if the user does not have permissions to perform the operation
+    \item The service SHALL throw a HTTP 403 status code including a PermissionDenied fault in the entity-body if the request attempts to modify a read-only Property
+    \item The service SHALL throw a HTTP 403 status code including a PermissionDenied fault in the entity-body if the user does not have permissions to perform the operation
     \item The service SHALL throw a HTTP 404 status code including a NodeNotFound fault in the entity-body if the target Node does not exist
     \item If a parent node in the URI path does not exist then the service SHALL throw a HTTP 404 status code including a ContainerNotFound fault in the entity-body
     \begin{itemize}
@@ -1994,6 +2044,7 @@ xmlns="http://www.ivoa.net/xml/VOSpace/v2.0" busy="false">
 \end{tabular}
 
 \subsubsection{findNodes}
+\label{subsubsec:findnodes}
 Find nodes whose properties match the specified values.
 
 This operation is OPTIONAL.
@@ -2161,6 +2212,7 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 \end{tabular}
 
 \subsection{Transferring data}
+\label{subsec:transferringdata}
 Two modes are supported for external data transfers: a simple HTTP GET to retrieve data from a service (pullFromVoSpace) and a more general mechanism which employs a UWS-based approach [UWS] for submitting general data transfer requests (see section 3.6). In the latter, four directions are specified in which external data transfers can happen:
 \begin{itemize}
     \item sending data to a service (pushToVoSpace)
@@ -2181,6 +2233,7 @@ A transfer can also be aborted at any stage with a HTTP POST of the parameter "P
 More specific details for each of the four directions are given below.
 
 \subsubsection{pushToVoSpace}
+\label{subsubsec:pushtovospace}
 Request a list of URLs to send data to a VOSpace node.
 
 This method asks the server for a list of one or more URLs that the client can use to send data to.
@@ -2416,6 +2469,7 @@ curl -v -X POST -d "TARGET=vos://nvo.caltech!vospace/mydata1?DIRECTION=pushToVoS
 \end{tabular}
 
 \subsubsection{pullToVoSpace}
+\label{subsubsec:pulltovospace}
 Import data into a VOSpace node.
 
 This method asks the server to fetch data from a remote location.
@@ -2539,7 +2593,8 @@ EXECUTING
 \end{lstlisting}
 \end{tabular}
 
-\subsection{pullFromVoSpace}
+\subsubsection{pullFromVoSpace}
+\label{subsubsec:pullfromvospace}
 Request a set of URLs that the client can read data from.
 
 The client requests access to the data in a Node, and the server SHALL respond with a set of URLs that the client can read the data from.
@@ -2752,6 +2807,7 @@ Optimized pullFromVoSpace over /sync
 \end{tabular}
 
 \subsubsection{pushFromVoSpace}
+\label{subsubsec:pushfromvospace}
 Ask the server to send data to a remote location.
 
 The client supplies a list of URLs and asks the server to send the data to the remote location.
@@ -2891,40 +2947,41 @@ COMPLETED
 \subsection{Fault arguments}
 Faults reported by a VOSpace service SHALL contain the following information:
 
-\subsubsection{InternalFault}
+\paragraph{InternalFault}
 This is thrown with a description of the cause of the fault.
 
-\subsubsection{PermissionDenied}
+\paragraph{PermissionDenied}
 This is thrown with a description of why the credentials (if any were provided) were rejected.
 
-\subsubsection{InvalidURI}
+\paragraph{InvalidURI}
 This is thrown with details of the invalid URI.
 
-\subsubsection{NodeNotFound}
+\paragraph{NodeNotFound}
 This is thrown with the URI of the missing Node.
 
-\subsubsection{DuplicateNode}
+\paragraph{DuplicateNode}
 This is thrown with the URI of the duplicate Node.
 
-\subsubsection{InvalidToken}
+\paragraph{InvalidToken}
 This is thrown with the invalid token.
 
-\subsubsection{InvalidArgument}
+\paragraph{InvalidArgument}
 This is thrown with a description of the invalid argument, including the View or Protocol URI and the name and value of the parameter that caused the fault.
 
-\subsubsection{TypeNotSupported}
+\paragraph{TypeNotSupported}
 This is thrown with the QName of the unsupported type.
 
-\subsubsection{ViewNotSupported}
+\paragraph{ViewNotSupported}
 This is thrown with the uri of the View.
 
-\subsubsection{InvalidData}
+\paragraph{InvalidData}
 This is thrown with any error message that the data parser produced.
 
-\subsubsection{LinkFoundFault}
+\paragraph{LinkFoundFault}
 The fault details must contain the full details of the LinkNode.
 
 \section{Changes since last version}
+\label{sec:changes since last version}
 
 \paragraph{From version 2.0-20130329:}
 \begin{itemize}
@@ -2985,7 +3042,9 @@ The fault details must contain the full details of the LinkNode.
 \end{itemize}
 
 \section{Appendix A: Machine readable definitions}
+\label{sec:appendix a: machine readable definitions}
 \subsection{Message schema}
+\label{subsec:message schema}
 XML Schema
 The requests and responses of a VOSpace 2.0 service shall adhere to the following XML Schema:
 \begin{lstlisting}[language=xml, basicstyle=\scriptsize]
@@ -3349,7 +3408,7 @@ The requests and responses of a VOSpace 2.0 service shall adhere to the followin
       </xsd:attribute name="authType" type="xsd:anyURI" minOccurs="0" maxOccurs="unbounded" nillable="true">
         <xsd:annotation>
           <xsd:documentation>
-            The supported authentication type(s).
+            The supported (or requested) authentication type(s).
           </xsd:documentation>
         </xsd:annotation>
       </xsd:attribute>
@@ -3533,6 +3592,14 @@ The requests and responses of a VOSpace 2.0 service shall adhere to the followin
           </xsd:documentation>
         </xsd:annotation>        
       </xsd:element>
+      <xsd:element name="param" type="vos:Param" minOccurs="0" maxOccurs="unbounded" nillable="true">
+          <xsd:annotation>
+            <xsd:documentation>
+              Any additional transfer specific parameters required to use the endpoint.
+              For example, the size of the file on a pushToVoSpace transfer.
+            </xsd:documentation>
+          </xsd:annotation>
+        </xsd:element>
     </xsd:sequence>
   </xsd:complexType>
 
@@ -3551,93 +3618,95 @@ The requests and responses of a VOSpace 2.0 service shall adhere to the followin
 \end{lstlisting}
 
 \section{Appendix B: Compliance matrix}
+\label{sec:appendix b: compliance matrix}
 This table summarizes the mandatory behaviour required of a fully compliant VOSpace 2.0 service, i.e. those operations denoted as SHALL and MUST occurring. Note that for faults the general condition is specified but specific details should be checked in the relevant sections. Those associated with optional features are marked with an asterisk in the appropriate section reference - if the service implements an optional feature then it must show this mandatory behaviour.
 
 \hskip-2.0cm\begin{tabular}{ | p {1cm} | p {11cm} | p {4cm} | }
 \hline
 \textbf{Item} & \textbf{Description} & \textbf{Occurs in section(s)} \\ \hline
-1 & VOSpace node identifiers are a URI with the scheme vos:// & 2 \\ \hline
-2 & The naming authority for a VOSpace node URI is the VOSpace service through which the node was created & 2 \\ \hline
-3 & "!" or "$\mathtt{\sim}$" are used consistently in VOSpace node URIs & 2 \\ \hline
-4 & "!" or "$\mathtt{\sim}$" are valid separator characters in service requests & 2 \\ \hline
-5 & All ancestors in a node hierarchy are resolvable as containers & 2 \\ \hline
-6 & The bit pattern for data stored in an UnstructuredDataNode is identical for read/write operations & 3.1* \\ \hline
-7 & A Node has elements: uri, properties and capabilities & 3.1 \\ \hline
-8 & A DataNode has elements: uri, properties, capabilities, accepts, provides & 3.1 \\ \hline
-9 & A LinkNode has elements: uri, properties, capabilities and target & 3.1* \\ \hline
-10 & A ContainerNode and a LinkNode have no data bytes associated with them & 3.1* \\ \hline
-11 & A VOSpace service parses XML representations of all node types & 3.1 \\ \hline
-12 & A VOSpace services does not throw a XML parser error in response to requests about unsupported node types & 3.1 \\ \hline
-13 & A Property has elements:uri, endpoint and optional readonly flag & 3.2 \\ \hline
-14 & URIs must be valid (and unique) & 3.2.2, 3.3.2, 3.4.2, 3.5.2, 5.2.1.1, 5.4.1.1, 5.4.2.1 \\ \hline
-15 & A Capability has elements: uri, endpoint and param & 3.3 \\ \hline
-16 & Standard capabilities are represented by the specified URIs & 3.3.5 \\ \hline
-17 & Each Property is identified by a unique URI & 3.2.2 \\ \hline
-18 & Each Capability is identified by a unique URI & 3.3.2 \\ \hline
-19 & Each View is identified by a unique URI & 3.4.2 \\ \hline
-20 & Each Protocol is identified by a unique URI & 3.5.1 \\ \hline
-21 & Standard views are represented by the specified URIs & 3.4.4 \\ \hline
-xx & Standard properties are represented by the specified URIs & 3.2.2 \\ \hline
-22 & Data imported with the default View is treated as a binary BLOB & 3.4.4.1 \\ \hline
-23 & Data exported with the default export View is returned in the most appropriate format & 3.4.4.2 \\ \hline
-24 & An archive format View on a ContainerNode provides access to the archive contents as children nodes of the container & 3.4.5* \\ \hline
-25 & An archive format View specified in a data export operation on a ContainerNode will package the contents of the container and all its child nodes & 3.4.5* \\ \hline
+1 & VOSpace node identifiers are a URI with the scheme vos:// & ~\ref{sec:vospace identifiers} \\ \hline
+2 & The naming authority for a VOSpace node URI is the VOSpace service through which the node was created & ~\ref{sec:vospace identifiers} \\ \hline
+3 & "!" or "$\mathtt{\sim}$" are used consistently in VOSpace node URIs & ~\ref{sec:vospace identifiers} \\ \hline
+4 & "!" or "$\mathtt{\sim}$" are valid separator characters in service requests & ~\ref{sec:vospace identifiers} \\ \hline
+5 & All ancestors in a node hierarchy are resolvable as containers & ~\ref{sec:vospace identifiers} \\ \hline
+6 & The bit pattern for data stored in an UnstructuredDataNode is identical for read/write operations & ~\ref{subsec:nodes and node types}* \\ \hline
+7 & A Node has elements: uri, properties and capabilities & ~\ref{subsec:nodes and node types} \\ \hline
+8 & A DataNode has elements: uri, properties, capabilities, accepts, provides & ~\ref{subsec:nodes and node types} \\ \hline
+9 & A LinkNode has elements: uri, properties, capabilities and target & ~\ref{subsec:nodes and node types}* \\ \hline
+10 & A ContainerNode and a LinkNode have no data bytes associated with them & ~\ref{subsec:nodes and node types}* \\ \hline
+11 & A VOSpace service parses XML representations of all node types & ~\ref{subsec:node and nodes types} \\ \hline
+12 & A VOSpace services does not throw a XML parser error in response to requests about unsupported node types & ~\ref{subsec:nodes and node types} \\ \hline
+13 & A Property has elements:uri, endpoint and optional readonly flag & ~\ref{subsec:properties} \\ \hline
+14 & URIs must be valid (and unique) & ~\ref{subsubsec:property identifiers}, ~\ref{subsubsec:capability identifiers}, ~\ref{subsubsec:view identifiers}, ~\ref{subsubsec:protocol identifiers}, ~\ref{subsubsec:createnode}, ~\ref{subsubsec:pushtovospace}, ~\ref{subsubsec:pulltovospace} \\ \hline
+15 & A Capability has elements: uri, endpoint and param & ~\ref{subsec:capabilities} \\ \hline
+16 & Standard capabilities are represented by the specified URIs & ~\ref{subsubsec:standard capabilities} \\ \hline
+17 & Each Property is identified by a unique URI & ~\ref{subsubsec:property identifiers} \\ \hline
+18 & Each Capability is identified by a unique URI & ~\ref{subsubsec:capability identifiers} \\ \hline
+19 & Each View is identified by a unique URI & ~\ref{subsubsec:view identifiers} \\ \hline
+20 & Each Protocol is identified by a unique URI & ~\ref{subsubsec:protocol identifiers} \\ \hline
+21 & Standard views are represented by the specified URIs & ~\ref{subsubsec:default views} \\ \hline
+xx & Standard properties are represented by the specified URIs & ~\ref{subsubsec:standard properties} \\ \hline
+22 & Data imported with the default View is treated as a binary BLOB & ~\ref{subsubsec:default views} \\ \hline
+23 & Data exported with the default export View is returned in the most appropriate format & ~\ref{subsubsec:default views} \\ \hline
+24 & An archive format View on a ContainerNode provides access to the archive contents as children nodes of the container & ~\ref{subsubsec:container views}* \\ \hline
+25 & An archive format View specified in a data export operation on a ContainerNode will package the contents of the container and all its child nodes & ~\ref{subsubsec:container views}* \\ \hline
 \end{tabular}
 
 \hskip-2.0cm\begin{tabular}{ | p {1cm} | p {11cm} | p {4cm} | }
 \hline
 \textbf{Item} & \textbf{Description} & \textbf{Occurs in section(s)} \\ \hline
-26 & A Protocol has elements: uri and and endpoint & 3.5 \\ \hline
-27 & Standard protocols are represented by the specified URIs & 3.5.3 \\ \hline
-28 & A Transfer UWS Job representation has elements: target, direction, view, protocol and keepBytes & 3.6 \\ \hline
-29 & A Transfer results representation has elements: target, direction, view, and protocol & 3.6 \\ \hline
-30 & A server responds with a fault if it is unable to handle any of the requested protocols in a data transfer & 3.6.1, 3.6.2 \\ \hline
-31 & A server uses each requested protocol only once in a data transfer & 3.6.1, 3.6.2 \\ \hline
-32 & A data transfer is complete once a specified protocol is successful & 3.6.1, 3.6.2 \\ \hline
-33 & A data transfer has failed if none of the specified protocols has been successful & 3.6.1, 3.6.2 \\ \hline
-34 & A server updates the status flag in the UWS Job representation as appropriate & 3.6.1, 3.6.2 \\ \hline
-35 & A Search UWS Job representation has elements: uri, limit, detail, matches and node & 3.7* \\ \hline
-36 & A Search results representation has elements: nodes & 3.7* \\ \hline
-37 & A VOSpace service has the REST bindings: properties, views, protocols, searches, nodes, and transfers & 3.8 \\ \hline
-38 & Access policies on a VOSpace service are declared in the registered metadata for the service & 4 \\ \hline
-39 & VOSpace authentication employs IVOA SSO supported methods & 4 \\ \hline
-40 & A VOSpace service supports the operations: getProtocols, getViews, getProperties, createNode, deleteNode, moveNode, copyNode, getNode, setNode, pullFromVoSpace. The following are optional operations: findNodes, pushToVoSpace, pullToVoSpace, pushFromVoSpace & 5.1.1, 5.1.2, 5.1.3, 5.2.1, 5.2.2, 5.2.3, 5.2.4, 5.3.1, 5.3.2, 5.3.3*, 5.4.1*, 5.4.2*, 5.4.3, 5.4.4* \\ \hline
-41 & accepts and provides specify entities that the service supports & 5.1.1.2, 5.1.2.2, 5.1.3.2 \\ \hline
-42 & A URI is autogenerated if the reserved URI .auto is used & 3.8*, 5.2.1.1*, 5.2.2.1*, 5.2.3.1*, 5.4.1.1* \\ \hline
-43 & An autogenerated URI is specified as a result in the Results List & 5.2.1.1*, 5.2.2.1*, 5.2.3.1*, 5.4.1.1* \\ \hline
-44 & Any data written to the reserved URI .null is discarded & 3.8 \\ \hline
-45 & accepts is filled in based on service capabilities & 5.2.1.2 \\ \hline
-46 & If a container is deleted then so are its children & 5.2.4 \\ \hline
-47 & If a container is listed, only direct children are listed & 5.3.1.2 \\ \hline
-48 & Results are drawn from the same ordered sequence in any ordering imposed by the server & 5.3.1.2 \\ \hline
-49 & Regex expressions comply with POSIX conventions & 3.7 \\ \hline
-50 & Moving a container moves its children as well & 5.2.2 \\ \hline
+26 & A Protocol has elements: uri and and endpoint & ~\ref{subsec:protocols} \\ \hline
+27 & Standard protocols are represented by the specified URIs & ~\ref{subsubsec:standard protocols} \\ \hline
+28 & A Transfer UWS Job representation has elements: target, direction, view, protocol and keepBytes & ~\ref{subsec:transfers} \\ \hline
+29 & A Transfer results representation has elements: target, direction, view, and protocol & ~\ref{subsec:transfers} \\ \hline
+30 & A server responds with a fault if it is unable to handle any of the requested protocols in a data transfer & ~\ref{subsubsec:service-initiated transfers}, ~\ref{subsubsec:client-initiated transfers} \\ \hline
+31 & A server uses each requested protocol only once in a data transfer & ~\ref{subsubsec:service-initiated transfers}, ~\ref{subsubsec:client-initiated transfers} \\ \hline
+32 & A data transfer is complete once a specified protocol is successful & ~\ref{subsubsec:service-initiated transfers}, ~\ref{subsubsec:client-initiated transfers} \\ \hline
+33 & A data transfer has failed if none of the specified protocols has been successful & ~\ref{subsubsec:service-initiated transfers}, ~\ref{subsubsec:client-initiated transfers} \\ \hline
+34 & A server updates the status flag in the UWS Job representation as appropriate & ~\ref{subsubsec:service-initiated transfers}, ~\ref{subsubsec:client-initiated transfers} \\ \hline
+35 & A Search UWS Job representation has elements: uri, limit, detail, matches and node & ~\ref{subsec:searches}* \\ \hline
+36 & A Search results representation has elements: nodes & ~\ref{subsec:searches}* \\ \hline
+37 & A VOSpace service has the REST bindings: properties, views, protocols, searches, nodes, and transfers & ~\ref{subsec:rest bindings} \\ \hline
+38 & Access policies on a VOSpace service are declared in the registered metadata for the service & ~\ref{sec:access control} \\ \hline
+39 & VOSpace authentication employs IVOA SSO supported methods & ~\ref{sec:access control} \\ \hline
+40 & A VOSpace service supports the operations: getProtocols, getViews, getProperties, createNode, deleteNode, moveNode, copyNode, getNode, setNode, pullFromVoSpace. The following are optional operations: findNodes, pushToVoSpace, pullToVoSpace, pushFromVoSpace & ~\ref{subsubsec:getprotocols}, ~\ref{subsubsec:getviews}, ~\ref{subsubsec:getproperties}, ~\ref{subsubsec:createnode}, ~\ref{subsubsec:movenode}, ~\ref{subsubsec:copynode}, ~\ref{subsubsec:deletenode}, ~\ref{subsubsec:getnode}, ~\ref{subsubsec:setnode}, ~\ref{subsubsec:findnodes}*, ~\ref{subsubsec:pushtovospace}*, ~\ref{subsubsec:pushtovospace}*, ~\ref{subsubsec:pullfromvospace}, ~\ref{subsubsec:pushfromvospace}* \\ \hline
+41 & accepts and provides specify entities that the service supports & ~\ref{subsubsec:getprotocols}, ~\ref{subsubsec:getviews}, ~\ref{subsubsec:getproperties} \\ \hline
+42 & A URI is autogenerated if the reserved URI .auto is used & ~\ref{subsec:rest bindings}*, ~\ref{subsubsec:createnode}*, ~\ref{subsubsec:movenode}*, ~\ref{subsubsec:copynode}*, ~\ref{subsubsec:pushtovospace}* \\ \hline
+43 & An autogenerated URI is specified as a result in the Results List & ~\ref{subsubsec:createnode}*, ~\ref{subsubsec:movenode}*, ~\ref{subsubsec:copynode}*, ~\ref{subsubsec:pushtovospace}* \\ \hline
+44 & Any data written to the reserved URI .null is discarded & ~\ref{subsec:rest bindings} \\ \hline
+45 & accepts is filled in based on service capabilities & ~\ref{subsubsec:createnode} \\ \hline
+46 & If a container is deleted then so are its children & ~\ref{subsubsec:deletenode} \\ \hline
+47 & If a container is listed, only direct children are listed & ~\ref{subsubsec:getnode} \\ \hline
+48 & Results are drawn from the same ordered sequence in any ordering imposed by the server & ~\ref{subsubsec:getnode} \\ \hline
+49 & Regex expressions comply with POSIX conventions & ~\ref{subsec:searches} \\ \hline
+50 & Moving a container moves its children as well & ~\ref{subsubsec:movenode} \\ \hline
 \end{tabular}
 
 \hskip-2.0cm\begin{tabular}{ | p {1cm} | p {11cm} | p {4cm} | }
 \hline
 \textbf{Item} & \textbf{Description} & \textbf{Occurs in section(s)} \\ \hline
-51 & Importing data into an existing container puts the new data within the container & 5.4.1 \\ \hline
-52 & Node types are not changed when a node is moved or copied & 5.2.2.2, 5.2.3.2 \\ \hline
-53 & Copying a container copies its children as well & 5.2.3.2 \\ \hline
-54 & Importing data into an existing node overwrites any preexisting data (unless it is a container) & 5.4.1.1*, 5.4.2.1* \\ \hline
-55 & A HTTP 200 status code is returned if the operation completes successfully & 5.1.1.2, 5.1.2.2, 5.1.3.2, 5.2.1.2, 5.2.4, 5.3.1, 5.3.2 \\ \hline
-56 & A HTTP 303 status code is returned if the operation completes successfully & 5.2.2.2, 5.2.3.2, 5.3.3.2*, 5.4.1.2*, 5.4.2.2*, 5.4.3.2, 5.4.4.2* \\ \hline
-57 & A HTTP 500 status code with an InternalFault fault in the body is thrown if the operation fails & 5.1.1.3, 5.1.2.3, 5.1.3.3, 5.2.1.3, 5.2.4.3, 5.3.1.3, 5.3.2.3, 5.4.3.3 \\ \hline
-58 & A HTTP 400 status code with an InvalidArgument fault in the body is thrown if a specified value is invalid & 5.3.2.3 \\ \hline
-59 & A HTTP 400 status code with an InvalidURI fault in the body is thrown if the specified URI is invalid & 5.2.1.3 \\ \hline
-60 & A HTTP 400 status code with a TypeNotSupported fault in the body is thrown if the specified type is not supported & 5.2.1.3 \\ \hline
-61 & A HTTP 401 status code with a PermissionDenied fault in the body is thrown if the user does not have permission to perform the operation & 5.2.1.3, 5.2.4.3, 5.3.1.3, 5.3.2.3, 5.4.3.3 \\ \hline
-62 & A HTTP 404 status code with a NodeNotFound fault in the body is thrown if... & 5.2.4.3, 5.3.1.3, 5.3.2.3, 5.4.3.3 \\ \hline
-63 & A HTTP 409 status code with a DuplicateFault fault in the body is thrown if the specified node already exists & 5.2.1.3 \\ \hline
-64 & A HTTP 404 status code with a ContainerNotFound fault in the body is thrown if a container is not found & 5.2.1.3, 5.2.4.3 \\ \hline
-65 & A HTTP 400 status code with a LinkFound fault in the body is thrown if a LinkNode is found & 5.2.1.3, 5.2.4.3 \\ \hline
-66 & The PHASE in the UWS Job representation is set to "ERROR" in case of a fault occurring & 5.2.2.3, 5.3.3.3*, 5.4.1.3*, 5.4.2.3*, 5.4.3.3, 5.4.4.3* \\ \hline
-67 & The errorSummary element in the UWS Job representation is set to the appropriate value for the type of fault occurring & 5.2.2.3, 5.3.3.3*, 5.4.1.3*, 5.4.2.3*, 5.4.3.3, 5.4.4.3* \\ \hline
-68 & The appropriate fault representation is provided at the error URI for the job & 5.2.2.3, 5.3.3.3*, 5.4.1.3*, 5.4.2.3*, 5.4.3.3, 5.4.4.3 * \\ \hline
+51 & Importing data into an existing container puts the new data within the container & ~\ref{subsubsec:pushtovospace} \\ \hline
+52 & Node types are not changed when a node is moved or copied & ~\ref{subsubsec:movenode}, ~\ref{subsubsec:copynode} \\ \hline
+53 & Copying a container copies its children as well & ~\ref{subsubsec:copynode} \\ \hline
+54 & Importing data into an existing node overwrites any preexisting data (unless it is a container) & ~\ref{subsubsec:pushtovospace}*, ~\ref{subsubsec:pulltovospace}* \\ \hline
+55 & A HTTP 200 status code is returned if the operation completes successfully & ~\ref{subsubsec:getprotocols}, ~\ref{subsubsec:getviews}, ~\ref{subsubsec:getproperties}, ~\ref{subsubsec:createnode}, ~\ref{subsubsec:deletenode}, ~\ref{subsubsec:getnode}, ~\ref{subsubsec:setnode} \\ \hline
+56 & A HTTP 303 status code is returned if the operation completes successfully & ~\ref{subsubsec:movenode}, ~\ref{subsubsec:copynode}, ~\ref{subsubsec:findnodes}*, ~\ref{subsubsec:pushtovospace}*, ~\ref{subsubsec:pulltovospace}*, ~\ref{subsubsec:pullfromvospace}, ~\ref{subsubsec:pushfromvospace}* \\ \hline
+57 & A HTTP 500 status code with an InternalFault fault in the body is thrown if the operation fails & ~\ref{subsubsec:getprotocols}, ~\ref{subsubsec:getviews}, ~\ref{subsubsec:getproperties}, ~\ref{subsubsec:createnode}, ~\ref{subsubsec:deletenode}, ~\ref{subsubsec:getnode}, ~\ref{subsubsec:setnode}, ~\ref{subsubsec:pullfromvospace} \\ \hline
+58 & A HTTP 400 status code with an InvalidArgument fault in the body is thrown if a specified value is invalid & ~\ref{subsubsec:setnode} \\ \hline
+59 & A HTTP 400 status code with an InvalidURI fault in the body is thrown if the specified URI is invalid & ~\ref{subsubsec:createnode} \\ \hline
+60 & A HTTP 400 status code with a TypeNotSupported fault in the body is thrown if the specified type is not supported & ~\ref{subsubsec:createnode} \\ \hline
+61 & A HTTP 403 status code with a PermissionDenied fault in the body is thrown if the user does not have permission to perform the operation & ~\ref{subsubsec:createnode}, ~\ref{subsubsec:deletenode}, ~\ref{subsubsec:getnode}, ~\ref{subsubsec:setnode}, ~\ref{subsubsec:pullfromvospace} \\ \hline
+62 & A HTTP 404 status code with a NodeNotFound fault in the body is thrown if... & ~\ref{subsubsec:movenode}, ~\ref{subsubsec:getnode}, ~\ref{subsubsec:copynode}, ~\ref{subsubsec:pullfromvospace} \\ \hline
+63 & A HTTP 409 status code with a DuplicateFault fault in the body is thrown if the specified node already exists & ~\ref{subsubsec:createnode} \\ \hline
+64 & A HTTP 404 status code with a ContainerNotFound fault in the body is thrown if a container is not found & ~\ref{subsubsec:createnode}, ~\ref{subsubsec:deletenode} \\ \hline
+65 & A HTTP 400 status code with a LinkFound fault in the body is thrown if a LinkNode is found & ~\ref{subsubsec:createnode}, ~\ref{subsubsec:deletenode} \\ \hline
+66 & The PHASE in the UWS Job representation is set to "ERROR" in case of a fault occurring & ~\ref{subsubsec:movenode}, ~\ref{subsubsec:findnodes}*, ~\ref{subsubsec:pushtovospace}*, ~\ref{subsubsec:pulltovospace}*, ~\ref{subsubsec:pullfromvospace}, ~\ref{subsubsec:pushfromvospace}* \\ \hline
+67 & The errorSummary element in the UWS Job representation is set to the appropriate value for the type of fault occurring & ~\ref{subsubsec:movenode}, ~\ref{subsubsec:findnodes}*, ~\ref{subsubsec:pushtovospace}*, ~\ref{subsubsec:pulltovospace}*, ~\ref{subsubsec:pullfromvospace}, ~\ref{subsubsec:pushfromvospace}* \\ \hline
+68 & The appropriate fault representation is provided at the error URI for the job & ~\ref{subsubsec:movenode}, ~\ref{subsubsec:findnodes}*, ~\ref{subsubsec:pushtovospace}*, ~\ref{subsubsec:pulltovospace}*, ~\ref{subsubsec:pullfromvospace}, ~\ref{subsubsec:pushfromvospace}* \\ \hline
 \end{tabular}
 
 \section{Appendix C: Standard properties}
+\label{sec:appendix c: standard properties}
 This table summarizes the standard properties that SHALL be recognized by a VOSpace service and are registered in the IVOA Registry of Registries.
 
 \hskip-4.0cm\begin{tabular}{ | p {8cm} | p {8cm} | p {2cm} | }
