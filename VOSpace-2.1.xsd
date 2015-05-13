@@ -197,14 +197,13 @@
   <xs:attributeGroup name="PropertyAttributeGroup">
     <xs:attribute name="uri" type="xs:anyURI" use="required">
       <xs:annotation>
-	<xs:documentation>                    
-	  If the property has been registered, then the URI should point to the registration document. Third party 
-          tools may use the urn:xxxx syntax to add unregistered properties.
+        <xs:documentation>                    
+            If the property has been registered, then the URI should point to the registration document. Third party 
+            tools may use the urn:xxxx syntax to add unregistered properties.
         </xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="readOnly" type="xs:boolean" use="optional" default
-="false">
+    <xs:attribute name="readOnly" type="xs:boolean" use="optional" default="false">
       <xs:annotation>
         <xs:documentation>
           A flag to indicate if the property is considered read-only. Attempting to modify a read-only property
@@ -212,14 +211,15 @@
         </xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="xs:nill" type="xs:boolean" use="optional" default
-="false">
+    <!--
+    <xs:attribute name="xs:nil" type="xs:boolean" use="optional" default="false">
       <xs:annotation>
         <xs:documentation>
           A flag to indicate if the property is null and should be deleted.
         </xs:documentation>
       </xs:annotation>
     </xs:attribute>
+    -->
   </xs:attributeGroup>
 
   <xs:complexType name="GetPropertiesResponse">
@@ -486,7 +486,7 @@
     <xs:annotation>
       <xs:documentation>
         A container element for search responses.
-      </xs:documentation<
+    </xs:documentation>
     </xs:annotation>
     <xs:sequence>
       <xs:element name="nodes" minOccurs="0" maxOccurs="1">
@@ -517,7 +517,7 @@
     <xs:annotation>
       <xs:documentation>
         A container element for transfer operations.
-      </xs:documentation<
+    </xs:documentation>
     </xs:annotation>
     <xs:sequence>
       <xs:element name="target" type="xs:anyURI" minOccurs="1" maxOccurs="1">
