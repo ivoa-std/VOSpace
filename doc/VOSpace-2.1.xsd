@@ -384,16 +384,14 @@
         URI.  Derived types would allow for more metadata.  
       </xs:documentation>
     </xs:annotation>
-    <xs:attribute name="standardID" type="xs:anyURI">
+    <xs:attribute name="uri" type="xs:anyURI">
       <xs:annotation>
         <xs:documentation>
           A URI identifier for a standard security mechanism. 
         </xs:documentation>
         <xs:documentation>
           This provides a unique way to refer to a security
-          specification standard.  The use of an IVOA identifier here 
-          implies that a VOResource description of the standard is 
-          registered and accessible.  
+          specification standard.
         </xs:documentation>
       </xs:annotation>
     </xs:attribute>
