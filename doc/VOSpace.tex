@@ -856,7 +856,8 @@ AuthenticationType URIs and AuthenticationTypeDescriptions for the core set of s
 
 \begin{itemize}
     \item \begin{verbatim}ivo://ivoa.net/vospace/core#anon\end{verbatim} SHALL be used as the authentication type URI for no client authentication
-    \item \begin{verbatim}ivo://ivoa.net/vospace/core#httpauth\end{verbatim} SHALL be used as the authentication type URI for HTTP userid password SHALL be used as the authentication type URI for X.509 certificate authentication be used as the protocol URI for a HTTP PUT transfer
+    \item \begin{verbatim}ivo://ivoa.net/vospace/core#httpauth\end{verbatim} SHALL be used as the authentication type URI for HTTP userid password authentication
+    \item \begin{verbagim}ivo://ivoa.net/vospace/core#x509\end{verbatim} SHALL be used as the authentication type URI for X.509 certificate authentication be used as the protocol URI for a HTTP PUT transfer
     \item \begin{verbatim}ivo://ivoa.net/vospace/core#cookie\end{verbatim} SHALL be used as the authentication type URI for session-based cookie authentication
     \item \begin{verbatim}ivo://ivoa.net/vospace/core#oauth\end{verbatim} SHALL be used as the authentication type URI for OAuth authentication
 \end{itemize}
@@ -3089,7 +3090,7 @@ xx & Standard properties are represented by the specified URIs & ~\ref{subsubsec
 \hline
 \textbf{Item} & \textbf{Description} & \textbf{Occurs in section(s)} \\ \hline
 26 & A Protocol has elements: uri and and endpoint & ~\ref{subsec:protocols} \\ \hline
-27 & Standard protocols are represented by the specified URIs & ~\ref{subsubsec:standard protocols} \\ \hline
+27 & text/xml are represented by the specified URIs & ~\ref{subsubsec:text/xml} \\ \hline
 28 & A Transfer UWS Job representation has elements: target, direction, view, protocol and keepBytes & ~\ref{subsec:transfers} \\ \hline
 29 & A Transfer results representation has elements: target, direction, view, and protocol & ~\ref{subsec:transfers} \\ \hline
 30 & A server responds with a fault if it is unable to handle any of the requested protocols in a data transfer & ~\ref{subsubsec:service-initiated transfers}, ~\ref{subsubsec:client-initiated transfers} \\ \hline
