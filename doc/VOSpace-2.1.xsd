@@ -334,35 +334,38 @@
 
   <xsd:complexType name="Protocol">
     <xsd:annotation>
-       <xsd:documentation>
-         A protocol element, containing the protocol URI, the endpoint and any protocol specific parameters.  
-        </xsd:documentation>
-      </xsd:annotation>
-      <xsd:sequence>
-        <xsd:element name="endpoint" type="xsd:anyURI" minOccurs="0" maxOccurs="1">
-          <xsd:annotation>
-            <xsd:documentation>
-              The target endpoint to use for a data transfer.
-            </xsd:documentation>
-          </xsd:annotation>
-        </xsd:element>
-        <xsd:element name="param" type="vos:Param" minOccurs="0" maxOccurs="unbounded" nillable="true">
-          <xsd:annotation>
-            <xsd:documentation>
-              Any additional protocol specific parameters required to use the endpoint.
-              For example, the user name or password to use for ftp access.
-            </xsd:documentation>
-          </xsd:annotation>
-        </xsd:element>
-      </xsd:sequence>
-      </xsd:attribute name="authType" type="xsd:anyURI" minOccurs="0" maxOccurs="unbounded" nillable="true">
+      <xsd:documentation>
+        A protocol element, containing the protocol URI, the endpoint and any protocol specific parameters.  
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="endpoint" type="xsd:anyURI" minOccurs="0" maxOccurs="1">
         <xsd:annotation>
           <xsd:documentation>
-            The supported (or requested) authentication type(s).
+            The target endpoint to use for a data transfer.
           </xsd:documentation>
         </xsd:annotation>
-      </xsd:attribute>
-      <xsd:attribute name="uri" type="xsd:anyURI" use="required">
+      </xsd:element>
+      <xsd:element name="param" type="vos:Param" minOccurs="0" maxOccurs="unbounded" nillable="true">
+        <xsd:annotation>
+          <xsd:documentation>
+            Any additional protocol specific parameters required to use the endpoint.
+            For example, the user name or password to use for ftp access.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="securityMethod" type="vos:SecurityMethod" minOccurs="0" maxOccurs="unbounded" nillable="true">
+        <xsd:annotation>
+          <xsd:documentation>
+            the mechanism the client must employ to gain secure access to the service.  
+          </xsd:documentation>
+          <xsd:documentation>
+            when more than one method is listed, the client may choose which one to emply.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+    <xsd:attribute name="uri" type="xsd:anyURI" use="required">
       <xsd:annotation>
         <xsd:documentation>
           The protocol identifier.
@@ -370,6 +373,31 @@
       </xsd:annotation>
     </xsd:attribute>
   </xsd:complexType>
+
+  <xsd:complexType name="SecurityMethod">
+    <xsd:annotation>
+      <xsd:documentation>
+        a description of a security mechanism.
+      </xsd:documentation>
+      <xsd:documentation>
+        this type only allows one to refer to the mechanism via a
+        URI.  Derived types would allow for more metadata.  
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:attribute name="standardID" type="xs:anyURI">
+      <xads:annotation>
+        <xsd:documentation>
+          A URI identifier for a standard security mechanism. 
+        </xsd:documentation>
+        <xsd:documentation>
+          This provides a unique way to refer to a security
+          specification standard.  The use of an IVOA identifier here 
+          implies that a VOResource description of the standard is 
+          registered and accessible.  
+        </xsd:documentation>
+      </xsd:annotation>
+    </xsd:attribute>
+  </xs:complexType>
 
   <xsd:complexType name="ProtocolList">
     <xsd:annotation>
