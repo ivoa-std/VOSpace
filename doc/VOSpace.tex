@@ -774,7 +774,7 @@ A protocol representation MAY have the following members:
 
 \begin{itemize}
     \item \emph{param}: A list of name-value pairs that specify any additional arguments requried to support the protocol
-    \item \emph{authType}: The requested type of authentication method to be used
+    \item \emph{securityMethod}: The requested (or resulting) authentication type
 \end{itemize}
 
 Note: endpoint will only contain a value after the response from the service is received.
@@ -1005,7 +1005,7 @@ The service MAY ignore Protocols with URIs that it does not recognize.
 
 The service selects the Protocols from the request that it is capable of handling, and builds a Transfer results response containing the selected Protocol elements filling in valid endpoint addresses for each of them.
 
-If available, the service may choose to consult the authType in the Protocols to construct correct endpoints.
+If available, the service may choose to consult the securityMethod in the Protocols to construct correct endpoints.
 
 The order of the Protocol elements in the request indicates the order of preference that the client would like to use. However, this is only a suggestion, and the server is free to use its own preferences when generating the list of Protocols in the response.
 
@@ -1133,7 +1133,7 @@ VOSpace implementations may support any of the following authentication methods:
     \item OAuth (http://oauth.net)
 \end{itemize}
 
-When a client is requesting a transfer from the service, the authentication type (authType) may be supplied along side the list of transfer protocols. If the service supports the requested authentication type, it may use the authType information to construct the endpoint URL for data transfer, for services may encounter situations when the URL for data transfer will depend on the authentication type the client wished to use.
+When a client is requesting a transfer from the service, the authentication type (securityMethod) may be supplied along side the list of transfer protocols. If the service supports the requested type, it may base the construction of the endpoint URL for data transfer from this information.  (Services may encounter situations when the URL for data transfer will depend on the authentication type the client wished to use.)
 The access control policy for a VOSpace is defined by the implementor of that space according to the use cases for which the implementation is intended.
 
 A human-readable description of the implemented access policy must be declared in the registry metadata for the space.
@@ -2324,7 +2324,7 @@ pushToVoSpace
   <vos:target>vos://nvo.caltech!vospace/mydata1</vos:target>
   <vos:direction>pushToVoSpace</vos:direction>
   <vos:view uri="ivo://net.ivoa/vospace/core#fits"/>
-  <vos:protocol uri="ivo://net.ivoa/vospace/core#httpput" authType="ivo://net.ivoa/vospace/core#anon"/>
+  <vos:protocol uri="ivo://net.ivoa/vospace/core#httpput" securityMethod="ivo://net.ivoa/vospace/core#anon"/>
 </vos:transfer>
 \end{lstlisting} \\
 \textbf{request} \\
@@ -2389,7 +2389,7 @@ This resource can be found at: http://localhost:8000/transfers/fd5cf0cb1b6d4fbd8
       <vos:target>vos://nvo.caltech!vospace/mydata1</vos:target>
       <vos:direction>pushToVoSpace</vos:direction>
       <vos:view uri="ivo://net.ivoa/vospace/core#fits"/>
-      <vos:protocol uri="ivo://net.ivoa/vospace/core#httpput" authType="ivo://net.ivoa/vospace/core#anon"/>
+      <vos:protocol uri="ivo://net.ivoa/vospace/core#httpput" securityMethod="ivo://net.ivoa/vospace/core#anon"/>
     </vos:transfer>
   <uws:jobInfo>
   <uws:results>
@@ -2423,7 +2423,7 @@ xlink:href="http://localhost:8000/transfers/fd5cf0cb1b6d4fbd84602982abf19ef1/res
   <target>vos://nvo.caltech!vospace/mydata1</target>
   <direction>pushToVoSpace</direction>
   <view>ivo://ivoa.net/vospace/core#fits</view>
-  <protocol uri="ivo://ivoa.net/vospace/core#httpput" authType="ivo://net.ivoa/vospace/core#anon">
+  <protocol uri="ivo://ivoa.net/vospace/core#httpput" securityMethod="ivo://net.ivoa/vospace/core#anon">
     <endpoint>http://localhost:8000/data/d55814f88d974c21afe5ad50e4e875c8</endpoint>
   </protocol>
 </transfer>
@@ -2459,7 +2459,7 @@ curl -v -X POST -d "TARGET=vos://nvo.caltech!vospace/mydata1?DIRECTION=pushToVoS
   <target>vos://nvo.caltech!vospace/mydata1</target>
   <direction>pushToVoSpace</direction>
   <view>ivo://ivoa.net/vospace/core#fits</view>
-  <protocol uri="ivo://ivoa.net/vospace/core#httpput" authType="ivo://net.ivoa/vospace/core#anon">
+  <protocol uri="ivo://ivoa.net/vospace/core#httpput" securityMethod="ivo://net.ivoa/vospace/core#anon">
     <endpoint>http://localhost:8000/data/d55814f88d974c21afe5ad50e4e875c8</endpoint>
   </protocol>
 </transfer>
@@ -2680,7 +2680,7 @@ pullFromVoSpace
   <vos:target>vos://nvo.caltech!vospace/mydata1</vos:target>
   <vos:direction>pullFromVoSpace</vos:direction>
   <vos:view uri="ivo://ivoa.net/vospace/core#defaultview"/>
-  <vos:protocol uri="ivo://ivoa.net/vospace/core#httpget" authType="ivo://net.ivoa/vospace/core#anon"/>
+  <vos:protocol uri="ivo://ivoa.net/vospace/core#httpget" securityMethod="ivo://net.ivoa/vospace/core#anon"/>
   <vos:protocol uri="ivo://ivoa.net/vospace/core#ftpget"/>
 </vos:transfer>
 \end{lstlisting} \\
@@ -2768,7 +2768,7 @@ This resource can be found at http://localhost:8000/transfers/1ce91a4346b54432a4
   <target>vos://nvo.caltech!vospace/mydata1</target>
   <direction>pullFromVoSpace</direction>
   <view uri="ivo://ivoa.net/vospace/core#defaultview"/>
-  <protocol uri="ivo://ivoa.net/vospace/core#httpget" authType="ivo://net.ivoa/vospace/core#anon">
+  <protocol uri="ivo://ivoa.net/vospace/core#httpget" securityMethod="ivo://net.ivoa/vospace/core#anon">
     <endpoint>http://localhost:8000/data/d27282305c6746889691e914abab9403</endpoint>
   </protocol>
   <protocol uri="ivo://ivoa.net/vospace/core#ftpget">
@@ -3047,575 +3047,8 @@ The fault details must contain the full details of the LinkNode.
 \label{subsec:message schema}
 XML Schema
 The requests and responses of a VOSpace 2.0 service shall adhere to the following XML Schema:
-\begin{lstlisting}[language=xml, basicstyle=\scriptsize]
-<?xml version="1.0" encoding="UTF-8"?>
-<xs:schema targetNamespace="http://www.ivoa.net/xml/VOSpace/v2.0" elementFormDefault="qualified"
-    attributeFormDefault="unqualified" xmlns:xs="http://www.w3.org/2001/XMLSchema"
-    xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.0"
-    xmlns:uws="http://www.ivoa.net/xml/UWS/v1.0"
-    xmlns:xlink="http://www.w3.org/1999/xlink">
-  <xs:import namespace="http://www.ivoa.net/xml/UWS/v1.0" schemaLocation="http://www.ivoa.net/xml/UWS/v1.0"/>
 
-  <!-- ======== Node types ======== -->
-
-  <xsd:complexType name="Node">
-    <xsd:annotation>
-      <xsd:documentation>
-        The base class for all nodes.
-      </xsd:documentation>
-    </xsd:annotation>
-    <xsd:sequence>
-      <xsd:element name="properties" type="vos:PropertyList" minOccurs="0" maxOccurs="1">
-        <xsd:annotation>
-          <xsd:documentation>
-            The list of node properties.
-          </xsd:documentation>
-        </xsd:annotation>
-      </xsd:element>            
-    </xsd:sequence>
-    <xsd:attribute name="uri" type="xsd:anyURI" use="required">
-      <xsd:annotation>
-        <xsd:documentation>
-          The node identifier URI.
-        </xsd:documentation>
-      </xsd:annotation>
-    </xsd:attribute>
-  </xsd:complexType>
-
-  <xsd:complexType name="DataNode">
-    <xsd:annotation>
-      <xsd:documentation>
-        The base class for data nodes.
-      </xsd:documentation>
-    </xsd:annotation>
-    <xsd:complexContent>
-      <xsd:extension base="vos:Node">
-        <xsd:sequence>
-          <xsd:element name="accepts" type="vos:ViewList" minOccurs="0" maxOccurs="1">
-            <xsd:annotation>
-              <xsd:documentation>
-                The list of views or data formats that this node can accept.
-                A simple unstructured node may accept data in any format.
-                A structured node may only accept data in specific formats. 
-              </xsd:documentation>
-            </xsd:annotation>
-          </xsd:element>            
-          <xsd:element name="provides" type="vos:ViewList" minOccurs="0" maxOccurs="1">
-            <xsd:annotation>
-              <xsd:documentation>
-                The list of views or data formats that this node can provide.
-                A simple unstructured node may only provide access to the data in the original format.
-                A structured node may provide different views of the data generated by the service.
-              </xsd:documentation>
-            </xsd:annotation>
-          </xsd:element>            
-	  <xsd:element name="capabilities" type="vos:CapabilityList" minOccurs="0" maxOccurs="1">
-	    <xsd:annotation>
-	      <xsd:documentation>
-	        The list of capabilities that this node can support. 
-	      </xsd:documentation>
-            </xsd:annotation>
-          </xsd:element>
-        </xsd:sequence>
-        <xsd:attribute name="busy" type="xsd:boolean" use="optional" default="false">
-          <xsd:annotation>
-            <xsd:documentation>
-              A flag to indicate if the node content is available.
-              This will be set to false while the data is being imported,
-              or if the underlying service is busy.
-            </xsd:documentation>
-          </xsd:annotation>
-        </xsd:attribute>
-      </xsd:extension>
-    </xsd:complexContent>    
-  </xsd:complexType>
-
-  <xsd:complexType name="UnstructuredDataNode">
-    <xsd:annotation>
-      <xsd:documentation>
-        An unstructured data node, containing unspecified content.
-        The service does not need to understand or interpret the content.
-        This type of node can accept any format, and only provides one view returning the original data.
-      </xsd:documentation>
-    </xsd:annotation>
-    <xsd:complexContent>
-      <xsd:extension base="vos:DataNode"/>
-    </xsd:complexContent>    
-  </xsd:complexType>
-
-  <xsd:complexType name="StructuredDataNode">
-    <xsd:annotation>
-      <xsd:documentation>
-        A structured data node, containing a specific data format that the service has understands.
-        This type of node may only accept specific data formats, and provide different views of the
-        data generated by the service. 
-      </xsd:documentation>
-    </xsd:annotation>
-    <xsd:complexContent>
-      <xsd:extension base="vos:DataNode"/>
-    </xsd:complexContent>    
-  </xsd:complexType>
-
-  <xsd:complexType name="ContainerNode">
-    <xsd:annotation>
-      <xsd:documentation>
-        A container node containing any type of node.
-      </xsd:documentation>
-    </xsd:annotation>
-    <xsd:complexContent>
-      <xsd:extension base="vos:DataNode">
-        <xsd:sequence>
-          <xsd:element name="nodes" minOccurs="1" maxOccurs="1">
-            <xsd:annotation>
-              <xsd:documentation>
-                A list of the direct children that the container has.
-              </xsd:documentation>
-            </xsd:annotation>
-            <xsd:complexType>
-	      <xsd:sequence>
-                <xsd:element name="node" type="vos:Node" minOccurs="0" maxOccurs="unbounded"/>
-	      </xsd:sequence>
-	    </xsd:complexType>
-          </xsd:element>
-        </xsd:sequence>
-      </xsd:extension>
-    </xsd:complexContent>    
-  </xsd:complexType>
-
-  <xsd:complexType name="LinkNode">
-    <xsd:annotation>
-      <xsd:documentation>
-        A node that points to another resource.
-      </xsd:documentation>
-    </xsd:annotation>
-    <xsd:complexContent>
-      <xsd:extension base="vos:Node">
-	<xsd:sequence>
-          <xsd:element name="target" type="xsd:anyURI" minOccurs="1" maxOccurs="1">
-            <xsd:annotation>
-              <xsd:documentation>
-                The identifier for the object that the LinkNode points to.
-              </xsd:documentation>
-            </xsd:annotation>
-          </xsd:element>
-	</xsd:sequence>
-      </xsd:extension>
-    </xsd:complexContent>    
-  </xsd:complexType>  
-
-  <!-- ======== Property types ======== -->
-
-  <xsd:complexType name="Property">
-    <xsd:simpleContent>
-      <xsd:extension base="xsd:string">
-        <xsd:attributeGroup ref="vos:PropertyAttributeGroup"/>
-      </xsd:extension>
-    </xsd:simpleContent>
-  </xsd:complexType>
-  
-  <xsd:complexType name="PropertyList">
-    <xsd:annotation>
-      <xsd:documentation>
-        A container element for a list of properties.
-      </xsd:documentation>
-    </xsd:annotation>
-    <xsd:sequence>
-      <xsd:element name="property" type="vos:Property" minOccurs="0" maxOccurs="unbounded" nillable="true"/>
-    </xsd:sequence>
-  </xsd:complexType>
-
-  <xsd:complexType name="PropertyReference">
-    <xsd:annotation>
-      <xsd:documentation>
-        A reference to a property description.
-      </xsd:documentation>
-    </xsd:annotation>
-    <xsd:attributeGroup ref="vos:PropertyAttributeGroup"/>
-  </xsd:complexType>
-
-  <xsd:complexType name="PropertyReferenceList">
-    <xsd:annotation>
-      <xsd:documentation>
-        A container element for a list of property references.
-      </xsd:documentation>
-    </xsd:annotation>
-    <xsd:sequence>
-      <xsd:element name="property" type="vos:PropertyReference" minOccurs="0" maxOccurs="unbounded" nillable="true"/>
-    </xsd:sequence>
-  </xsd:complexType>
-
-  < xsd:attributeGroup name="PropertyAttributeGroup">
-    < xsd:attribute name="uri" type="xsd:anyURI" use="required">
-      < xsd:annotation>
-	< xsd:documentation>                    
-	  If the property has been registered, then the URI should point to the registration document. Third party 
-          tools may use the urn:xxxx syntax to add unregistered properties.
-        </xsd:documentation>
-      </xsd:annotation>
-    </xsd:attribute>
-    < xsd:attribute name="readOnly" type="xsd:boolean" use="optional" default
-="false">
-      < xsd:annotation>
-        < xsd:documentation>
-          A flag to indicate if the property is considered read-only. Attempting to modify a read-only property
-          should generate a PermissionDenied fault.
-        </xsd:documentation>
-      </xsd:annotation>
-    </xsd:attribute>
-    < xsd:attribute name="xsd:nill" type="xsd:boolean" use="optional" default
-="false">
-      < xsd:annotation>
-        < xsd:documentation>
-          A flag to indicate if the property is null and should be deleted.
-        </xsd:documentation>
-      </xsd:annotation>
-    </xsd:attribute>
-  </xsd:attributeGroup>
-
-  <xsd:complexType name="GetPropertiesResponse">
-    <xsd:sequence>
-      <xsd:element name="accepts" type="vos:PropertyReferenceList">
-        <xsd:annotation>
-          <xsd:documentation>
-            A list of identifiers for the properties that the service accepts and understands.
-          </xsd:documentation>
-        </xsd:annotation>
-      </xsd:element>
-      <xsd:element name="provides" type="vos:PropertyReferenceList">
-        <xsd:annotation>
-          <xsd:documentation>
-            A list of identifiers for the properties that the service provides.
-          </xsd:documentation>
-        </xsd:annotation>
-      </xsd:element>
-      <xsd:element name="contains" type="vos:PropertyReferenceList">
-        <xsd:annotation>
-          <xsd:documentation>
-            A list of identifiers for all the properties currently used by nodes within the service.
-          </xsd:documentation>
-        </xsd:annotation>
-      </xsd:element>
-    </xsd:sequence>
-  </xsd:complexType>
-
-  <!-- ======== View types ======== -->
-
-  <xsd:complexType name="Param">
-    <xsd:annotation>
-      <xsd:documentation>
-        A view or protocol parameter.
-      </xsd:documentation>
-    </xsd:annotation>
-    <xsd:simpleContent>
-      <xsd:extension base="xsd:string">
-        <xsd:attribute name="uri" type="xsd:anyURI" use="required"/>
-      </xsd:extension>
-    </xsd:simpleContent>
-  </xsd:complexType>
-    
-  <xsd:complexType name="View">
-    <xsd:annotation>
-      <xsd:documentation>
-        An element describing a view of a data-set.
-        A view may just provide the original data, or it could be server generated.
-        Examples of server generated views could include a votable view of data in a database table,
-        or a conversion from one image format to another.
-      </xsd:documentation>
-    </xsd:annotation>
-    <xsd:sequence>
-      <xsd:element name="param" type="vos:Param" minOccurs="0" maxOccurs="unbounded" nillable="true">
-        <xsd:annotation>
-          <xsd:documentation>
-            A list of parameters for the view.
-          </xsd:documentation>
-        </xsd:annotation>
-      </xsd:element>
-    </xsd:sequence>
-    <xsd:attribute name="uri" type="xsd:anyURI" use="required">
-      <xsd:annotation>
-        <xsd:documentation>
-          The view URI.
-          This should point to a resource describing the view format and what parameters it requires.
-        </xsd:documentation>
-      </xsd:annotation>
-    </xsd:attribute>
-    <xsd:attribute name="original" type="xsd:boolean" use="optional" default="true">
-      <xsd:annotation>
-        <xsd:documentation>
-          A flag to indicate if the view provides access to the original data content or a derived form.
-        </xsd:documentation>
-      </xsd:annotation>
-    </xsd:attribute>
-  </xsd:complexType>
-
-  <xsd:complexType name="ViewList">
-    <xsd:annotation>
-      <xsd:documentation>
-        A container element for a list of views.
-      </xsd:documentation>
-    </xsd:annotation>
-    <xsd:sequence>
-      <xsd:element name="view" type="vos:View" minOccurs="0" maxOccurs="unbounded" nillable="true"/>
-    </xsd:sequence>
-  </xsd:complexType>
-
-  <xsd:complexType name="GetViewsResponse">
-    <xsd:sequence>
-      <xsd:element name="accepts" type="vos:ViewList">
-        <xsd:annotation>
-          <xsd:documentation>
-            A list of identifiers for the views that the service can accept.
-            A simple file based system may accept data in 'any' format. 
-          </xsd:documentation>
-        </xsd:annotation>
-      </xsd:element>
-      <xsd:element name="provides" type="vos:ViewList">
-        <xsd:annotation>
-          <xsd:documentation>
-            A list of identifiers for the views that the service can provide.
-            A simple file based system may only provide data in the original format.
-          </xsd:documentation>
-        </xsd:annotation>
-      </xsd:element>
-    </xsd:sequence>
-  </xsd:complexType>
-
-  <!-- ======== Protocol types ======== -->
-
-  <xsd:complexType name="Protocol">
-    <xsd:annotation>
-       <xsd:documentation>
-         A protocol element, containing the protocol URI, the endpoint and any protocol specific parameters.  
-        </xsd:documentation>
-      </xsd:annotation>
-      <xsd:sequence>
-        <xsd:element name="endpoint" type="xsd:anyURI" minOccurs="0" maxOccurs="1">
-          <xsd:annotation>
-            <xsd:documentation>
-              The target endpoint to use for a data transfer.
-            </xsd:documentation>
-          </xsd:annotation>
-        </xsd:element>
-        <xsd:element name="param" type="vos:Param" minOccurs="0" maxOccurs="unbounded" nillable="true">
-          <xsd:annotation>
-            <xsd:documentation>
-              Any additional protocol specific parameters required to use the endpoint.
-              For example, the user name or password to use for ftp access.
-            </xsd:documentation>
-          </xsd:annotation>
-        </xsd:element>
-      </xsd:sequence>
-      </xsd:attribute name="authType" type="xsd:anyURI" minOccurs="0" maxOccurs="unbounded" nillable="true">
-        <xsd:annotation>
-          <xsd:documentation>
-            The supported (or requested) authentication type(s).
-          </xsd:documentation>
-        </xsd:annotation>
-      </xsd:attribute>
-      <xsd:attribute name="uri" type="xsd:anyURI" use="required">
-      <xsd:annotation>
-        <xsd:documentation>
-          The protocol identifier.
-        </xsd:documentation>
-      </xsd:annotation>
-    </xsd:attribute>
-  </xsd:complexType>
-
-  <xsd:complexType name="ProtocolList">
-    <xsd:annotation>
-      <xsd:documentation>
-        A container element for a list of protocols.
-      </xsd:documentation>
-    </xsd:annotation>
-    <xsd:sequence>
-      <xsd:element name="protocol" type="vos:Protocol" minOccurs="0" maxOccurs="unbounded" nillable="true"/>
-    </xsd:sequence>
-  </xsd:complexType>
-
-  <xsd:complexType name="GetProtocolsResponse">
-    <xsd:sequence>
-      <xsd:element name="accepts" type="vos:ProtocolList">
-        <xsd:annotation>
-          <xsd:documentation>
-            A list of identifiers for the protocols that the service can accept.
-            This means that the service can act as a client for the protocol. 
-          </xsd:documentation>
-        </xsd:annotation>
-      </xsd:element>
-      <xsd:element name="provides" type="vos:ProtocolList">
-        <xsd:annotation>
-          <xsd:documentation>
-            A list of identifiers for the protocols that the service can provide.
-            This means that the service can act as a server for the protocol. 
-          </xsd:documentation>
-        </xsd:annotation>
-      </xsd:element>
-    </xsd:sequence>
-  </xsd:complexType>
-
-  <!-- ======== Capability types ======== -->
-
-  <xsd:complexType name="Capability">
-    <xsd:annotation>
-      <xsd:documentation>
-        A capability element, containing the capability URI, the
-    endpoint and any capability specific parameters(?).
-      </xsd:documentation>
-    </xsd:annotation>
-    <xsd:sequence>
-      <xsd:element name="endpoint" type="xsd:anyURI" minOccurs="0" maxOccurs="1">
-        <xsd:annotation>
-          <xsd:documentation>
-            The target endpoint to use for the third-part interface.
-          </xsd:documentation>
-        </xsd:annotation>
-      </xsd:element>
-      <!--+
-             | Uncommented Capability params.
-             +-->
-      <xsd:element name="param" type="vos:Param" minOccurs="0" maxOccurs="unbounded" nillable="true">
-        <xsd:annotation>
-          <xsd:documentation>
-            Any additional capability specific parameters required to use the endpoint.
-            For example, the user name or password to use for access.
-          </xsd:documentation>
-        </xsd:annotation>
-      </xsd:element>
-    </xsd:sequence>
-    <xsd:attribute name="uri" type="xsd:anyURI" use="required">
-      <xsd:annotation>
-        <xsd:documentation>
-          The capability identifier.
-        </xsd:documentation>
-      </xsd:annotation>
-    </xsd:attribute>
-  </xsd:complexType>
-
-  <xsd:complexType name="CapabilityList">
-    <xsd:annotation>
-      <xsd:documentation>
-        A container element for a list of capabilities.
-      </xsd:documentation>
-    </xsd:annotation>
-    <xsd:sequence>
-      <xsd:element name="capability" type="vos:Capability" minOccurs="0" maxOccurs="unbounded" nillable="true"/>
-    </xsd:sequence>
-  </xsd:complexType>
-
-  <!-- ======== Node list type ======== -->
-    
-  <xsd:complexType name="NodeList">
-    <xsd:annotation>
-      <xsd:documentation>
-        A container element for search responses.
-      </xsd:documentation<
-    </xsd:annotation>
-    <xsd:sequence>
-      <xsd:element name="nodes" minOccurs="0" maxOccurs="1">
-        <xsd:annotation>
-          <xsd:documentation>
-            The list of nodes.
-          </xsd:documentation>
-	</xsd:annotation>
-	<xsd:complexType>
-	  <xsd:sequence>
-	    <xsd:element name="node" type="vos:Node" minOccurs="0" maxOccurs="unbounded">
-	      <xsd:annotation>
-		<xsd:documentation>
-	          At the maximum level of detail this will be replaced by the full element for the extended type,
-                 using xsi:type to indicate the node type/
-		</xsd:documentation>
-	      </xsd:annotation>
-	    </xsd:element>
-          </xsd:sequence>
-	</xsd:complexType>
-      </xsd:element>	      
-    </xsd:sequence>
-  </xsd:complexType>
-
-  <!-- ======== Transfer type ======== -->
-
-  <xs:complexType name="Transfer">
-    <xsd:annotation>
-      <xsd:documentation>
-        A container element for transfer operations.
-      </xsd:documentation<
-    </xsd:annotation>
-    <xs:sequence>
-      <xs:element name="target" type="xs:anyURI" minOccurs="1" maxOccurs="1">
-        <xsd:annotation>
-          <xsd:documentation>
-            The target of a transfer operation - the node to/from which data is to be transferred.
-          </xsd:documentation>
-	</xsd:annotation>
-      </xsd:element>
-      <xsd:element name="direction" minOccurs="0" maxOccurs="1">
-        <xsd:annotation>
-          <xsd:documentation>
-            The direction of a data transfer - either a URI or one of the specified directions
-          </xsd:documentation>
-	</xsd:annotation>
-        <xsd:simpleType>
-          <xsd:union>
-            <xsd:simpleType>
-              <xsd:restriction base="xsd:anyURI"/>
-            </xsd:simpleType>
-            <xsd:simpleType>   
-              <xsd:restriction base="xs:string">
-                <xsd:enumeration value="pushToVoSpace"/>
-                <xsd:enumeration value="pushFromVoSpace"/>
-                <xsd:enumeration value="pullToVoSpace"/>
-                <xsd:enumeration value="pullFromVoSpace"/>
-              </xsd:restriction>
-            </xsd:simpleType>
-          </xsd:union>
-        </xsd:simpleType>
-      </xsd:element>
-      <xsd:element name="view" type="vos:View" minOccurs="0" maxOccurs="1">
-        <xsd:annotation>
-          <xsd:documentation>
-            The requested view for the transfer.
-          </xsd:documentation>
-        </xsd:annotation>
-      </xsd:element>
-      <xsd:element name="protocol" type="vos:Protocol" minOccurs="0" maxOccurs="unbounded">
-        <xsd:annotation>
-          <xsd:documentation>
-            The transfer protocol(s) to use.
-          </xsd:documentation>
-        </xsd:annotation>
-      </xsd:element>
-      <xsd:element name="keepBytes" type="xsd:boolean" minOccurs="0" maxOccurs="1">
-        <xsd:annotation>
-          <xsd:documentation>
-            Indicates whether the source object is to be kept in an internal transfer, i.e., distinguishes between a move and a copy.
-          </xsd:documentation>
-        </xsd:annotation>        
-      </xsd:element>
-      <xsd:element name="param" type="vos:Param" minOccurs="0" maxOccurs="unbounded" nillable="true">
-          <xsd:annotation>
-            <xsd:documentation>
-              Any additional transfer specific parameters required to use the endpoint.
-              For example, the size of the file on a pushToVoSpace transfer.
-            </xsd:documentation>
-          </xsd:annotation>
-        </xsd:element>
-    </xsd:sequence>
-  </xsd:complexType>
-
-  <!-- ======== Response representations ======== -->
-
-  <xs:element name="protocols" type="vos:ProtocolList"/>
-
-  <xs:element name="views" type="vos:ViewList"/>
-
-  <xs:element name="properties" type="vos:PropertyList"/>
-
-  <xs:element name="transfer" type="vos:Transfer"/>
- 
-  <xs:element name="searchDetails" type="vos:NodeList"/>
-</xs:schema>
-\end{lstlisting}
+\lstinputlisting{VOSpace-2.1.xsd}[language=xml, basicsytle=\scriptsize]
 
 \section{Appendix B: Compliance matrix}
 \label{sec:appendix b: compliance matrix}
