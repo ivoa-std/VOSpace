@@ -23,7 +23,7 @@
         </xs:annotation>
       </xs:element>            
     </xs:sequence>
-    <xs:attribute name="uri" type="xsd:anyURI" use="required">
+    <xs:attribute name="uri" type="xs:anyURI" use="required">
       <xs:annotation>
         <xs:documentation>
           The node identifier URI.
@@ -67,7 +67,7 @@
             </xs:annotation>
           </xs:element>
         </xs:sequence>
-        <xs:attribute name="busy" type="xsd:boolean" use="optional" default="false">
+        <xs:attribute name="busy" type="xs:boolean" use="optional" default="false">
           <xs:annotation>
             <xs:documentation>
               A flag to indicate if the node content is available.
@@ -141,7 +141,7 @@
     <xs:complexContent>
       <xs:extension base="vos:Node">
 	<xs:sequence>
-          <xs:element name="target" type="xsd:anyURI" minOccurs="1" maxOccurs="1">
+          <xs:element name="target" type="xs:anyURI" minOccurs="1" maxOccurs="1">
             <xs:annotation>
               <xs:documentation>
                 The identifier for the object that the LinkNode points to.
@@ -157,7 +157,7 @@
 
   <xs:complexType name="Property">
     <xs:simpleContent>
-      <xs:extension base="xsd:string">
+      <xs:extension base="xs:string">
         <xs:attributeGroup ref="vos:PropertyAttributeGroup"/>
       </xs:extension>
     </xs:simpleContent>
@@ -194,28 +194,28 @@
     </xs:sequence>
   </xs:complexType>
 
-  < xsd:attributeGroup name="PropertyAttributeGroup">
-    < xsd:attribute name="uri" type="xsd:anyURI" use="required">
-      < xsd:annotation>
-	< xsd:documentation>                    
+  <xs:attributeGroup name="PropertyAttributeGroup">
+    <xs:attribute name="uri" type="xs:anyURI" use="required">
+      <xs:annotation>
+	<xs:documentation>                    
 	  If the property has been registered, then the URI should point to the registration document. Third party 
           tools may use the urn:xxxx syntax to add unregistered properties.
         </xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    < xsd:attribute name="readOnly" type="xsd:boolean" use="optional" default
+    <xs:attribute name="readOnly" type="xs:boolean" use="optional" default
 ="false">
-      < xsd:annotation>
-        < xsd:documentation>
+      <xs:annotation>
+        <xs:documentation>
           A flag to indicate if the property is considered read-only. Attempting to modify a read-only property
           should generate a PermissionDenied fault.
         </xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    < xsd:attribute name="xsd:nill" type="xsd:boolean" use="optional" default
+    <xs:attribute name="xs:nill" type="xs:boolean" use="optional" default
 ="false">
-      < xsd:annotation>
-        < xsd:documentation>
+      <xs:annotation>
+        <xs:documentation>
           A flag to indicate if the property is null and should be deleted.
         </xs:documentation>
       </xs:annotation>
@@ -257,8 +257,8 @@
       </xs:documentation>
     </xs:annotation>
     <xs:simpleContent>
-      <xs:extension base="xsd:string">
-        <xs:attribute name="uri" type="xsd:anyURI" use="required"/>
+      <xs:extension base="xs:string">
+        <xs:attribute name="uri" type="xs:anyURI" use="required"/>
       </xs:extension>
     </xs:simpleContent>
   </xs:complexType>
@@ -281,7 +281,7 @@
         </xs:annotation>
       </xs:element>
     </xs:sequence>
-    <xs:attribute name="uri" type="xsd:anyURI" use="required">
+    <xs:attribute name="uri" type="xs:anyURI" use="required">
       <xs:annotation>
         <xs:documentation>
           The view URI.
@@ -289,7 +289,7 @@
         </xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="original" type="xsd:boolean" use="optional" default="true">
+    <xs:attribute name="original" type="xs:boolean" use="optional" default="true">
       <xs:annotation>
         <xs:documentation>
           A flag to indicate if the view provides access to the original data content or a derived form.
@@ -339,7 +339,7 @@
       </xs:documentation>
     </xs:annotation>
     <xs:sequence>
-      <xs:element name="endpoint" type="xsd:anyURI" minOccurs="0" maxOccurs="1">
+      <xs:element name="endpoint" type="xs:anyURI" minOccurs="0" maxOccurs="1">
         <xs:annotation>
           <xs:documentation>
             The target endpoint to use for a data transfer.
@@ -365,7 +365,7 @@
         </xs:annotation>
       </xs:element>
     </xs:sequence>
-    <xs:attribute name="uri" type="xsd:anyURI" use="required">
+    <xs:attribute name="uri" type="xs:anyURI" use="required">
       <xs:annotation>
         <xs:documentation>
           The protocol identifier.
@@ -441,7 +441,7 @@
       </xs:documentation>
     </xs:annotation>
     <xs:sequence>
-      <xs:element name="endpoint" type="xsd:anyURI" minOccurs="0" maxOccurs="1">
+      <xs:element name="endpoint" type="xs:anyURI" minOccurs="0" maxOccurs="1">
         <xs:annotation>
           <xs:documentation>
             The target endpoint to use for the third-part interface.
@@ -460,7 +460,7 @@
         </xs:annotation>
       </xs:element>
     </xs:sequence>
-    <xs:attribute name="uri" type="xsd:anyURI" use="required">
+    <xs:attribute name="uri" type="xs:anyURI" use="required">
       <xs:annotation>
         <xs:documentation>
           The capability identifier.
@@ -536,7 +536,7 @@
         <xs:simpleType>
           <xs:union>
             <xs:simpleType>
-              <xs:restriction base="xsd:anyURI"/>
+              <xs:restriction base="xs:anyURI"/>
             </xs:simpleType>
             <xs:simpleType>   
               <xs:restriction base="xs:string">
@@ -563,7 +563,7 @@
           </xs:documentation>
         </xs:annotation>
       </xs:element>
-      <xs:element name="keepBytes" type="xsd:boolean" minOccurs="0" maxOccurs="1">
+      <xs:element name="keepBytes" type="xs:boolean" minOccurs="0" maxOccurs="1">
         <xs:annotation>
           <xs:documentation>
             Indicates whether the source object is to be kept in an internal transfer, i.e., distinguishes between a move and a copy.
