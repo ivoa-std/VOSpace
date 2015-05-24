@@ -4,14 +4,15 @@
 \usepackage[utf8]{inputenc}
 \usepackage{fancyvrb}
 \usepackage{listings}
+\usepackage{courier}
 
 \lstset{
-    language=sh,
-    basicstyle=\small,
+    basicstyle=\scriptsize\ttfamily,
     columns=fullflexible,
     keepspaces=true,
     breaklines=true,
-    linewidth=14cm
+    linewidth=14cm,
+    frame=none
 }
 
 \title{VOSpace}
@@ -852,16 +853,6 @@ Protocol URIs and ProtocolDescriptions for the core set of standard transport pr
     \item \begin{verbatim}ivo://ivoa.net/vospace/core#httpput\end{verbatim} SHALL be used as the protocol URI for a HTTP PUT transfer
 \end{itemize}
 
-AuthenticationType URIs and AuthenticationTypeDescriptions for the core set of standard authentication types are registered under a StandardKeyEnumeration resource [VOStd] in the IVOA registry with the resource identifier ivo://ivoa.net/vospace/core. The following URIs SHALL be used to represent the standard authentication types:
-
-\begin{itemize}
-    \item \begin{verbatim}ivo://ivoa.net/vospace/core#anon\end{verbatim} SHALL be used as the authentication type URI for no client authentication
-    \item \begin{verbatim}ivo://ivoa.net/vospace/core#httpauth\end{verbatim} SHALL be used as the authentication type URI for HTTP userid password authentication
-    \item \begin{verbagim}ivo://ivoa.net/vospace/core#x509\end{verbatim} SHALL be used as the authentication type URI for X.509 certificate authentication be used as the protocol URI for a HTTP PUT transfer
-    \item \begin{verbatim}ivo://ivoa.net/vospace/core#cookie\end{verbatim} SHALL be used as the authentication type URI for session-based cookie authentication
-    \item \begin{verbatim}ivo://ivoa.net/vospace/core#oauth\end{verbatim} SHALL be used as the authentication type URI for OAuth authentication
-\end{itemize}
-
 However, this is not intended to be a closed list, different implementations are free to define and use their own transfer Protocols and authentication types.
 
 \subsubsection{Custom protocols}
@@ -1124,17 +1115,18 @@ The standardID for the service is: ivo://ivoa.net/std/VOSpace/v2.0. Available re
 
 \section{Access Control}
 \label{sec:access control}
-VOSpace implementations may support any of the following authentication methods:
+VOSpace implementations may support a number of authentication methods including:
 
 \begin{itemize}
     \item no authentication (anonymous clients)
     \item digital signatures with X.509 client certificates
-    \item user ID and password HTTP authentication
-    \item cookies
     \item OAuth (http://oauth.net)
 \end{itemize}
 
-When a client is requesting a transfer from the service, the authentication type (securityMethod) may be supplied along side the list of transfer protocols. If the service supports the requested type, it may base the construction of the endpoint URL for data transfer from this information.  (Services may encounter situations when the URL for data transfer will depend on the authentication type the client wished to use.)
+For a full list of authentication methods and the associated standardIDs please refer to the document: \href{http://www.ivoa.net/documents/latest/SSOAuthMech.html}{IVOA Single-Sign-On Profile: Authentication Mechanisms}. 	
+
+When a client is requesting a transfer from the service, the authentication type (securityMethod) may be supplied along side the list of transfer protocols. The \emph{securityMethod} is specified by standardID.  If the service supports the requested type, it may base the construction of the endpoint URL for data transfer from this information.  (Services may encounter situations when the URL for data transfer will depend on the authentication type the client wished to use.)
+
 The access control policy for a VOSpace is defined by the implementor of that space according to the use cases for which the implementation is intended.
 
 A human-readable description of the implemented access policy must be declared in the registry metadata for the space.
@@ -1142,15 +1134,15 @@ A human-readable description of the implemented access policy must be declared i
 These are the most probable access policies:
 
 \begin{itemize}
-    \item No access control is asserted. Any client can create, read, write and delete nodes anonymously
     \item No authorization is required, but clients must authenticate an identity (for logging purposes) in each request to the space
     \item Clients may not create or change nodes (i.e. the contents of the space are fixed by the implementation or set by some interface other than VOSpace), but any client can read any node without authentication
     \item Nodes are considered to be owned by the user who created them. Only the owner can operate on a node
+    \item Node authorization is similar to that of Linux file system permission handling.
 \end{itemize}
 
 No operations to modify the access policy (e.g. to set permissions on an individual node) are included in this standard. Later versions may add such operations.
 
-Where the access policy requires authentication of callers, the VOSpace service SHALL support one of the authentication methods defined in the IVOA Single Sign On profile.
+Where the access policy requires authentication of callers, the VOSpace service SHALL support one of the authentication methods defined in the IVOA Single Sign On Profile.
 
 \section{Web service operations}
 \label{sec:web service operations}
@@ -1171,7 +1163,7 @@ These operations return comprehensive lists of service-level metadata, e.g. all 
 
 \subsubsection{getProtocols}
 \label{subsubsec:getprotocols}
-Get a list of the transfer Protocols supported by the space service
+Get a list of the transfer Protocols supported by the VOSpace service
 
 \paragraph{Request}
 A HTTP request to http://rest-endpoint/protocols
@@ -1201,45 +1193,43 @@ A Protocols representation giving:
 \paragraph{Example}
 Get the VOSpace protocols
 
-\begin{tabular}{ p{10cm} }
-\\
-\textbf{request} \\
+\noindent
+Request:
 \begin{lstlisting}
-> curl -v http://localhost:8000/vospace-2.0/protocols
-\end{lstlisting} \\
-\textbf{response} \\
+> curl -v http://server.example.com/vospace/protocols
+\end{lstlisting}
+Response:
 \begin{lstlisting}
-* Connected to localhost (127.0.0.1) port 8000 (#0)
-> GET /protocols HTTP/1.1
-> User-Agent: curl/7.19.4 (universal-apple-darwin10.0) libcurl/7.19.4 OpenSSL/0.9.8l zlib/1.2.3
-> Host: localhost:8000
+* About to connect() to server.example.com port 80 (#0)
+*   Trying 132.246.217.46... connected
+* Connected to server.example.com (132.246.217.46) port 80 (#0)
+> GET /vospace/protocols HTTP/1.1
+> User-Agent: curl/7.19.7 (universal-apple-darwin10.0) libcurl/7.19.7 OpenSSL/0.9.8y zlib/1.2.3
+> Host: server.example.com
 > Accept: */*
-> 
+>
 < HTTP/1.1 200 OK
-< Date: Tue, 09 Mar 2010 04:59:12 GMT
-< Content-Length: 309
-< Content-Type: text/html
-< Allow: GET, HEAD, POST, PUT
-< Server: CherryPy/3.1.2
-< 
-<protocols xmlns="http://www.ivoa.net/xml/VOSpace/v2.0">
-  <accepts>
-    <protocol uri="ivo://ivoa.net/vospace/core#httpget"/>
-    <protocol uri="ivo://ivoa.net/vospace/core#httpput"/>
-  </accepts>
-  <provides>
-    <protocol uri="ivo://ivoa.net/vospace/core#httpget"/>
-    <protocol uri="ivo://ivoa.net/vospace/core#httpput"/>
-  </provides>
-</protocols>
-* Connection #0 to host localhost left intact
+< Date: Fri, 22 May 2015 21:22:30 GMT
+< Content-Type: text/xml
+< Connection: close
+< Transfer-Encoding: chunked
+<
+<vos:protocols xmlns="http://www.ivoa.net/xml/VOSpace/v2.1" xmlns:xs="http://www.w3.org/2001/XMLSchema-instance">
+  <vos:accepts>
+    <vos:protocol uri="ivo://ivoa.net/vospace/core#httpget"/>
+    <vos:protocol uri="ivo://ivoa.net/vospace/core#httpput"/>
+  </vos:accepts>
+  <vos:provides>
+    <vos:protocol uri="ivo://ivoa.net/vospace/core#httpget"/>
+    <vos:protocol uri="ivo://ivoa.net/vospace/core#httpput"/>
+  </vos:provides>
+</vos:protocols>
 * Closing connection #0
 \end{lstlisting}
-\end{tabular}
 
 \subsubsection{getViews}
 \label{subsubsec:getviews}
-Get a list of the Views and data formats supported by the space service
+Get a list of the Views and data formats supported by the VOSpace service
 
 \paragraph{Request}
 A HTTP GET to http://rest-endpoint/views
@@ -1269,40 +1259,40 @@ A Views representation giving:
 \paragraph{Example}
 Get the VOSpace views
 
-\begin{tabular}{ p{10cm} }
-\\
-\textbf{request} \\
+\noindent
+Request:
 \begin{lstlisting}
-> curl -v "http://localhost:8000/views"
-\end{lstlisting} \\
-\textbf{response} \\
+> curl -v "http://server.example.com/vospace/views"
+\end{lstlisting}
+Response:
 \begin{lstlisting}
-* Connected to localhost (127.0.0.1) port 8000 (#0)
-> GET /views HTTP/1.1
-> User-Agent: curl/7.19.4 (universal-apple-darwin10.0) libcurl/7.19.4
-    OpenSSL/0.9.8l zlib/1.2.3
-> Host: localhost:8000
+* About to connect() to server.example.com port 80 (#0)
+*   Trying 132.246.217.46... connected
+* Connected to server.example.com (132.246.217.46) port 80 (#0)
+> GET /vospace/views HTTP/1.1
+> User-Agent: curl/7.19.7 (universal-apple-darwin10.0) libcurl/7.19.7 OpenSSL/0.9.8y zlib/1.2.3
+> Host: server.example.com
 > Accept: */*
-> 
+>
 < HTTP/1.1 200 OK
-< Date: Tue, 09 Mar 2010 19:36:17 GMT
-< Content-Length: 181
-< Content-Type: text/html
-< Allow: GET, HEAD, POST, PUT
-< Server: CherryPy/3.1.2
-< 
-<views xmlns="http://www.ivoa.net/xml/VOSpace/v2.0">
-  <accepts>
-    <view uri="ivo://ivoa.net/vospace/core#anyview"/>
-  </accepts>
-  <provides>
-    <view uri="ivo://ivoa.net/vospace/core#defaultview"/>
-  </provides>
-</views>
-* Connection #0 to host localhost left intact
+< Date: Fri, 22 May 2015 21:29:50 GMT
+< Server: Restlet-Framework/2.0.2
+< Accept-Ranges: bytes
+< Vary: Accept-Charset,Accept-Encoding,Accept-Language,Accept
+< Content-Type: text/xml
+< Connection: close
+< Transfer-Encoding: chunked
+<
+<vos:views xmlns="http://www.ivoa.net/xml/VOSpace/v2.1" xmlns:xs="http://www.w3.org/2001/XMLSchema-instance">
+  <vos:accepts>
+    <vos:view uri="ivo://ivoa.net/vospace/core#anyview"/>
+  </vos:accepts>
+  <vos:provides>
+    <vos:view uri="ivo://ivoa.net/vospace/core#defaultview"/>
+  </vos:provides>
+</vos:views>
 * Closing connection #0
 \end{lstlisting}
-\end{tabular}
 
 \subsubsection{getProperties}
 \label{subsubsec:getproperties}
@@ -1328,49 +1318,49 @@ A Properties representation including:
 \paragraph{Example}
 Get the VOSpace properties
 
-\begin{tabular}{ p{10cm} }
-\\
-\textbf{request} \\
+\noindent
+Request:
 \begin{lstlisting}
-> curl -v "http://localhost:8000/properties"
-\end{lstlisting} \\
-\textbf{response} \\
+> curl -v "http://server.example.com/vospace/properties"
+\end{lstlisting}
+Response:
 \begin{lstlisting}
-* Connected to localhost (127.0.0.1) port 8000 (#0)
-> GET /properties HTTP/1.1
-> User-Agent: curl/7.19.4 (universal-apple-darwin10.0) libcurl/7.19.4
-    OpenSSL/0.9.8l zlib/1.2.3
-> Host: localhost:8000
+* About to connect() to server.example.com port 80 (#0)
+*   Trying 132.246.217.46... connected
+* Connected to server.example.com (132.246.217.46) port 80 (#0)
+> GET /vospace/properties HTTP/1.1
+> User-Agent: curl/7.19.7 (universal-apple-darwin10.0) libcurl/7.19.7 OpenSSL/0.9.8y zlib/1.2.3
+> Host: server.example.com
 > Accept: */*
-> 
+>
 < HTTP/1.1 200 OK
-< Date: Tue, 09 Mar 2010 19:43:23 GMT
-< Content-Length: 644
-< Content-Type: text/html
-< Allow: GET, HEAD, POST, PUT
-< Server: CherryPy/3.1.2
-< 
-<properties xmlns="http://www.ivoa.net/xml/VOSpace/v2.0">
-  <accepts>
-    <property uri="ivo://ivoa.net/vospace/core#title"/>
-    <property uri="ivo://ivoa.net/vospace/core#creator"/>
-    <property uri="ivo://ivoa.net/vospace/core#description"/>
-  </accepts>
- <provides>
-    <property uri="ivo://ivoa.net/vospace/core#availableSpace"/>
-    <property uri="ivo://ivoa.net/vospace/core#httpput"/>
-  </provides>
-  <contains>
-    <property uri="ivo://ivoa.net/vospace/core#availableSpace"/>
-    <property uri="ivo://ivoa.net/vospace/core#title"/>
-    <property uri="ivo://ivoa.net/vospace/core#creator"/>
-    <property uri="ivo://ivoa.net/vospace/core#description"/>
-  </contains>
-</properties>
-* Connection #0 to host localhost left intact
+< Date: Fri, 22 May 2015 21:29:50 GMT
+< Server: Restlet-Framework/2.0.2
+< Accept-Ranges: bytes
+< Vary: Accept-Charset,Accept-Encoding,Accept-Language,Accept
+< Content-Type: text/xml
+< Connection: close
+< Transfer-Encoding: chunked
+<
+<vos:properties xmlns="http://www.ivoa.net/xml/VOSpace/v2.1" xmlns:xs="http://www.w3.org/2001/XMLSchema-instance">
+  <vos:accepts>
+    <vos:property uri="ivo://ivoa.net/vospace/core#title"/>
+    <vos:property uri="ivo://ivoa.net/vospace/core#creator"/>
+    <vos:property uri="ivo://ivoa.net/vospace/core#description"/>
+  </vos:accepts>
+  <vos:provides>
+    <vos:property uri="ivo://ivoa.net/vospace/core#availableSpace"/>
+    <vos:property uri="ivo://ivoa.net/vospace/core#httpput"/>
+  </vos:provides>
+  <vos:contains>
+    <vos:property uri="ivo://ivoa.net/vospace/core#availableSpace"/>
+    <vos:property uri="ivo://ivoa.net/vospace/core#title"/>
+    <vos:property uri="ivo://ivoa.net/vospace/core#creator"/>
+    <vos:property uri="ivo://ivoa.net/vospace/core#description"/>
+  </vos:contains>
+</vos:properties>
 * Closing connection #0
-\end{lstlisting} \\
-\end{tabular}
+\end{lstlisting}
 
 \subsection{Creating and manipulating data nodes}
 \label{subsec:creating and manipulating data nodes}
@@ -1387,9 +1377,9 @@ A HTTP PUT of a node representation to the node URL:
 
 A valid uri attribute SHALL be required. The name .auto is a reserved URI to indicate an auto-generated URI for the destination, i.e. given the following URI vos://service/path/.auto a service SHALL create a new unique URI for the node within vos://service/path.
 
-If the Node xsi:type is not specified then a generic node of type Node is implied.
+If the Node xs:type is not specified then a generic node of type Node is implied.
 
-The permitted values of xsi:type are:
+The permitted values of xs:type are:
 
 \begin{itemize}
     \item vos:Node
@@ -1400,7 +1390,7 @@ The permitted values of xsi:type are:
     \item vos:LinkNode
 \end{itemize}
 
-When creating a new Node the service MAY substitute a valid subtype, i.e. If xsi:type is set to vos:DataNode then this may be implemented as a DataNode, StructuredDataNode or an UnstructuredDataNode.
+When creating a new Node the service MAY substitute a valid subtype, i.e. If xs:type is set to vos:DataNode then this may be implemented as a DataNode, StructuredDataNode or an UnstructuredDataNode.
 
 The properties of the new Node can be set by adding Properties to the template. Attempting to set a Property that the service considers to be 'readOnly' SHALL cause a PermissionDenied fault. The accepts and provides lists of Views for the Node cannot be set using this method.
 
@@ -1440,63 +1430,63 @@ The \emph{capabilities} list for the Node MAY not be filled in until some data h
 \paragraph{Example}
 Create a node
 
-\begin{tabular}{ p{10cm} }
-\\
-\textbf{The node to be created (newNode.xml)} \\
+\noindent
+The node to be created (newNode.xml):
 \begin{lstlisting}
-<node xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:type="vos:UnstructuredDataNode"
-    xmlns="http://www.ivoa.net/xml/VOSpace/v2.0"
-        uri="vos://nvo.caltech!vospace/mydata1">
-  <properties>
-    <property uri="ivo://ivoa.net/vospace/core#description">
-        My important results</property>
-  </properties>
-  <accepts/>
-  <provides/>
-  <capabilities/>
-</node>
-\end{lstlisting} \\
-\textbf{request} \\
-\begin{lstlisting}
-> curl -v -X PUT -d @newNode.xml "http://localhost:8000/nodes/mydata1"
-\end{lstlisting} \\
-\textbf{response} \\
-\begin{lstlisting}
-* Connected to localhost (127.0.0.1) port 8000 (#0)
-> PUT /nodes/mydata1 HTTP/1.1
-> User-Agent: curl/7.19.4 (universal-apple-darwin10.0) libcurl/7.19.4
-    OpenSSL/0.9.8l zlib/1.2.3
-> Host: localhost:8000
-> Accept: */*
-> Content-Length: 267
-> Content-Type: application/x-www-form-urlencoded
-> 
-< HTTP/1.1 200 Created
-< Date: Wed, 10 Mar 2010 00:10:27 GMT
-< Content-Length: 323
-< Content-Type: text/html
-< Allow: GET, HEAD, POST, PUT
-< Server: CherryPy/3.1.2
-< 
-* Connection #0 to host localhost left intact
-* Closing connection #0
-<node xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xmlns="http://www.ivoa.net/xml/VOSpace/v2.0"
-      xsi:type="vos:UnstructuredDataNode" 
-  uri="vos://nvo.caltech!vospace/mydata1">
-  <properties>
-    <property uri="ivo://ivoa.net/vospace/core#description">
-        My important results</property>
-  </properties>
-  <accepts>
-    <view uri="ivo://ivoa.net/vospace/core#anyview"/>
-  </accepts>
-  <provides/>
-  <capabilities/>
-</node>
+<vos:node xmlns:xs="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns="http://www.ivoa.net/xml/VOSpace/v2.1" uri="vos://example.com!vospace/mydata1"
+    xs:type="vos:UnstructuredDataNode"
+    uri="vos://example.com!vospace/mydata1">
+  <vos:properties>
+    <vos:property uri="ivo://ivoa.net/vospace/core#description">My important results</vos:property>
+  </vos:properties>
+  <vos:accepts/>
+  <vos:provides/>
+  <vos:capabilities/>
+</vos:node>
 \end{lstlisting}
-\end{tabular}
+Request:
+\begin{lstlisting}
+> curl -v -X PUT -d @newNode.xml "http://server.example.com/vospace/nodes/mydata1"
+\end{lstlisting}
+Response:
+\begin{lstlisting}
+* About to connect() to server.example.com port 80 (#0)
+*   Trying 132.246.217.46... connected
+* Connected to server.example.com (132.246.217.46) port 80 (#0)
+> PUT /vospace/nodes/mydata1 HTTP/1.1
+> User-Agent: curl/7.19.7 (universal-apple-darwin10.0) libcurl/7.19.7 OpenSSL/0.9.8y zlib/1.2.3
+> Host: server.example.com
+> Accept: */*
+> Content-Length: 364
+> Content-Type: application/x-www-form-urlencoded
+>
+< HTTP/1.1 200 OK
+< Date: Fri, 22 May 2015 23:06:32 GMT
+< Server: Restlet-Framework/2.0.2
+< Cache-Control: private
+< Expires: Wed, 31 Dec 1969 16:00:00 PST
+< Accept-Ranges: bytes
+< Vary: Accept-Charset,Accept-Encoding,Accept-Language,Accept
+< Content-Type: text/xml
+< Content-Length: 589
+< Connection: close
+<
+<vos:node xmlns:xi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns="http://www.ivoa.net/xml/VOSpace/v2.1"
+      xs:type="vos:UnstructuredDataNode" 
+      uri="vos://example.com!vospace/mydata1">
+  <vos:properties>
+    <vos:property uri="ivo://ivoa.net/vospace/core#description">My important results</vos:property>
+    <vos:property uri="ivo://ivoa.net/vospace/core#date" readOnly="true">2015-05-22T23:06:32.966</vos:property>
+  </vos:properties>
+  <vos:accepts>
+    <vos:view uri="ivo://ivoa.net/vospace/core#anyview"/>
+  </vos:accepts>
+  <vos:provides/>
+  <vos:capabilities/>
+</vos:node>
+\end{lstlisting}
 
 \subsubsection{moveNode}
 \label{subsubsec:movenode}
@@ -1527,10 +1517,10 @@ If an autogenerated URI for the destination was specified in the request then it
 <uws:job>
   ...
   <uws:jobInfo>
-    <vos:direction>vos://nvo.caltech!vospace/mjg/.auto</vos:direction>
+    <vos:direction>vos://example.com!vospace/mjg/.auto</vos:direction>
   ...
   <uws:results>
-    <uws:result id="destination">vos://nvo.caltech!vospace/mjg/abc123</uws:result>
+    <uws:result id="destination">vos://example.com!vospace/mjg/abc123</uws:result>
   </uws:results>
   ...
 </uws:job>
@@ -1560,96 +1550,149 @@ A specified URI is invalid & Invalid URI & InvalidURI \\
 \paragraph{Example}
 Move a node
 
-\begin{tabular}{ p{10cm} }
-\\
-\textbf{The Job to be submitted (newJob.xml)} \\
+\noindent
+The Job to be submitted (newJob.xml):
 \begin{lstlisting}
-<node xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-<vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.0" >
-  <vos:target>vos://nvo.caltech!vospace/mydata1</vos:target>
-  <vos:direction>vos://nvo.caltech!vospace/mydata2</vos:direction>
+<vos:transfer xmlns:xs="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1" >
+  <vos:target>vos://example.com!vospace/mydata1</vos:target>
+  <vos:direction>vos://example.com!vospace/mydata2</vos:direction>
   <vos:keepBytes>false</vos:keepBytes>
 </vos:transfer>
-\end{lstlisting} \\
-\textbf{request} \\
+\end{lstlisting}
+Request:
 \begin{lstlisting}
-> curl -v -X POST -d @newJob.xml "http://localhost:8000/transfers"
-\end{lstlisting} \\
-\textbf{response} \\
+> curl -v -X POST -d @newJob.xml "http://server.example.come/vospace/transfers"
+\end{lstlisting}
+Response:
 \begin{lstlisting}
-* Connected to localhost (127.0.0.1) port 8000 (#0)
-> POST /transfers HTTP/1.1
-> User-Agent: curl/7.19.4 (universal-apple-darwin10.0) libcurl/7.19.4
-    OpenSSL/0.9.8l zlib/1.2.3
-> Host: localhost:8000
+* About to connect() to server.example.com port 80 (#0)
+*   Trying 132.246.217.46... connected
+* Connected to server.example.com (132.246.217.46) port 80 (#0)
+> POST /vospace/transfers HTTP/1.1
+> User-Agent: curl/7.19.7 (universal-apple-darwin10.0) libcurl/7.19.7 OpenSSL/0.9.8y zlib/1.2.3
+> Host: www.example.com
 > Accept: */*
-> Content-Length: 762
+> Content-Length: 261
 > Content-Type: application/x-www-form-urlencoded
-> 
+>
 < HTTP/1.1 303 See Other
-< Content-Length: 174
-< Server: CherryPy/3.1.2
-< Location: http://localhost:8080/transfers/
-    ec200b5ff77641fb841978a85d1f7245
-< Allow: GET, HEAD, POST, PUT
-< Date: Thu, 11 Mar 2010 19:54:00 GMT
-< Content-Type: text/html
-< 
-* Connection #0 to host localhost left intact
+< Date: Fri, 22 May 2015 23:44:04 GMT
+< Server: Restlet-Framework/2.0.2
+< Accept-Ranges: bytes
+< Location: http://server.example.com/vospace/transfers/glmldqf591feljub
+< Content-Length: 0
+< Connection: close
+< Content-Type: text/plain
+<
 * Closing connection #0
-\end{lstlisting} \\
-\end{tabular}
-\paragraph{}
-\begin{tabular}{ p{10cm} }
-\\
-\textbf{This resource can be found at} \\
+\end{lstlisting}
+Job information can be seen by following the redirect to:
 \begin{lstlisting}
- http://localhost:8000/transfers/ec200b5ff77641fb841978a85d1f7245. 
-\end{lstlisting} \\
-\textbf{The status of the job can now be polled at the job location:} \\
+> curl -v "http://server.example.com/vospace/transfers/glmldqf591feljub"
+\end{lstlisting}
+Response:
 \begin{lstlisting}
-> curl -v "http://localhost:8000/transfers/ec200b5ff77641fb841978a85d1f7245"
-\end{lstlisting} \\
-\textbf{response} \\
-\begin{lstlisting}
-* Connected to localhost (127.0.0.1) port 8000 (#0)
-> GET /transfers/ccfd4ba0dd9f4406b2039c4358ba8ef3 HTTP/1.1
-> User-Agent: curl/7.19.4 (universal-apple-darwin10.0) libcurl/7.19.4 OpenSSL/0.9.8l zlib/1.2.3
-> Host: localhost:8000
+* About to connect() to server.example.com port 80 (#0)
+*   Trying 132.246.217.46... connected
+* Connected to server.example.com (132.246.217.46) port 80 (#0)
+> GET /vospace/transfers/glmldqf591feljub HTTP/1.1
+> User-Agent: curl/7.19.7 (universal-apple-darwin10.0) libcurl/7.19.7 OpenSSL/0.9.8y zlib/1.2.3
+> Host: server.example.com
 > Accept: */*
-> 
+>
 < HTTP/1.1 200 OK
-< Date: Thu, 11 Mar 2010 19:54:02 GMT
-< Content-Length: 802
-< Content-Type: text/html
-< Allow: GET, HEAD, POST, PUT
-< Server: CherryPy/3.1.2
-< 
-<uws:job xmlns:uws="http://www.ivoa.net/xml/UWS/v1.0" xmlns:xlink=
-    "http://www.w3.org/1999/xlink"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.0"
-    xsi:schemaLocation="http://www.ivoa.net/xml/UWS/v1.0 UWS.xsd ">
-  <uws:jobId>ec200b5ff77641fb841978a85d1f7245</uws:jobId>
-  <uws:ownerId xsi:nil="true"/>
-  <uws:phase>EXECUTING</uws:phase>
-  <uws:startTime>2010-03-11T19:54:00.433058</uws:startTime>
-  <uws:endTime xsi:nil="true"/>
-  <uws:executionDuration>0</uws:executionDuration>
-  <uws:destruction xsi:nil="true"/>
+< Date: Fri, 22 May 2015 23:47:26 GMT
+< Server: Restlet-Framework/2.0.2
+< Cache-Control: private
+< Expires: Wed, 31 Dec 1969 16:00:00 PST
+< Accept-Ranges: bytes
+< Vary: Accept-Charset,Accept-Encoding,Accept-Language,Accept
+< Content-Type: text/xml
+< Connection: close
+< Transfer-Encoding: chunked
+<
+<?xml version="1.0" encoding="UTF-8"?>
+<uws:job xmlns:uws="http://www.ivoa.net/xml/UWS/v1.0" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <uws:jobId>glmldqf591feljub</uws:jobId>
+  <uws:ownerId xs:nill="true" />
+  <uws:phase>PENDING</uws:phase>
+  <uws:quote>2015-05-23T11:44:03.993</uws:quote>
+  <uws:startTime xmlns:xs="http://www.w3.org/2001/XMLSchema-instance" xs:nil="true" />
+  <uws:endTime xmlns:xs="http://www.w3.org/2001/XMLSchema-instance" xs:nil="true" />
+  <uws:executionDuration>43200</uws:executionDuration>
+  <uws:destruction>2015-05-29T23:44:03.993</uws:destruction>
+  <uws:parameters />
+  <uws:results />
   <uws:jobInfo>
-    <vos:transfer>
-      <vos:target>vos://nvo.caltech!vospace/mydata1</vos:target>
-      <vos:direction>vos://nvo.caltech!vospace/mydata2</vos:direction>
+    <vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1">
+      <vos:target>vos://example.com!vospace/mydata1</vos:target>
+      <vos:direction>vos://example.com!vospace/mydata2</vos:direction>
       <vos:keepBytes>false</vos:keepBytes>
     </vos:transfer>
   </uws:jobInfo>
-  <uws:results/>
-* Connection #0 to host localhost left intact
-* Closing connection #0
 </uws:job>
 \end{lstlisting}
-\end{tabular}
+Now start the UWS job:
+\begin{lstlisting}
+> curl -v -d "PHASE=RUN" "http://server.example.com/vospace/transfers/glmldqf591feljub/phase"
+\end{lstlisting}
+Response:
+\begin{lstlisting}
+ About to connect() to server.example.com port 80 (#0)
+*   Trying 132.246.217.46... connected
+* Connected to server.example.com (132.246.217.46) port 80 (#0)
+> POST /vospace/transfers/glmldqf591feljub/phase HTTP/1.1
+> User-Agent: curl/7.19.7 (universal-apple-darwin10.0) libcurl/7.19.7 OpenSSL/0.9.8y zlib/1.2.3
+> Host: server.example.com
+> Accept: */*
+> Content-Length: 9
+> Content-Type: application/x-www-form-urlencoded
+>
+< HTTP/1.1 303 See Other
+< Date: Sun, 24 May 2015 16:51:37 GMT
+< Server: Restlet-Framework/2.0.2
+< Accept-Ranges: bytes
+< Location: http://server.example.com/vospace/transfers/glmldqf591feljub
+< Content-Length: 0
+< Connection: close
+< Content-Type: text/plain
+<
+* Closing connection #0
+\end{lstlisting}
+Follow the redirect to see the phase.  The job will be either RUNNING, COMPLETED or ERROR.
+\begin{lstlisting}
+> curl -v http://server.example.com/vospace/transfers/glmldqf591feljub/phase
+\end{lstlisting}
+Response:
+\begin{lstlisting}
+* About to connect() to server.example.com port 80 (#0)
+*   Trying 132.246.217.46... connected
+* Connected to server.example.com (132.246.217.46) port 80 (#0)
+> GET /vospace/transfers/glmldqf591feljub/phase HTTP/1.1
+> User-Agent: curl/7.19.7 (universal-apple-darwin10.0) libcurl/7.19.7 OpenSSL/0.9.8y zlib/1.2.3
+> Host: server.example.com
+> Accept: */*
+>
+< HTTP/1.1 200 OK
+< Date: Sun, 24 May 2015 16:51:45 GMT
+< Server: Restlet-Framework/2.0.2
+< Cache-Control: private
+< Expires: Wed, 31 Dec 1969 16:00:00 PST
+< Accept-Ranges: bytes
+< Vary: Accept-Charset,Accept-Encoding,Accept-Language,Accept
+< Content-Type: text/plain;charset=UTF-8
+< Content-Length: 5
+< Connection: close
+<
+* Closing connection #0
+COMPLETED
+\end{lstlisting}
+If the job is in phase RUNNING, the phase can be polled intermittently until it is COMPLETED or ERROR.
+If the job is in phase ERROR, details can be seen by performing an HTTP GET to the job URL:
+\begin{lstlisting}
+> curl -v "http://server.example.com/vospace/transfers/glmldqf591feljub"
+\end{lstlisting}
 
 \subsubsection{copyNode}
 \label{subsubsec:copynode}
@@ -1764,7 +1807,7 @@ http://localhost:8000/transfers/6fbb28afec94417ba256d705f5e1f966.
 < Server: CherryPy/3.1.2
 < 
 <uws:job xmlns:uws="http://www.ivoa.net/xml/UWS/v1.0" xmlns:xlink="http://www.w3.org/1999/xlink"
-     xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+     xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
      xsi:schemaLocation="http://www.ivoa.net/xml/UWS/v1.0 UWS.xsd ">
   <uws:jobId>6fbb28afec94417ba256d705f5e1f966</uws:jobId>
   <uws:ownerId xsi:nil="true"/>
@@ -1925,7 +1968,7 @@ Get a VOSpace node
 < 
 <node xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 xsi:type="vos:ContainerNode" uri="vos://nvo.caltech!vospace/mydir"
-xmlns="http://www.ivoa.net/xml/VOSpace/v2.0">
+xmlns="http://www.ivoa.net/xml/VOSpace/v2.1">
   <properties>
     <property uri="ivo://ivoa.net/vospace/core#description">My award winning images</property>
   </properties>
@@ -1993,7 +2036,7 @@ Set node metadata
 <node xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 xsi:type="vos:UnstructuredDataNode"
 uri="vos://nvo.caltech!vospace/mydata1"
-xmlns="http://www.ivoa.net/xml/VOSpace/v2.0">
+xmlns="http://www.ivoa.net/xml/VOSpace/v2.1">
   <properties>
     <property uri="ivo://ivoa.net/vospace/core#date">2010-03-12</property>
   </properties>
@@ -2028,7 +2071,7 @@ xmlns="http://www.ivoa.net/xml/VOSpace/v2.0">
 < 
 <node xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 xsi:type="vos:UnstructuredDataNode" uri="vos://nvo.caltech!vospace/mydata1"
-xmlns="http://www.ivoa.net/xml/VOSpace/v2.0" busy="false">
+xmlns="http://www.ivoa.net/xml/VOSpace/v2.1" busy="false">
   <properties>
     <property uri="ivo://ivoa.net/vospace/core#description">My important results</property>
     <property uri="ivo://ivoa.net/vospace/core#date">2010-03-12</property>
@@ -2094,7 +2137,7 @@ Find VOSpace nodes
 \\
 \textbf{The Job to be submitted (newJob.xml) is:} \\
 \begin{lstlisting}
-<vos:search xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.0">
+<vos:search xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1">
   <vos:detail>properties</vos:detail>
   <vos:matches>ivo://ivoa.net/vospace/core#description='galax'</vos:matches>
 <vos:search>
@@ -2194,7 +2237,7 @@ http://localhost:8080/searches/8c5b0f78cd5a44af8694f10da1b92060
 < Allow: DELETE, GET, HEAD, POST, PUT
 < Server: CherryPy/3.1.2
 < 
-<nodes xmlns="http://www.ivoa.net/xml/VOSpace/v2.0"
+<nodes xmlns="http://www.ivoa.net/xml/VOSpace/v2.1"
 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <node uri="vos://nvo.caltech!vospace/mydir/img1" xsi:type="vos:UnstructuredDataNode">
     <properties>
@@ -2221,9 +2264,21 @@ Two modes are supported for external data transfers: a simple HTTP GET to retrie
     \item reading data from a service (pullFromVoSpace)
     \item sending data from a service (pushFromVoSpace)
 \end{itemize}
-A transfer job is created by a HTTP POST of an appropriate Job representation to the transfers endpoint of the service: http://rest-endpoint/transfers
 
-The service returns the jobid of the transfer and it can then be initiated with a HTTP POST of the single parameter "PHASE=RUN" to the appropriate job endpoint: http://rest-endpoint/transfers/(jobid)/phase. Alternatively the transfer can also be run immediately on creation by adding a "PHASE=RUN" to the initial Job representation.
+A transfer job is created by a HTTP POST of an appropriate Job representation to the transfers endpoint of the service: http://rest-endpoint/transfers.  The following example shows a transfer document for a pushToVoSpace operation that uses client certificates for authentication and authorization:
+
+\begin{lstlisting}
+<vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1">   
+  <vos:target>vos://server.example.com!vospace/mydata1</vos:target>
+  <vos:direction>pushToVoSpace</vos:direction>
+  <vos:view uri="ivo://net.ivoa/vospace/core#fits"/>
+  <vos:protocol uri="ivo://net.ivoa/vospace/core#httpput">
+       <vos:securityMethod uri="ivo://ivoa.net/sso#tls-with-certificate"/>
+  </vos:protocol>
+</vos:transfer>
+\end{lstlisting}
+
+The service returns the UWS jobid of the transfer and it can then be initiated with a HTTP POST of the single parameter "PHASE=RUN" to the appropriate job endpoint: http://rest-endpoint/transfers/(jobid)/phase. Alternatively the transfer can also be run immediately on creation by adding a "PHASE=RUN" to the initial Job representation.
 
 The status of any transfer can be obtained by polling the phase endpoint for a particular transfer, i.e. a HTTP GET to http://rest-endpoint/transfers/(jobid)/phase.
 
@@ -2231,7 +2286,7 @@ Once a transfer has completed, any results can be obtained by following the link
 
 A transfer can also be aborted at any stage with a HTTP POST of the parameter "PHASE=ABORT" to the endpoint: http://rest-endpoint/transfers/(jobid)/phase
 
-More specific details for each of the four directions are given below.
+More specific details for each of the four directions are given in the sections following.
 
 \subsubsection{pushToVoSpace}
 \label{subsubsec:pushtovospace}
@@ -2321,7 +2376,7 @@ pushToVoSpace
 \\
 \textbf{The Job to be submitted (newJob.xml) is:} \\
 \begin{lstlisting}
-<vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.0">   
+<vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1">   
   <vos:target>vos://nvo.caltech!vospace/mydata1</vos:target>
   <vos:direction>pushToVoSpace</vos:direction>
   <vos:view uri="ivo://net.ivoa/vospace/core#fits"/>
@@ -2386,7 +2441,7 @@ This resource can be found at: http://localhost:8000/transfers/fd5cf0cb1b6d4fbd8
   <uws:executionDuration>0</uws:executionDuration>
   <uws:destruction xsi:nil="true"/>
   <uws:jobInfo>
-    <vos:transfer>   
+    <vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1>   
       <vos:target>vos://nvo.caltech!vospace/mydata1</vos:target>
       <vos:direction>pushToVoSpace</vos:direction>
       <vos:view uri="ivo://net.ivoa/vospace/core#fits"/>
@@ -2420,7 +2475,7 @@ xlink:href="http://localhost:8000/transfers/fd5cf0cb1b6d4fbd84602982abf19ef1/res
 < Allow: DELETE, GET, HEAD, POST, PUT
 < Server: CherryPy/3.1.2
 < 
-<transfer>
+<transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1>
   <target>vos://nvo.caltech!vospace/mydata1</target>
   <direction>pushToVoSpace</direction>
   <view>ivo://ivoa.net/vospace/core#fits</view>
@@ -2456,7 +2511,7 @@ curl -v -X POST -d "TARGET=vos://nvo.caltech!vospace/mydata1?DIRECTION=pushToVoS
 < HTTP/1.1 200 OK
 < Date: Fri, 12 Mar 2010 22:46:17 GMT
 < 
-<transfer>
+<transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1>
   <target>vos://nvo.caltech!vospace/mydata1</target>
   <direction>pushToVoSpace</direction>
   <view>ivo://ivoa.net/vospace/core#fits</view>
@@ -2531,7 +2586,7 @@ pullToVoSpace
 \\
 \textbf{The Job to be submitted (newJob.xml) is:} \\
 \begin{lstlisting}
-<vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.0">
+<vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1">
   <vos:target>vos://nvo.caltech!vospace/mydata1</vos:target>
   <vos:direction>pullToVoSpace</vos:direction>
   <vos:view uri="ivo://ivoa.net/vospace/core#fits"/>
@@ -2677,7 +2732,7 @@ pullFromVoSpace
 \\
 \textbf{The Job to be submitted (newJob.xml) is:} \\
 \begin{lstlisting}
-<vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.0">
+<vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1">
   <vos:target>vos://nvo.caltech!vospace/mydata1</vos:target>
   <vos:direction>pullFromVoSpace</vos:direction>
   <vos:view uri="ivo://ivoa.net/vospace/core#defaultview"/>
@@ -2765,7 +2820,7 @@ This resource can be found at http://localhost:8000/transfers/1ce91a4346b54432a4
 < Allow: DELETE, GET, HEAD, POST, PUT
 < Server: CherryPy/3.1.2
 < 
-<transfer>
+<transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1>
   <target>vos://nvo.caltech!vospace/mydata1</target>
   <direction>pullFromVoSpace</direction>
   <view uri="ivo://ivoa.net/vospace/core#defaultview"/>
@@ -2861,7 +2916,7 @@ pushFromVoSpace
 \\
 \textbf{The Job to be submitted (newJob.xml) is:} \\
 \begin{lstlisting}
-<vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.0">
+<vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1">
   <vos:target>vos://nvo.caltech!vospace/mydata1</uws:parameter>
   <vos:direction>pushFromVoSpace</uws:parameter>
   <vos:view>ivo://ivoa.net/vospace/core#defaultview</uws:parameter>
