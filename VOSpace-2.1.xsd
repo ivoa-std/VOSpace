@@ -359,9 +359,6 @@
           <xs:documentation>
             the mechanism the client must employ to gain secure access to the service.  
           </xs:documentation>
-          <xs:documentation>
-            when more than one method is listed, the client may choose which one to emply.
-          </xs:documentation>
         </xs:annotation>
       </xs:element>
     </xs:sequence>
