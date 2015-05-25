@@ -1447,7 +1447,7 @@ The node to be created (newNode.xml):
 \end{lstlisting}
 Request:
 \begin{lstlisting}
-> curl -v -X PUT -d @newNode.xml "http://server.example.com/vospace/nodes/mydata1"
+> curl -v -X PUT -d @newNode.xml  -H "Content-type: text/xml" "http://server.example.com/vospace/nodes/mydata1"
 \end{lstlisting}
 Response:
 \begin{lstlisting}
@@ -1459,7 +1459,7 @@ Response:
 > Host: server.example.com
 > Accept: */*
 > Content-Length: 364
-> Content-Type: application/x-www-form-urlencoded
+> Content-Type: text/xml
 >
 < HTTP/1.1 200 OK
 < Date: Fri, 22 May 2015 23:06:32 GMT
@@ -1551,7 +1551,7 @@ A specified URI is invalid & Invalid URI & InvalidURI \\
 Move a node
 
 \noindent
-The Job to be submitted (newJob.xml):
+The Job to be submitted (moveJob.xml):
 \begin{lstlisting}
 <vos:transfer xmlns:xs="http://www.w3.org/2001/XMLSchema-instance"
     xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1" >
@@ -1562,7 +1562,7 @@ The Job to be submitted (newJob.xml):
 \end{lstlisting}
 Request:
 \begin{lstlisting}
-> curl -v -X POST -d @newJob.xml "http://server.example.come/vospace/transfers"
+> curl -v -X POST -d @moveJob.xml -H "Content-type: text/xml" "http://server.example.come/vospace/transfers"
 \end{lstlisting}
 Response:
 \begin{lstlisting}
@@ -1571,10 +1571,10 @@ Response:
 * Connected to server.example.com (132.246.217.46) port 80 (#0)
 > POST /vospace/transfers HTTP/1.1
 > User-Agent: curl/7.19.7 (universal-apple-darwin10.0) libcurl/7.19.7 OpenSSL/0.9.8y zlib/1.2.3
-> Host: www.example.com
+> Host: server.example.com
 > Accept: */*
 > Content-Length: 261
-> Content-Type: application/x-www-form-urlencoded
+> Content-Type: text/xml
 >
 < HTTP/1.1 303 See Other
 < Date: Fri, 22 May 2015 23:44:04 GMT
@@ -1689,7 +1689,7 @@ Response:
 COMPLETED
 \end{lstlisting}
 If the job is in phase RUNNING, the phase can be polled intermittently until it is COMPLETED or ERROR.
-If the job is in phase ERROR, details can be seen by performing an HTTP GET to the job URL:
+Error and result details can be seen by performing an HTTP GET to the job URL:
 \begin{lstlisting}
 > curl -v "http://server.example.com/vospace/transfers/glmldqf591feljub"
 \end{lstlisting}
@@ -1747,90 +1747,152 @@ A specified URI is invalid & Invalid URI & InvalidURI \\
 \paragraph{Example}
 Copy a VOSpace node
 
-\begin{tabular}{ p{10cm} }
-\\
-\textbf{The Job to be submitted (newJob.xml)} \\
+\noindent
+
+The Job to be submitted (copyJob.xml):
 \begin{lstlisting}
-<vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.0">
-  <vos:target>vos://nvo.caltech!vospace/mydata1</vos:target>
-  <vos:direction>vos://nvo.caltech!vospace/mydir/.auto</vos:direction>
+<vos:transfer xmlns:xs="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1" >
+  <vos:target>vos://example.com!vospace/mydata1</vos:target>
+  <vos:direction>vos://example.com!vospace/mydir/.auto</vos:direction>
   <vos:keepBytes>true</vos:keepBytes>
 </vos:transfer>
-\end{lstlisting} \\
-\textbf{request} \\
+\end{lstlisting}
+Request:
 \begin{lstlisting}
-> curl -v -X POST -d @newJob.xml "http://localhost:8000/transfers"
-\end{lstlisting} \\
-\textbf{response} \\
+> curl -v -X POST -d @copyJob.xml -H "Content-type: text/xml" "http://server.example.come/vospace/transfers"
+\end{lstlisting}
+Response:
 \begin{lstlisting}
-* Connected to localhost (127.0.0.1) port 8000 (#0)
-> POST /transfers HTTP/1.1
-> User-Agent: curl/7.19.4 (universal-apple-darwin10.0) libcurl/7.19.4 OpenSSL/0.9.8l zlib/1.2.3
-> Host: localhost:8000
+* About to connect() to server.example.com port 80 (#0)
+*   Trying 132.246.217.46... connected
+* Connected to server.example.com (132.246.217.46) port 80 (#0)
+> POST /vospace/transfers HTTP/1.1
+> User-Agent: curl/7.19.7 (universal-apple-darwin10.0) libcurl/7.19.7 OpenSSL/0.9.8y zlib/1.2.3
+> Host: server.example.com
 > Accept: */*
-> Content-Length: 765
-> Content-Type: application/x-www-form-urlencoded
-> 
+> Content-Length: 261
+> Content-Type: text/xml
+>
 < HTTP/1.1 303 See Other
-< Content-Length: 174
-< Server: CherryPy/3.1.2
-< Location: http://localhost:8080/transfers/6fbb28afec94417ba256d705f5e1f966
-< Allow: GET, HEAD, POST, PUT
-< Date: Thu, 11 Mar 2010 21:28:19 GMT
-< Content-Type: text/html
-< 
-* Connection #0 to host localhost left intact
+< Date: Fri, 22 May 2015 23:44:04 GMT
+< Server: Restlet-Framework/2.0.2
+< Accept-Ranges: bytes
+< Location: http://server.example.com/vospace/transfers/usil5s8mdbgjwzvq
+< Content-Length: 0
+< Connection: close
+< Content-Type: text/plain
+<
 * Closing connection #0
-\end{lstlisting} \\
-\end{tabular}
-\paragraph{}
-\begin{tabular}{ p{10cm} }
-\\
-\textbf{This resource can be found at:} \\
+\end{lstlisting}
+Job information can be seen by following the redirect to:
 \begin{lstlisting}
-http://localhost:8000/transfers/6fbb28afec94417ba256d705f5e1f966.
-\end{lstlisting} \\
-\textbf{The status of the job can now be polled at the job location:} \\
+> curl -v "http://server.example.com/vospace/transfers/usil5s8mdbgjwzvq"
+\end{lstlisting}
+Response:
 \begin{lstlisting}
-> curl -v "http://localhost:8000/transfers/63fa39fb18f244c18c991ed2f96d26cd"
-* Connected to localhost (127.0.0.1) port 8000 (#0)
-> GET /transfers/63fa39fb18f244c18c991ed2f96d26cd HTTP/1.1
-> User-Agent: curl/7.19.4 (universal-apple-darwin10.0) libcurl/7.19.4 OpenSSL/0.9.8l zlib/1.2.3
-> Host: localhost:8000
+* About to connect() to server.example.com port 80 (#0)
+*   Trying 132.246.217.46... connected
+* Connected to server.example.com (132.246.217.46) port 80 (#0)
+> GET /vospace/transfers/usil5s8mdbgjwzvq HTTP/1.1
+> User-Agent: curl/7.19.7 (universal-apple-darwin10.0) libcurl/7.19.7 OpenSSL/0.9.8y zlib/1.2.3
+> Host: server.example.com
 > Accept: */*
-> 
+>
 < HTTP/1.1 200 OK
-< Date: Thu, 11 Mar 2010 21:28:21 GMT
-< Content-Length: 950
-< Content-Type: text/html
-< Allow: GET, HEAD, POST, PUT
-< Server: CherryPy/3.1.2
-< 
-<uws:job xmlns:uws="http://www.ivoa.net/xml/UWS/v1.0" xmlns:xlink="http://www.w3.org/1999/xlink"
-     xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-     xsi:schemaLocation="http://www.ivoa.net/xml/UWS/v1.0 UWS.xsd ">
-  <uws:jobId>6fbb28afec94417ba256d705f5e1f966</uws:jobId>
-  <uws:ownerId xsi:nil="true"/>
-  <uws:phase>COMPLETED</uws:phase>
-  <uws:startTime>2010-03-11T21:28:19.200324</uws:startTime>
-  <uws:endTime>2010-03-11T21:28:19.200529</uws:endTime>
-  <uws:executionDuration>0</uws:executionDuration>
-  <uws:destruction xsi:nil="true"/>
-  <uws:jobInfo>
-    <vos:transfer>
-      <vos:keepBytes>true</vos:keepBytes>
-      <vos:direction>vos://nvo.caltech!vospace/mydir/.auto</vos:direction>
-      <vos:target>vos://nvo.caltech!vospace/mydata1</vos:target>
-    </vos:transfer>
-  <uws:jobInfo>
+< Date: Fri, 22 May 2015 23:47:26 GMT
+< Server: Restlet-Framework/2.0.2
+< Cache-Control: private
+< Expires: Wed, 31 Dec 1969 16:00:00 PST
+< Accept-Ranges: bytes
+< Vary: Accept-Charset,Accept-Encoding,Accept-Language,Accept
+< Content-Type: text/xml
+< Connection: close
+< Transfer-Encoding: chunked
+<
+<?xml version="1.0" encoding="UTF-8"?>
+<uws:job xmlns:uws="http://www.ivoa.net/xml/UWS/v1.0" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <uws:jobId>usil5s8mdbgjwzvq</uws:jobId>
+  <uws:ownerId xs:nill="true" />
+  <uws:phase>PENDING</uws:phase>
+  <uws:quote>2015-05-23T11:44:03.993</uws:quote>
+  <uws:startTime xmlns:xs="http://www.w3.org/2001/XMLSchema-instance" xs:nil="true" />
+  <uws:endTime xmlns:xs="http://www.w3.org/2001/XMLSchema-instance" xs:nil="true" />
+  <uws:executionDuration>43200</uws:executionDuration>
+  <uws:destruction>2015-05-29T23:44:03.993</uws:destruction>
+  <uws:parameters />
   <uws:results>
-    <uws:result id="destination" xlink:href="vos://nvo.caltech!vospace/mydir/ef9ce281f5bd4bff92c8991580cddff4"/>
+    <uws:result id="destination" xlink:href="vos://example.com!vospace/mydir/ef9ce281f5bd4bff92c8991580cddff4"/>
   </uws:results>
-* Connection #0 to host localhost left intact
-* Closing connection #0
+  <uws:jobInfo>
+    <vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1">
+      <vos:target>vos://example.com!vospace/mydata1</vos:target>
+      <vos:direction>vos://example.com!vospace/mydir/.auto</vos:direction>
+      <vos:keepBytes>true</vos:keepBytes>
+    </vos:transfer>
+  </uws:jobInfo>
 </uws:job>
 \end{lstlisting}
-\end{tabular}
+Now start the UWS job:
+\begin{lstlisting}
+> curl -v -d "PHASE=RUN" "http://server.example.com/vospace/transfers/usil5s8mdbgjwzvq/phase"
+\end{lstlisting}
+Response:
+\begin{lstlisting}
+ About to connect() to server.example.com port 80 (#0)
+*   Trying 132.246.217.46... connected
+* Connected to server.example.com (132.246.217.46) port 80 (#0)
+> POST /vospace/transfers/usil5s8mdbgjwzvq/phase HTTP/1.1
+> User-Agent: curl/7.19.7 (universal-apple-darwin10.0) libcurl/7.19.7 OpenSSL/0.9.8y zlib/1.2.3
+> Host: server.example.com
+> Accept: */*
+> Content-Length: 9
+> Content-Type: application/x-www-form-urlencoded
+>
+< HTTP/1.1 303 See Other
+< Date: Sun, 24 May 2015 16:51:37 GMT
+< Server: Restlet-Framework/2.0.2
+< Accept-Ranges: bytes
+< Location: http://server.example.com/vospace/transfers/usil5s8mdbgjwzvq
+< Content-Length: 0
+< Connection: close
+< Content-Type: text/plain
+<
+* Closing connection #0
+\end{lstlisting}
+Follow the redirect to see the phase.  The job will be either RUNNING, COMPLETED or ERROR.
+\begin{lstlisting}
+> curl -v http://server.example.com/vospace/transfers/usil5s8mdbgjwzvq/phase
+\end{lstlisting}
+Response:
+\begin{lstlisting}
+* About to connect() to server.example.com port 80 (#0)
+*   Trying 132.246.217.46... connected
+* Connected to server.example.com (132.246.217.46) port 80 (#0)
+> GET /vospace/transfers/usil5s8mdbgjwzvq/phase HTTP/1.1
+> User-Agent: curl/7.19.7 (universal-apple-darwin10.0) libcurl/7.19.7 OpenSSL/0.9.8y zlib/1.2.3
+> Host: server.example.com
+> Accept: */*
+>
+< HTTP/1.1 200 OK
+< Date: Sun, 24 May 2015 16:51:45 GMT
+< Server: Restlet-Framework/2.0.2
+< Cache-Control: private
+< Expires: Wed, 31 Dec 1969 16:00:00 PST
+< Accept-Ranges: bytes
+< Vary: Accept-Charset,Accept-Encoding,Accept-Language,Accept
+< Content-Type: text/plain;charset=UTF-8
+< Content-Length: 5
+< Connection: close
+<
+* Closing connection #0
+COMPLETED
+\end{lstlisting}
+If the job is in phase RUNNING, the phase can be polled intermittently until it is COMPLETED or ERROR.
+Error and result details can be seen by performing an HTTP GET to the job URL:
+\begin{lstlisting}
+> curl -v "http://server.example.com/vospace/transfers/usil5s8mdbgjwzvq"
+\end{lstlisting}
 
 \subsubsection{deleteNode}
 \label{subsubsec:deletenode}
@@ -1866,31 +1928,34 @@ A HTTP 204 status code
 \paragraph{Example}
 Delete a VOSpace node
 
-\begin{tabular}{ p{10cm} }
-\\
-\textbf{request} \\
+\noindent
+Request:
 \begin{lstlisting}
-> curl -v -X DELETE "http://localhost:8000/nodes/mydata1"
-\end{lstlisting} \\
-\textbf{response} \\
+> curl -v -X DELETE "http://server.example.com/vospace/nodes/mydata1"
+\end{lstlisting}
+Response:
 \begin{lstlisting}
-* Connected to localhost (127.0.0.1) port 8000 (#0)
-> DELETE /nodes/mydata1 HTTP/1.1
-> User-Agent: curl/7.19.4 (universal-apple-darwin10.0) libcurl/7.19.4 OpenSSL/0.9.8l zlib/1.2.3
-> Host: localhost:8000
+* About to connect() to example.server.com port 80 (#0)
+*   Trying 132.246.217.46... connected
+* Connected to example.server.com (132.246.217.46) port 80 (#0)
+> DELETE /vospace/nodes/mydata1 HTTP/1.1
+> User-Agent: curl/7.19.7 (universal-apple-darwin10.0) libcurl/7.19.7 OpenSSL/0.9.8y zlib/1.2.3
+> Host: server.example.com
 > Accept: */*
-> 
+>
 < HTTP/1.1 200 OK
-< Date: Thu, 11 Mar 2010 22:08:22 GMT
+< Date: Sun, 24 May 2015 22:10:57 GMT
+< Server: Restlet-Framework/2.0.2
+< Cache-Control: private
+< Expires: Wed, 31 Dec 1969 16:00:00 PST
+< Accept-Ranges: bytes
+< Vary: Accept-Charset,Accept-Encoding,Accept-Language,Accept
 < Content-Length: 0
-< Content-Type: text/html
-< Allow: DELETE, GET, HEAD, POST, PUT
-< Server: CherryPy/3.1.2
-< 
-* Connection #0 to host localhost left intact
+< Connection: close
+< Content-Type: text/plain
+<
 * Closing connection #0
 \end{lstlisting}
-\end{tabular}
 
 \subsection{Accessing metadata}
 \label{subsec:accessing metadata}
@@ -1945,50 +2010,51 @@ For the target node and for any children returned for a container node, the attr
 \paragraph{Example}
 Get a VOSpace node
 
-\begin{tabular}{ p{10cm} }
-\\
-\textbf{request} \\
+\noindent
+Request:
 \begin{lstlisting}
-> curl -v "http://localhost:8000/nodes/mydir?detail=min&uri=vos://nvo.caltech!vospace/mydir/ngc3401"
-\end{lstlisting} \\
-\textbf{response} \\
+> curl -v "http://server.example.com/vospace/nodes/mydir?detail=min&uri=vos://example.com!vospace/mydir/file3401"
+\end{lstlisting}
+Response:
 \begin{lstlisting}
-* Connected to localhost (127.0.0.1) port 8000 (#0)
-> GET /nodes/mydir?detail=min&uri=vos://nvo.caltech!vospace/mydir/ngc3401 HTTP/1.1
-> User-Agent: curl/7.19.4 (universal-apple-darwin10.0) libcurl/7.19.4 OpenSSL/0.9.8l zlib/1.2.3
-> Host: localhost:8000
+* About to connect() to server.example.com port 80 (#0)
+*   Trying 132.246.217.46... connected
+* Connected to server.example.com (132.246.217.46) port 80 (#0)
+> GET /vospace/nodes/mydir?detail=min&uri=vos://example.com!vospace/mydir/file3401 HTTP/1.1
+> User-Agent: curl/7.19.7 (universal-apple-darwin10.0) libcurl/7.19.7 OpenSSL/0.9.8y zlib/1.2.3
+> Host: server.example.com
 > Accept: */*
-> 
+>
 < HTTP/1.1 200 OK
-< Date: Fri, 12 Mar 2010 04:05:39 GMT
-< Content-Length: 593
-< Content-Type: text/html
-< Allow: DELETE, GET, HEAD, POST, PUT
-< Server: CherryPy/3.1.2
-< 
-<node xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-xsi:type="vos:ContainerNode" uri="vos://nvo.caltech!vospace/mydir"
-xmlns="http://www.ivoa.net/xml/VOSpace/v2.1">
-  <properties>
-    <property uri="ivo://ivoa.net/vospace/core#description">My award winning images</property>
-  </properties>
-  <accepts>
-    <view uri="ivo://ivoa.net/vospace/core#anyview"/>
-  </accepts>
-  <provides>
-    <view uri="ivo://ivoa/net/vospace/core#defaultview"/>
-  </provides>
-  <capabilities/>
-  <nodes>
-    <node uri="vos://nvo.caltech!vospace/mydir/ngc4323" xsi:type="vos:DataNode"/>
-    <node uri="vos://nvo.caltech!vospace/mydir/ngc5796" xsi:type="vos:DataNode"/>
-    <node uri="vos://nvo.caltech!vospace/mydir/ngc6801" xsi:type="vos:DataNode"/>
-  </nodes>
-</node>
-* Connection #0 to host localhost left intact
+< Date: Sun, 24 May 2015 22:18:15 GMT
+< Server: Restlet-Framework/2.0.2
+< Cache-Control: private
+< Expires: Wed, 31 Dec 1969 16:00:00 PST
+< Accept-Ranges: bytes
+< Vary: Accept-Charset,Accept-Encoding,Accept-Language,Accept
+< Content-Type: text/xml
+< Content-Length: 1205
+< Connection: close
+<
+<?xml version="1.0" encoding="UTF-8"?>
+<vos:node xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1" xmlns:xs="http://www.w3.org/2001/XMLSchema-instance" uri="vos://example.com!vospace/mydir" xs:type="vos:ContainerNode">
+  <vos:properties>
+    <vos:property uri="ivo://ivoa.net/vospace/core#description">My award winning images</property>
+  </vos:properties>
+  <vos:accepts>
+    <vos:view uri="ivo://ivoa.net/vospace/core#anyview"/>
+  </vos:accepts>
+  <vos:provides>
+    <vos:view uri="ivo://ivoa/net/vospace/core#defaultview"/>
+  </vos:provides>
+  <vos:capabilities/>
+  <vos:nodes>
+    <vos:node uri="vos://example.com!vospace/mydir/file3401" xs:type="vos:DataNode"/>
+    <vos:node uri="vos://example.com!vospace/mydir/file3406" xs:type="vos:DataNode"/>
+    <vos:node uri="vos://example.com!vospace/mydir/file3532" xs:type="vos:DataNode"/>
+  </vos:nodes>
 * Closing connection #0
 \end{lstlisting}
-\end{tabular}
 
 \subsubsection{setNode}
 \label{subsubsec:setnode}
@@ -2029,63 +2095,58 @@ The full expanded record for the node SHALL be returned, including any xsi:type 
 \paragraph{Example}
 Set node metadata
 
-\begin{tabular}{ p{10cm} }
-\\
-\textbf{The updated node (newNode.xml) is:} \\
+\noindent
+The updated node (setNode.xml) is:
 \begin{lstlisting}
-<node xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-xsi:type="vos:UnstructuredDataNode"
-uri="vos://nvo.caltech!vospace/mydata1"
-xmlns="http://www.ivoa.net/xml/VOSpace/v2.1">
+<node xmlns:xs="http://www.w3.org/2001/XMLSchema-instance" xs:type="vos:UnstructuredDataNode" xmlns="http://www.ivoa.net/xml/VOSpace/v2.1" uri="vos://nvo.caltech!vospace/mydata1">
   <properties>
-    <property uri="ivo://ivoa.net/vospace/core#date">2010-03-12</property>
+    <property uri="ivo://ivoa.net/vospace/core#title" readOnly="false">Title for my data</property>
   </properties>
   <accepts/>
   <provides/>
   <capabilities/>
 </node>
-\end{lstlisting} \\
-\textbf{request} \\
-\begin{lstlisting}
-> curl -v -X POST -d @newNode.xml "http://localhost:8000/nodes/mydata1"
-\end{lstlisting} \\
-\end{tabular}
-\paragraph{}
-\begin{tabular}{ p{10cm} }
-\textbf{response} \\
-\begin{lstlisting}
-* Connected to localhost (127.0.0.1) port 8000 (#0)
-> POST /nodes/mydata1 HTTP/1.1
-> User-Agent: curl/7.19.4 (universal-apple-darwin10.0) libcurl/7.19.4 OpenSSL/0.9.8l zlib/1.2.3
-> Host: localhost:8000
-> Accept: */*
-> Content-Length: 309
-> Content-Type: text/xml
-> 
-< HTTP/1.1 200 OK
-< Date: Fri, 12 Mar 2010 18:49:25 GMT
-< Content-Length: 445
-< Content-Type: text/html
-< Allow: DELETE, GET, HEAD, POST, PUT
-< Server: CherryPy/3.1.2
-< 
-<node xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-xsi:type="vos:UnstructuredDataNode" uri="vos://nvo.caltech!vospace/mydata1"
-xmlns="http://www.ivoa.net/xml/VOSpace/v2.1" busy="false">
-  <properties>
-    <property uri="ivo://ivoa.net/vospace/core#description">My important results</property>
-    <property uri="ivo://ivoa.net/vospace/core#date">2010-03-12</property>
-  </properties>
-  <accepts>
-    <view uri="ivo://ivoa.net/vospace/core#anyview"/>
-  </accepts>
-  <provides/>
-  <capabilities/>
-</node>
-* Connection #0 to host localhost left intact
-* Closing connection #0
 \end{lstlisting}
-\end{tabular}
+Request:
+\begin{lstlisting}
+> curl -v -X POST -d @setNode.xml -H "Content-type: text/xml" "http://server.example.com/vospace/nodes/mydata1"
+\end{lstlisting}
+Response:
+\begin{lstlisting}
+* About to connect() to server.example.com port 80 (#0)
+*   Trying 132.246.217.46... connected
+* Connected to server.example.com (132.246.217.46) port 80 (#0)
+> POST /vospace/auth/nodes/majorb/testFile.txt HTTP/1.1
+> User-Agent: curl/7.19.7 (universal-apple-darwin10.0) libcurl/7.19.7 OpenSSL/0.9.8y zlib/1.2.3
+> Host: server.example.com
+> Accept: */*
+> Content-type: text/xml
+> Content-Length: 399
+>
+< HTTP/1.1 200 OK
+< Date: Sun, 24 May 2015 23:02:10 GMT
+< Server: Restlet-Framework/2.0.2
+< Accept-Ranges: bytes
+< Vary: Accept-Charset,Accept-Encoding,Accept-Language,Accept
+< Content-Type: text/xml
+< Content-Length: 1138
+< Connection: close
+<
+<?xml version="1.0" encoding="UTF-8"?>
+<vos:node xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.0" xmlns:xs="http://www.w3.org/2001/XMLSchema-instance" uri="vos://cadc.nrc.ca!vospace/majorb/testFile.txt" xs:type="vos:DataNode" busy="false">
+  <vos:properties>
+    <vos:property uri="ivo://ivoa.net/vospace/core#length" readOnly="true">44</vos:property>
+    <vos:property uri="ivo://ivoa.net/vospace/core#MD5" readOnly="true">12c13e49f2fd37e2c91bcca6acb78a08</vos:property>
+    <vos:property uri="ivo://ivoa.net/vospace/core#date" readOnly="true">2015-05-24T23:02:10.397</vos:property>
+    <vos:property uri="ivo://ivoa.net/vospace/core#title" readOnly="false">Title for my data</vos:property>
+  </vos:properties>
+  <vos:accepts>
+    <vos:view uri="ivo://ivoa.net/vospace/core#anyview"/>
+  </vos:accepts>
+  <vos:provides />
+</vos:node>
+* Closing connection #0
+end{lstlisting}
 
 \subsubsection{findNodes}
 \label{subsubsec:findnodes}
@@ -2133,20 +2194,19 @@ A particular property is specified and does not exist in the space & Property No
 \paragraph{Example}
 Find VOSpace nodes
 
-\begin{tabular}{ p{10cm} }
-\\
-\textbf{The Job to be submitted (newJob.xml) is:} \\
+\noindent
+The Job to be submitted (searchJob.xml) is:
 \begin{lstlisting}
 <vos:search xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1">
   <vos:detail>properties</vos:detail>
   <vos:matches>ivo://ivoa.net/vospace/core#description='galax'</vos:matches>
 <vos:search>
-\end{lstlisting} \\
-\textbf{request} \\
+\end{lstlisting}
+Request:
 \begin{lstlisting}
-> curl -v -X POST -d @newJob.xml "http://localhost:8000/searches"
-\end{lstlisting} \\
-\textbf{response} \\
+> curl -v -X POST -d @searchJob.xml -H "Content-type: text/xml" "http://localhost:8000/searches"
+\end{lstlisting}
+Response:
 \begin{lstlisting}
 * Connected to localhost (127.0.0.1) port 8000 (#0)
 > POST /searches HTTP/1.1
@@ -2166,19 +2226,16 @@ Find VOSpace nodes
 < 
 * Connection #0 to host localhost left intact
 * Closing connection #0
-\end{lstlisting} \\
-\end{tabular}
-\paragraph{}
-\begin{tabular}{ p{10cm} }
-\textbf{This resource can be found at:} \\
+\end{lstlisting}
+This resource can be found at:
 \begin{lstlisting}
 http://localhost:8080/searches/8c5b0f78cd5a44af8694f10da1b92060
-\end{lstlisting} \\
-\textbf{The status of the job can now be polled at the job location:} \\
+\end{lstlisting}
+The status of the job can now be polled at the job location:
 \begin{lstlisting}
 > curl -v "http://localhost:8000/searches/8c6e7bc53ee848638cda35817e47da65"
-\end{lstlisting} \\
-\textbf{response} \\
+\end{lstlisting}
+Response:
 \begin{lstlisting}
 * Connected to localhost (127.0.0.1) port 8000 (#0)
 > GET /searches/8c6e7bc53ee848638cda35817e47da65 HTTP/1.1
@@ -2214,15 +2271,12 @@ http://localhost:8080/searches/8c5b0f78cd5a44af8694f10da1b92060
 </uws:job>
 * Connection #0 to host localhost left intact
 * Closing connection #0
-\end{lstlisting} \\
-\end{tabular}
-\paragraph{}
-\begin{tabular}{ p{10cm} }
-\textbf{Once the Job has completed, the result can be obtained from the URL reported in the result element:} \\
+\end{lstlisting}
+Once the Job has completed, the result can be obtained from the URL reported in the result element:
 \begin{lstlisting}
 > curl -v "http://localhost:8000/searches/d55814f88d974c21afe5ad50e4e875c8/results/listing1"
-\end{lstlisting} \\
-\textbf{response} \\
+\end{lstlisting}
+Response:
 \begin{lstlisting}
 * Connected to localhost (127.0.0.1) port 8000 (#0)
 > GET /searches/d55814f88d974c21afe5ad50e4e875c8/results/listing1 HTTP/1.1
@@ -2253,7 +2307,6 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 * Connection #0 to host localhost left intact
 * Closing connection #0
 \end{lstlisting}
-\end{tabular}
 
 \subsection{Transferring data}
 \label{subsec:transferringdata}
@@ -2372,122 +2425,259 @@ If an error occurs with the alternate convenience mode, the resultingtransfers d
 \paragraph{Example}
 pushToVoSpace
 
-\begin{tabular}{ p{10cm} }
-\\
-\textbf{The Job to be submitted (newJob.xml) is:} \\
+\noindent
+\The Job to be submitted (pushToVoSpace.xml):
 \begin{lstlisting}
-<vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1">   
-  <vos:target>vos://nvo.caltech!vospace/mydata1</vos:target>
+<vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.0">
+  <vos:target>vos://example.com~vospace/mydata1</vos:target>
   <vos:direction>pushToVoSpace</vos:direction>
-  <vos:view uri="ivo://net.ivoa/vospace/core#fits"/>
-  <vos:protocol uri="ivo://net.ivoa/vospace/core#httpput" securityMethod="ivo://net.ivoa/vospace/core#anon"/>
+  <vos:view uri="ivo://ivoa.net/vospace/core#fits"/>
+  <vos:protocol uri="ivo://ivoa.net/vospace/core#httpput" />
 </vos:transfer>
-\end{lstlisting} \\
-\textbf{request} \\
+\end{lstlisting}
+Request:
 \begin{lstlisting}
-> curl -v -X POST -d @newJob.xml "http://localhost:8000/transfers"
-\end{lstlisting} \\
-\textbf{response} \\
+> curl -v -X POST -d @pushToVoSpace.xml -H "Content-type: text/xml" "http://server.example.com/vospace/transfers"
+\end{lstlisting}
+Response:
 \begin{lstlisting}
-* Connected to localhost (127.0.0.1) port 8000 (#0)
-> POST /transfers HTTP/1.1
-> User-Agent: curl/7.19.4 (universal-apple-darwin10.0) libcurl/7.19.4 OpenSSL/0.9.8l zlib/1.2.3
-> Host: localhost:8000
+* About to connect() to server.example.com port 80 (#0)
+*   Trying 132.246.217.44... connected
+* Connected to server.example.com (132.246.217.44) port 80 (#0)
+> POST /vospace/transfers HTTP/1.1
+> User-Agent: curl/7.19.7 (universal-apple-darwin10.0) libcurl/7.19.7 OpenSSL/0.9.8y zlib/1.2.3
+> Host: server.example.com
 > Accept: */*
-> Content-Length: 836
-> Content-Type: application/x-www-form-urlencoded
-> 
+> Content-type: text/xml
+> Content-Length: 311
+>
 < HTTP/1.1 303 See Other
-< Content-Length: 174
-< Server: CherryPy/3.1.2
-< Location: http://localhost:8000/transfers/fd5cf0cb1b6d4fbd84602982abf19ef1
-< Allow: DELETE, GET, HEAD, POST, PUT
-< Date: Fri, 12 Mar 2010 22:12:21 GMT
-< Content-Type: text/html
-< 
-* Connection #0 to host localhost left intact
-* Closing connection #0
-This resource can be found at: http://localhost:8000/transfers/fd5cf0cb1b6d4fbd84602982abf19ef1.
-\end{lstlisting} \\
-\end{tabular}
-\paragraph{}
-\begin{tabular}{ p{10cm} }
-\textbf{The status of the job can now be polled at the job location:} \\
-\begin{lstlisting}
-> curl -v 'http://localhost:8000/transfers/fd5cf0cb1b6d4fbd84602982abf19ef1'
-\end{lstlisting} \\
-\textbf{response} \\
-\begin{lstlisting}
-* Connected to localhost (127.0.0.1) port 8000 (#0)
-> GET /transfers/fd5cf0cb1b6d4fbd84602982abf19ef1 HTTP/1.1
-> User-Agent: curl/7.19.4 (universal-apple-darwin10.0) libcurl/7.19.4 OpenSSL/0.9.8l zlib/1.2.3
-> Host: localhost:8000
-> Accept: */*
-> 
-< HTTP/1.1 200 OK
-< Date: Fri, 12 Mar 2010 22:45:46 GMT
-< Content-Length: 1037
-< Content-Type: text/html
-< Allow: DELETE, GET, HEAD, POST, PUT
-< Server: CherryPy/3.1.2
-< 
-<uws:job xmlns:uws="http://www.ivoa.net/xml/UWS/v1.0" xmlns:xlink="http://www.w3.org/1999/xlink"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.ivoa.net/xml/UWS/v1.0 UWS.xsd">
-  <uws:jobId>fd5cf0cb1b6d4fbd84602982abf19ef1</uws:jobId>
-  <uws:ownerId xsi:nil="true"/>
-  <uws:phase>COMPLETED</uws:phase>
-  <uws:startTime>2010-03-12T22:45:25.568694</uws:startTime>
-  <uws:endTime>2010-03-12T22:45:25.568840</uws:endTime>
-  <uws:executionDuration>0</uws:executionDuration>
-  <uws:destruction xsi:nil="true"/>
-  <uws:jobInfo>
-    <vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1>   
-      <vos:target>vos://nvo.caltech!vospace/mydata1</vos:target>
-      <vos:direction>pushToVoSpace</vos:direction>
-      <vos:view uri="ivo://net.ivoa/vospace/core#fits"/>
-      <vos:protocol uri="ivo://net.ivoa/vospace/core#httpput" securityMethod="ivo://net.ivoa/vospace/core#anon"/>
-    </vos:transfer>
-  <uws:jobInfo>
-  <uws:results>
-    <uws:result id="transferDetails"
-xlink:href="http://localhost:8000/transfers/fd5cf0cb1b6d4fbd84602982abf19ef1/results/details"/>
-  </uws:results>
-</uws:job>
-* Connection #0 to host localhost left intact
-* Closing connection #0
-\end{lstlisting} \\
-\end{tabular}
-\paragraph{}
-\begin{tabular}{ p{10cm} }
-\textbf{The final negotiated details of the transfer can be retrieved from the URL reported in the result element:} \\
-\begin{lstlisting}
-> curl -v "http://localhost:8000/transfers/fd5cf0cb1b6d4fbd84602982abf19ef1/results/details"
-* Connected to localhost (127.0.0.1) port 8000 (#0)
-> GET /transfers/fd5cf0cb1b6d4fbd84602982abf19ef1/results/details HTTP/1.1
-> User-Agent: curl/7.19.4 (universal-apple-darwin10.0) libcurl/7.19.4 OpenSSL/0.9.8l zlib/1.2.3
-> Host: localhost:8000
-> Accept: */*
-> 
-< HTTP/1.1 200 OK
-< Date: Fri, 12 Mar 2010 22:46:17 GMT
-< Content-Length: 316
-< Content-Type: text/html
-< Allow: DELETE, GET, HEAD, POST, PUT
-< Server: CherryPy/3.1.2
-< 
-<transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1>
-  <target>vos://nvo.caltech!vospace/mydata1</target>
-  <direction>pushToVoSpace</direction>
-  <view>ivo://ivoa.net/vospace/core#fits</view>
-  <protocol uri="ivo://ivoa.net/vospace/core#httpput" securityMethod="ivo://net.ivoa/vospace/core#anon">
-    <endpoint>http://localhost:8000/data/d55814f88d974c21afe5ad50e4e875c8</endpoint>
-  </protocol>
-</transfer>
-* Connection #0 to host localhost left intact
+< Date: Mon, 25 May 2015 23:06:45 GMT
+< Server: Restlet-Framework/2.0.2
+< Accept-Ranges: bytes
+< Location: http://server.example.com/vospace/transfers/zkqzpftmufdi8luh
+< Content-Length: 0
+< Connection: close
+< Content-Type: text/plain
+<
 * Closing connection #0
 \end{lstlisting}
-\textbf{The FITS image can then be uploaded to the specified HTTP endpoint.}
-\end{tabular}
+The PENDING job can be seen by following the redirect to:
+\begin{lstlisting}
+> curl -v http://www.canfar.phys.uvic.ca/vospace/auth/transfers/zkqzpftmufdi8luh
+\end{lstlisting}
+Response:
+\begin{lstlisting}
+* About to connect() to server.example.com port 80 (#0)
+*   Trying 132.246.217.44... connected
+* Connected to server.example.com (132.246.217.44) port 80 (#0)
+> GET /vospace/transfers/zkqzpftmufdi8luh HTTP/1.1
+> User-Agent: curl/7.19.7 (universal-apple-darwin10.0) libcurl/7.19.7 OpenSSL/0.9.8y zlib/1.2.3
+> Host: server.example.com
+> Accept: */*
+>
+< HTTP/1.1 200 OK
+< Date: Mon, 25 May 2015 23:12:24 GMT
+< Server: Restlet-Framework/2.0.2
+< Cache-Control: private
+< Expires: Wed, 31 Dec 1969 16:00:00 PST
+< Accept-Ranges: bytes
+< Vary: Accept-Charset,Accept-Encoding,Accept-Language,Accept
+< Content-Type: text/xml
+< Connection: close
+< Transfer-Encoding: chunked
+<
+<?xml version="1.0" encoding="UTF-8"?>
+<uws:job xmlns:uws="http://www.ivoa.net/xml/UWS/v1.0" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <uws:jobId>zkqzpftmufdi8luh</uws:jobId>
+  <uws:phase>PENDING</uws:phase>
+  <uws:quote>2015-05-26T11:06:45.713</uws:quote>
+  <uws:startTime xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+  <uws:endTime xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+  <uws:executionDuration>43200</uws:executionDuration>
+  <uws:destruction>2015-06-01T23:06:45.713</uws:destruction>
+  <uws:parameters />
+  <uws:results />
+  <uws:jobInfo>
+    <vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.0">
+      <vos:target>vos://example.com~vospace/mydata1</vos:target>
+      <vos:direction>pushToVoSpace</vos:direction>
+      <vos:view uri="ivo://ivoa.net/vospace/core#fits" />
+      <vos:protocol uri="ivo://ivoa.net/vospace/core#httpput" />
+    </vos:transfer>
+  </uws:jobInfo>
+</uws:job>
+* Closing connection #0
+\end{lstlisting}
+The job can now be started by posting PHASE=RUN:
+\begin{lstlisting}
+curl -v -X POST -d "PHASE=RUN" http://server.example.com/vospace/transfers/zkqzpftmufdi8luh/phase
+\end{lstlisting}
+Response:
+\begin{lstlisting}
+* About to connect() to server.example.com port 80 (#0)
+*   Trying 132.246.217.44... connected
+* Connected to server.example.com (132.246.217.44) port 80 (#0)
+> POST /vospace/transfers/zkqzpftmufdi8luh/phase HTTP/1.1
+> User-Agent: curl/7.19.7 (universal-apple-darwin10.0) libcurl/7.19.7 OpenSSL/0.9.8y zlib/1.2.3
+> Host: server.example.com
+> Accept: */*
+> Content-Length: 9
+> Content-Type: application/x-www-form-urlencoded
+>
+< HTTP/1.1 303 See Other
+< Date: Mon, 25 May 2015 23:17:41 GMT
+< Server: Restlet-Framework/2.0.2
+< Accept-Ranges: bytes
+< Location: http://server.examle.com/vospace/transfers/zkqzpftmufdi8luh
+< Content-Length: 0
+< Connection: close
+< Content-Type: text/plain
+<
+* Closing connection #0
+\end{lstlisting}
+The EXECUTING job can be seen by following the redirect to:
+\begin{lstlisting}
+http://server.examle.com/vospace/transfers/zkqzpftmufdi8luh
+\end{lstlisting}
+Response:
+\begin{lstlisting}
+* About to connect() to server.example.com port 80 (#0)
+*   Trying 132.246.217.44... connected
+* Connected to server.example.com (132.246.217.44) port 80 (#0)
+> GET /vospace/transfers/zkqzpftmufdi8luh HTTP/1.1
+> User-Agent: curl/7.19.7 (universal-apple-darwin10.0) libcurl/7.19.7 OpenSSL/0.9.8y zlib/1.2.3
+> Host: server.example.com
+> Accept: */*
+>
+< HTTP/1.1 200 OK
+< Date: Mon, 25 May 2015 23:17:46 GMT
+< Server: Restlet-Framework/2.0.2
+< Cache-Control: private
+< Expires: Wed, 31 Dec 1969 16:00:00 PST
+< Accept-Ranges: bytes
+< Vary: Accept-Charset,Accept-Encoding,Accept-Language,Accept
+< Content-Type: text/xml
+< Connection: close
+< Transfer-Encoding: chunked
+<
+<?xml version="1.0" encoding="UTF-8"?>
+<uws:job xmlns:uws="http://www.ivoa.net/xml/UWS/v1.0" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <uws:jobId>zkqzpftmufdi8luh</uws:jobId>
+  <uws:phase>EXECUTING</uws:phase>
+  <uws:quote>2015-05-26T11:06:45.713</uws:quote>
+  <uws:startTime>2015-05-25T23:17:41.217</uws:startTime>
+  <uws:endTime xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+  <uws:executionDuration>43200</uws:executionDuration>
+  <uws:destruction>2015-06-01T23:06:45.713</uws:destruction>
+  <uws:parameters />
+  <uws:results>
+    <uws:result id="transferDetails" xlink:href="http://server.example.com/vospace/xfer/zkqzpftmufdi8luh" />
+    <uws:result id="dataNode" xlink:href="vos://example.com~vospace/mydata1" />
+  </uws:results>
+  <uws:jobInfo>
+    <vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.0">
+      <vos:target>vos://example.com~vospace/mydata1</vos:target>
+      <vos:direction>pushToVoSpace</vos:direction>
+      <vos:view uri="ivo://ivoa.net/vospace/core#fits" />
+      <vos:protocol uri="ivo://ivoa.net/vospace/core#httpput" />
+    </vos:transfer>
+  </uws:jobInfo>
+</uws:job>
+* Closing connection #0
+\end{lstlisting}
+The details of the transfer negotiation can be see by following the \emph{transferDetails} result:
+\begin{lstlisting}
+> curl -v http://www.canfar.phys.uvic.ca/vospace/xfer/zkqzpftmufdi8luh
+\end{lstlisting}
+Response:
+\begin{lstlisting}
+* About to connect() to server.exampe.com port 80 (#0)
+*   Trying 132.246.217.44... connected
+* Connected to server.example.com (132.246.217.44) port 80 (#0)
+> GET /vospace/xfer/zkqzpftmufdi8luh HTTP/1.1
+> User-Agent: curl/7.19.7 (universal-apple-darwin10.0) libcurl/7.19.7 OpenSSL/0.9.8y zlib/1.2.3
+> Host: server.example.com
+> Accept: */*
+>
+< HTTP/1.1 200 OK
+< Date: Mon, 25 May 2015 23:26:48 GMT
+< Cache-Control: private
+< Expires: Wed, 31 Dec 1969 16:00:00 PST
+< Content-Type: text/xml;charset=ISO-8859-1
+< Connection: close
+< Transfer-Encoding: chunked
+<
+<?xml version="1.0" encoding="UTF-8"?>
+<vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.0">
+  <vos:target>vos://example.com~vospace/mydata1</vos:target>
+  <vos:direction>pushToVoSpace</vos:direction>
+  <vos:protocol uri="ivo://ivoa.net/vospace/core#httpput">
+    <vos:endpoint>http://storage1.example.com/trans/mydata1</vos:endpoint>
+  </vos:protocol>
+  <vos:protocol uri="ivo://ivoa.net/vospace/core#httpput">
+    <vos:endpoint>http://storage2.example.com/mydata1</vos:endpoint>
+  </vos:protocol>
+</vos:transfer>
+* Closing connection #0
+\end{lstlisting}
+The FITS file can now be pushed over HTTP PUT to one of the endpoints listed in the transfer details.
+\begin{lstlisting}
+> curl -v -T mydata1 "http://storage1.example.com/mydata1"
+\end{lstlisting}
+Response:
+\begin{lstlisting}
+* About to connect() to storage1.example.com port 80 (#0)
+*   Trying 132.246.217.45... connected
+* Connected to storage1.example.com (132.246.217.45) port 80 (#0)
+> PUT /trans/mydata1 HTTP/1.1
+> User-Agent: curl/7.19.7 (universal-apple-darwin10.0) libcurl/7.19.7 OpenSSL/0.9.8y zlib/1.2.3
+> Host: storage1.example.com
+> Accept: */*
+> Content-Length: 2341
+> Expect: 100-continue
+>
+< HTTP/1.1 100 Continue
+< HTTP/1.1 200 OK
+< Date: Mon, 25 May 2015 23:33:17 GMT
+< Content-Length: 0
+< Connection: close
+< Content-Type: text/plain
+<
+* Closing connection #0
+\end{lstlisting}
+On successful file transfer completion the job will be COMPLETED:
+\begin{lstlisting}
+curl -v http://server.examle.com/vospace/transfers/zkqzpftmufdi8luh/phase
+\end{lstlisting}
+Response:
+\begin{lstlisting}
+* About to connect() to server.example.com port 80 (#0)
+*   Trying 132.246.217.46... connected
+* Connected to server.example.com (132.246.217.46) port 80 (#0)
+> GET /vospace/transfers/zkqzpftmufdi8luh/phase HTTP/1.1
+> User-Agent: curl/7.19.7 (universal-apple-darwin10.0) libcurl/7.19.7 OpenSSL/0.9.8y zlib/1.2.3
+> Host: server.example.com
+> Accept: */*
+>
+< HTTP/1.1 200 OK
+< Date: Mon, 25 May 2015 23:37:38 GMT
+< Server: Restlet-Framework/2.0.2
+< Cache-Control: private
+< Expires: Wed, 31 Dec 1969 16:00:00 PST
+< Accept-Ranges: bytes
+< Vary: Accept-Charset,Accept-Encoding,Accept-Language,Accept
+< Content-Type: text/plain;charset=UTF-8
+< Content-Length: 9
+< Connection: close
+<
+* Closing connection #0
+COMPLETED
+\end{lstlisting}
+
+
+
+
 
 \paragraph{Example}
 Optimized pushToVoSpace over /sync
