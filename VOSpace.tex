@@ -2,9 +2,9 @@
 \input tthdefs
 
 \usepackage[utf8]{inputenc}
-\usepackage{fancyvrb}
 \usepackage{listings}
 \usepackage{courier}
+\usepackage{appendix}
 
 \lstset{
     basicstyle=\scriptsize\ttfamily,
@@ -78,58 +78,65 @@ A VOSpace web service is an access point for a distributed storage network. Thro
 \end{itemize}
 VOSpace does not define how the data is stored or transferred, only the control messages to gain access. Thus, the VOSpace interface can readily be added to an existing storage system.
 
-When we speak of "a VOSpace", we mean the arrangement of data accessible through one particular VOSpace service.
+When we speak of ''a VOSpace'', we mean the arrangement of data accessible through one particular VOSpace service.
 
 Each data object within a VOSpace service is represented as a node and has a description called a representation. A useful analogy to have in mind when reading this document is that a node is equivalent to a file.
 
 Nodes in VOSpace have unique identifiers expressed as URIs in the 'vos' scheme, as defined below.
 
-VOSpace 2.0 did not introduce any new functionality to that already offered by prior (SOAP-based) versions of the interface (VOSpace 1.1) but defines a RESTful binding for the interface. VOSpace 2.1 introduces minor functional changes to VOSpace 2.0 addressing access control and optimizations.
+VOSpace 2.0 did not introduce any new functionality to that already offered by prior (SOAP-based) versions of the interface (VOSpace 1.1) but defines a RESTful binding for the interface. VOSpace 2.1 introduces minor changes to VOSpace 2.0 mainly addressing access control and operation optimizations.
 
 \subsection{Typical use of a VOSpace service}
 \label{subsec:typical use of a vospace service}
-A typical use case for VOSpace is uploading a local data file to a remote VOSpace service. This is a two-stage process: creating a description of the data file (representation) in the VOSpace including any metadata (its properties) that they want to associate with it (e.g., MIME type), and defining the transfer operation that will actually see the data file bytes uploaded to the VOSpace service. The order of the processes should not matter. The user may want to create the representation first and then perform the transfer or transfer the bytes first and then update the representation with the appropriate metadata.
+A typical use case for VOSpace is uploading a local data file to a remote VOSpace service. This is a two-stage process: creating a description of the data file (representation) in the VOSpace including any metadata (its properties) that they want to associate with it (e.g., MIME type), and defining the transfer operation that will actually see the data file bytes uploaded to the VOSpace service.
 
-Let's consider the first sequence: the user provides a XML description of the data file which they HTTP PUT to the appropriate VOSpace URI - this will be the HTTP identifier for the data file in the VOSpace, e.g. http://nvo.caltech.edu/vospace/nodes/mytable1. The description will resemble this:
+Let's consider the first step: the user provides a XML description of the data file which they HTTP PUT to the appropriate VOSpace URI - this will be the HTTP identifier for the data file in the VOSpace, e.g. http://server.example.com/vospace/nodes/mytable1. The description will resemble this:
 
 \begin{lstlisting}
-<node xmlns="http://www.ivoa.net/xml/VOSpaceTypes-v2.1"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-    uri="vos://nvo.caltech!vospace/mytable1"
-    xsi:type="vost:UnstructuredDataNode">  
+<node xmlns="http://www.ivoa.net/xml/VOSpace/v2.1"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema-instance" 
+    uri="vos://example.com!vospace/mytable1"
+    xs:type="vos:UnstructuredDataNode">  
     <properties> 
-        <property uri="ivo://ivoa.net/vospace/core\#mimetype">text/xml</property>     
+        <property uri="ivo://ivoa.net/vospace/core#mimetype">text/xml</property>     
     </properties> 
 </node> 
 \end{lstlisting}
 
+Note that the node path is specified in two places on this request:
+\begin{itemize}
+   \item In the path of the URL in which the client performs the HTTP PUT
+   \item In the node uri attribute of the XML description
+\end{itemize}
+These two paths must match.
+
 The service will reply with an amended version of the representation containing service-specific details in addition to the information supplied by the user. These will include data formats that the service can handle for the type of node created in the VOSpace, third-party interfaces (capabilities) to the data that the service offers and system metadata.
 
-The user will then describe the data format (the view) they want to use in uploading the file, e.g. VOTable, and the transport protocol (the protocol) that they want to employ to upload the file, e.g. HTTP PUT. This will result in the HTTP POSTing of a XML description of the transfer request to the appropriate VOSpace URI, e.g. http://nvo.caltech.edu/vospace/myData/table123/transfers. The description will resemble this:
+The user will then describe the data format (the view) they want to use in uploading the file, e.g. VOTable, and the transport protocol (the protocol) that they want to employ to upload the file, e.g. HTTP PUT. This will result in the HTTP POSTing of a XML description of the transfer request to the appropriate VOSpace URL, e.g. http://server.example.com/vospace/synctrans. The description will resemble this:
 
 \begin{lstlisting}
 <transfer xmlns="http://www.ivoa.net/xml/VOSpace/v2.1">
-    <target>vos://nvo.caltech!vospace/mytable1</target>
+    <target>vos://example.com!vospace/mytable1</target>
     <direction>pushToVoSpace</direction> 
     <view uri="ivo://ivoa.net/vospace/core#votable"/> 
-    <protocol uri="ivo://ivoa.net/vospace/core#http-put"/>  
+    <protocol uri="ivo://ivoa.net/vospace/core#httpput"/>  
 </transfer>
 \end{lstlisting}
 
-will then use a regular HTTP client to transfer (PUT) the local file to the specified endpoint. This illustrates an important point about VOSpace - it is only concerned with the server-side management of data storage and transfer. A client negotiates the details of a data transfer with a VOSpace service but the actual transfer of bytes across a network is handled by other tools.
+The service will reply with a redirect to a location with an amended version of the transfer representation that contains, for the protocols the service supports, URL endpoints that the user may HTTP PUT the data file to, e.g. http://storage1.example.com/vospace/mytable1.  The user will then use a regular HTTP client to transfer (PUT) the local file to one of the specified endpoint. This illustrates an important point about VOSpace - it is only concerned with the server-side management of data storage and transfer. A client negotiates the details of a data transfer with a VOSpace service but the actual transfer of bytes across a network is handled by other tools.
 
-Similarly, when a user wants to retrieve a data file from a VOSpace service, they will specify the data format (view) they want to use in downloading the file, e.g. VOTable, and the transport protocol (the protocol) that they want to employ to download the file, e.g. HTTP GET, and HTTP POST a XML description of this transfer request to the appropriate VOSpace URI - the transfer URI for the node in the VOSpace, e.g. http://nvo.caltech.edu/vospace/myDataNode/table123/transfers. The description will resemble this:
+Similarly, when a user wants to retrieve a data file from a VOSpace service, they will specify the data format (view) they want to use in downloading the file, e.g. VOTable, and the transport protocol (the protocol) that they want to employ to download the file, e.g. HTTP GET, and HTTP POST a XML description of this transfer request to the appropriate VOSpace URL - the transfer URI for the node in the VOSpace, e.g. http://server.example.com/vospace/synctrans. The description will resemble this:
 
 \begin{lstlisting}
 <transfer xmlns="http://www.ivoa.net/xml/VOSpace/v2.1">
-    <target>vos://nvo.caltech!vospace/mytable1</target>
+    <target>vos://example.com!vospace/mytable1</target>
     <direction>pullFromVoSpace</direction> 
     <view uri="ivo://ivoa.net/vospace/core#votable"/> 
     <protocol uri="ivo://ivoa.net/vospace/core#httpget"/>  
 </transfer>
 \end{lstlisting}
 
-The service will reply with the URL for the user to use, e.g. http://nvo.caltech.edu/vospace/myDataNode/table123/transfers/3df89ab4. The user can then download the data file by pointing an HTTP client (e.g. web browser) at the specified endpoint.
+The service will reply with a redirect to a location that contains an amended version of the transfer representation that contains, for the protocols the service supports, the URL endpoints for the user to use, e.g. http://storage1.example.com/vospace/myDataNode. The user can then download the data file by pointing an HTTP client (e.g. web browser) at the specified endpoint.
 
 \subsection{Role within the VO Architecture}
 \label{subsec:role within the vo architecture}
@@ -157,9 +164,9 @@ In this architecture, users employ a variety of tools (from the User Layer) to d
 \label{subsec:document roadmap}
 The rest of this document is structured as follows:
 
-In Section 2 (TODO: link these section references), we specify the URI syntax for identifying data objects (nodes) in VOSpace.
+In Section \ref{sec:vospace identifiers}, we specify the URI syntax for identifying data objects (nodes) in VOSpace.
 
-In Section 3, we present the data model that underpins the VOSpace architecture. This consists of a number of data structures, which have XML representations that are used across the wire in message exchanges with a VOSpace service. These structures represent:
+In Section \ref{sec:vospace data model}, we present the data model that underpins the VOSpace architecture. This consists of a number of data structures, which have XML representations that are used across the wire in message exchanges with a VOSpace service. These structures represent:
 
 the data objects themselves (nodes)
 metadata that can be associated with a data object (properties)
@@ -170,11 +177,11 @@ the data transfer itself (transfers)
 searches of data objects (searches)
 We also describe the REST bindings between these representations and their URIs (HTTP identifiers).
 
-In Section 4, we outline how security and access control policies are currently handled in VOSpace.
+In Section \ref{sec:access control}, we outline how security and access control policies are currently handled in VOSpace.
 
-In Section 5, we detail the operations that the VOSpace interface supports. These handle access to service-level metadata, the creation and manipulation of nodes within the VOSpace, access to node metadata (properties) and data transfer to and from the VOSpace.
+In Section \ref{sec:web service operations}, we detail the operations that the VOSpace interface supports. These handle access to service-level metadata, the creation and manipulation of nodes within the VOSpace, access to node metadata (properties) and data transfer to and from the VOSpace.
 
-In Appendix A, we formally define the VOSpace interface with a machine readable description of its requests and responses and in Appendix B, we present a compliance matrix listing the mandatory behaviour required of a valid VOSpace 2.1 service.
+In Appendex \ref{sec:machine readable definitions}, we formally define the VOSpace interface with a machine readable description of its requests and responses and in Appendix \ref{sec:compliance matrix}, we present a compliance matrix listing the mandatory behaviour required of a valid VOSpace 2.1 service.
 
 \section{VOSpace identifiers}
 \label{sec:vospace identifiers}
@@ -1039,10 +1046,10 @@ A UWS Job representation of a Search SHALL have the following parameters:
         \begin{itemize}
             \item min: The list contains the minimum detail for each Node with all optional parts removed - the node type should be returned
                 \begin{itemize}
-                    \item e.g. \begin{verbatim}<node uri="vos://service/name" xsi:type="Node"/>\end{verbatim}
+                    \item e.g. \begin{verbatim}<node uri="vos://service/name" xs:type="Node"/>\end{verbatim}
                 \end{itemize}
-            \item max : The list contains the maximum detail for each Node, including any xsi:type specific extensions
-            \item properties : The list contains a basic node element with a list of properties for each Node with no xsi:type specific extensions.
+            \item max : The list contains the maximum detail for each Node, including any xs:type specific extensions
+            \item properties : The list contains a basic node element with a list of properties for each Node with no xs:type specific extensions.
         \end{itemize}
     \item \emph{matches}: An OPTIONAL search string consisting of properties and values to match against and joined in conjunction (and) or disjunction (or).
         \begin{itemize}
@@ -1113,7 +1120,7 @@ In addition, the following Nodes, appearing as part of a node-path, are reserved
     \item .null indicates an endpoint that discards all data written to it and provides no data when read from, i.e. a bit bucket
 \end{itemize}
 
-The standardID for the service is: ivo://ivoa.net/std/VOSpace/v2.0. Available resources will then just be ivo://ivoa.net/std/VOSpace/v2.0\#<resourceName>, e.g., ivo://ivoa.net/std/VOSpace/v2.0\#nodes.
+The standardID for the service is: ivo://ivoa.net/std/VOSpace/v2.1. Available resources will then just be ivo://ivoa.net/std/VOSpace/v2.1\#<resourceName>, e.g., ivo://ivoa.net/std/VOSpace/v2.1\#nodes.
 
 \section{Access Control}
 \label{sec:access control}
@@ -1203,8 +1210,8 @@ Request:
 Response:
 \begin{lstlisting}
 * About to connect() to server.example.com port 80 (#0)
-*   Trying 132.246.217.46... connected
-* Connected to server.example.com (132.246.217.46) port 80 (#0)
+*   Trying 192.168.0.0... connected
+* Connected to server.example.com (192.168.0.0) port 80 (#0)
 > GET /vospace/protocols HTTP/1.1
 > User-Agent: curl/7.19.7 (universal-apple-darwin10.0) libcurl/7.19.7 OpenSSL/0.9.8y zlib/1.2.3
 > Host: server.example.com
@@ -1269,8 +1276,8 @@ Request:
 Response:
 \begin{lstlisting}
 * About to connect() to server.example.com port 80 (#0)
-*   Trying 132.246.217.46... connected
-* Connected to server.example.com (132.246.217.46) port 80 (#0)
+*   Trying 192.168.0.0... connected
+* Connected to server.example.com (192.168.0.0) port 80 (#0)
 > GET /vospace/views HTTP/1.1
 > User-Agent: curl/7.19.7 (universal-apple-darwin10.0) libcurl/7.19.7 OpenSSL/0.9.8y zlib/1.2.3
 > Host: server.example.com
@@ -1278,7 +1285,6 @@ Response:
 >
 < HTTP/1.1 200 OK
 < Date: Fri, 22 May 2015 21:29:50 GMT
-< Server: Restlet-Framework/2.0.2
 < Accept-Ranges: bytes
 < Vary: Accept-Charset,Accept-Encoding,Accept-Language,Accept
 < Content-Type: text/xml
@@ -1328,8 +1334,8 @@ Request:
 Response:
 \begin{lstlisting}
 * About to connect() to server.example.com port 80 (#0)
-*   Trying 132.246.217.46... connected
-* Connected to server.example.com (132.246.217.46) port 80 (#0)
+*   Trying 192.168.0.0... connected
+* Connected to server.example.com (192.168.0.0) port 80 (#0)
 > GET /vospace/properties HTTP/1.1
 > User-Agent: curl/7.19.7 (universal-apple-darwin10.0) libcurl/7.19.7 OpenSSL/0.9.8y zlib/1.2.3
 > Host: server.example.com
@@ -1337,7 +1343,6 @@ Response:
 >
 < HTTP/1.1 200 OK
 < Date: Fri, 22 May 2015 21:29:50 GMT
-< Server: Restlet-Framework/2.0.2
 < Accept-Ranges: bytes
 < Vary: Accept-Charset,Accept-Encoding,Accept-Language,Accept
 < Content-Type: text/xml
@@ -1372,12 +1377,15 @@ Response:
 Create a new node at a specified location
 
 \paragraph{Request}
-A HTTP PUT of a node representation to the node URL:
-\begin{itemize}
-    \item \emph{node}: A template Node (as defined in Section 3.1) for the node to be created
-\end{itemize}
+A HTTP PUT of a node representation to path of the node to be created on the /nodes resource:
+\begin{lstlisting}
+http://server.example.com/vospace/nodes/<path to node>
+\end{lstlisting}
+The node representation is template Node (as defined in section \ref{sec:nodes and node types}) for the node to be created.
 
-A valid uri attribute SHALL be required. The name .auto is a reserved URI to indicate an auto-generated URI for the destination, i.e. given the following URI vos://service/path/.auto a service SHALL create a new unique URI for the node within vos://service/path.
+A valid uri attribute SHALL be required. The name .auto is a reserved URI to indicate an auto-generated URI for the destination, i.e. given the following URI vos://service/path/.auto a service SHOULD create a new unique URI for the node within vos://service/path.
+
+If the uri in the node representation does not match the path in the HTTP PUT URL the service SHALL return an error.
 
 If the Node xs:type is not specified then a generic node of type Node is implied.
 
@@ -1417,7 +1425,7 @@ The \emph{capabilities} list for the Node MAY not be filled in until some data h
     \item The service SHOULD throw a HTTP 500 status code including an InternalFault fault in the entity body if the operation fails
     \item The service SHALL throw a HTTP 409 status code including a DuplicateNode fault in the entity body if a Node already exists with the same URI
     \item The service SHALL throw a HTTP 400 status code including an InvalidURI fault in the entity body if the requested URI is invalid
-    \item The service SHALL throw a HTTP 400 status code including a TypeNotSupported fault in the entity body if the type specified in xsi:type is not supported
+    \item The service SHALL throw a HTTP 400 status code including a TypeNotSupported fault in the entity body if the type specified in xs:type is not supported
     \item The service SHALL throw a HTTP 403 status code including PermissionDenied fault in the entity body if the user does not have permissions to perform the operation
     \item If a parent node in the URI path does not exist then the service SHALL throw a HTTP 404 status code including a ContainerNotFound fault in the entity body.
     \begin{itemize}
@@ -1454,8 +1462,8 @@ Request:
 Response:
 \begin{lstlisting}
 * About to connect() to server.example.com port 80 (#0)
-*   Trying 132.246.217.46... connected
-* Connected to server.example.com (132.246.217.46) port 80 (#0)
+*   Trying 192.168.0.0... connected
+* Connected to server.example.com (192.168.0.0) port 80 (#0)
 > PUT /vospace/nodes/mydata1 HTTP/1.1
 > User-Agent: curl/7.19.7 (universal-apple-darwin10.0) libcurl/7.19.7 OpenSSL/0.9.8y zlib/1.2.3
 > Host: server.example.com
@@ -1465,7 +1473,6 @@ Response:
 >
 < HTTP/1.1 200 OK
 < Date: Fri, 22 May 2015 23:06:32 GMT
-< Server: Restlet-Framework/2.0.2
 < Cache-Control: private
 < Expires: Wed, 31 Dec 1969 16:00:00 PST
 < Accept-Ranges: bytes
@@ -1509,7 +1516,7 @@ The Node type cannot be changed using this method.
     \item A HTTP POST of a Job representation for the transfer (see section 3.6) to http://rest-endpoint/transfers.
 \end{itemize}
 
-.auto is a reserved URI to indicate an autogenerated URI for the destination, i.e. vos://service/path/.auto SHALL cause a new unique URI for the node within vos://service/path to be generated.
+.auto is a reserved URI to indicate an autogenerated URI for the destination, i.e. vos://service/path/.auto SHOULD cause a new unique URI for the node within vos://service/path to be generated.
 
 \paragraph{Response}
 \subparagraph{Status code} The initial response is a HTTP 303 status code with the Location header keyword assigned to the created job.
@@ -1569,8 +1576,8 @@ Request:
 Response:
 \begin{lstlisting}
 * About to connect() to server.example.com port 80 (#0)
-*   Trying 132.246.217.46... connected
-* Connected to server.example.com (132.246.217.46) port 80 (#0)
+*   Trying 192.168.0.0... connected
+* Connected to server.example.com (192.168.0.0) port 80 (#0)
 > POST /vospace/transfers HTTP/1.1
 > User-Agent: curl/7.19.7 (universal-apple-darwin10.0) libcurl/7.19.7 OpenSSL/0.9.8y zlib/1.2.3
 > Host: server.example.com
@@ -1580,7 +1587,6 @@ Response:
 >
 < HTTP/1.1 303 See Other
 < Date: Fri, 22 May 2015 23:44:04 GMT
-< Server: Restlet-Framework/2.0.2
 < Accept-Ranges: bytes
 < Location: http://server.example.com/vospace/transfers/glmldqf591feljub
 < Content-Length: 0
@@ -1596,8 +1602,8 @@ Job information can be seen by following the redirect to:
 Response:
 \begin{lstlisting}
 * About to connect() to server.example.com port 80 (#0)
-*   Trying 132.246.217.46... connected
-* Connected to server.example.com (132.246.217.46) port 80 (#0)
+*   Trying 192.168.0.0... connected
+* Connected to server.example.com (192.168.0.0) port 80 (#0)
 > GET /vospace/transfers/glmldqf591feljub HTTP/1.1
 > User-Agent: curl/7.19.7 (universal-apple-darwin10.0) libcurl/7.19.7 OpenSSL/0.9.8y zlib/1.2.3
 > Host: server.example.com
@@ -1605,7 +1611,6 @@ Response:
 >
 < HTTP/1.1 200 OK
 < Date: Fri, 22 May 2015 23:47:26 GMT
-< Server: Restlet-Framework/2.0.2
 < Cache-Control: private
 < Expires: Wed, 31 Dec 1969 16:00:00 PST
 < Accept-Ranges: bytes
@@ -1642,8 +1647,8 @@ Now start the UWS job:
 Response:
 \begin{lstlisting}
  About to connect() to server.example.com port 80 (#0)
-*   Trying 132.246.217.46... connected
-* Connected to server.example.com (132.246.217.46) port 80 (#0)
+*   Trying 192.168.0.0... connected
+* Connected to server.example.com (192.168.0.0) port 80 (#0)
 > POST /vospace/transfers/glmldqf591feljub/phase HTTP/1.1
 > User-Agent: curl/7.19.7 (universal-apple-darwin10.0) libcurl/7.19.7 OpenSSL/0.9.8y zlib/1.2.3
 > Host: server.example.com
@@ -1653,7 +1658,6 @@ Response:
 >
 < HTTP/1.1 303 See Other
 < Date: Sun, 24 May 2015 16:51:37 GMT
-< Server: Restlet-Framework/2.0.2
 < Accept-Ranges: bytes
 < Location: http://server.example.com/vospace/transfers/glmldqf591feljub
 < Content-Length: 0
@@ -1669,8 +1673,8 @@ Follow the redirect to see the phase.  The job will be either RUNNING, COMPLETED
 Response:
 \begin{lstlisting}
 * About to connect() to server.example.com port 80 (#0)
-*   Trying 132.246.217.46... connected
-* Connected to server.example.com (132.246.217.46) port 80 (#0)
+*   Trying 192.168.0.0... connected
+* Connected to server.example.com (192.168.0.0) port 80 (#0)
 > GET /vospace/transfers/glmldqf591feljub/phase HTTP/1.1
 > User-Agent: curl/7.19.7 (universal-apple-darwin10.0) libcurl/7.19.7 OpenSSL/0.9.8y zlib/1.2.3
 > Host: server.example.com
@@ -1678,7 +1682,6 @@ Response:
 >
 < HTTP/1.1 200 OK
 < Date: Sun, 24 May 2015 16:51:45 GMT
-< Server: Restlet-Framework/2.0.2
 < Cache-Control: private
 < Expires: Wed, 31 Dec 1969 16:00:00 PST
 < Accept-Ranges: bytes
@@ -1707,7 +1710,7 @@ The Node type cannot be changed using this method.
 
 \paragraph{Request}
 A HTTP POST of a Job representation for the transfer (see section 3.6) to http://rest-endpoint/transfers.
-.auto is the reserved URI to indicate an auto-generated URI for the destination, i.e. vos://service/path/.auto SHALL cause a new unique URI for the node within vos://service/path to be generated.
+.auto is the reserved URI to indicate an auto-generated URI for the destination, i.e. vos://service/path/.auto SHOULD cause a new unique URI for the node within vos://service/path to be generated.
 
 \paragraph{Response}
 The initial response is a HTTP 303 status code with the Location header keyword assigned to the created job.
@@ -1766,8 +1769,8 @@ Request:
 Response:
 \begin{lstlisting}
 * About to connect() to server.example.com port 80 (#0)
-*   Trying 132.246.217.46... connected
-* Connected to server.example.com (132.246.217.46) port 80 (#0)
+*   Trying 192.168.0.0... connected
+* Connected to server.example.com (192.168.0.0) port 80 (#0)
 > POST /vospace/transfers HTTP/1.1
 > User-Agent: curl/7.19.7 (universal-apple-darwin10.0) libcurl/7.19.7 OpenSSL/0.9.8y zlib/1.2.3
 > Host: server.example.com
@@ -1777,7 +1780,6 @@ Response:
 >
 < HTTP/1.1 303 See Other
 < Date: Fri, 22 May 2015 23:44:04 GMT
-< Server: Restlet-Framework/2.0.2
 < Accept-Ranges: bytes
 < Location: http://server.example.com/vospace/transfers/usil5s8mdbgjwzvq
 < Content-Length: 0
@@ -1793,8 +1795,8 @@ Job information can be seen by following the redirect to:
 Response:
 \begin{lstlisting}
 * About to connect() to server.example.com port 80 (#0)
-*   Trying 132.246.217.46... connected
-* Connected to server.example.com (132.246.217.46) port 80 (#0)
+*   Trying 192.168.0.0... connected
+* Connected to server.example.com (192.168.0.0) port 80 (#0)
 > GET /vospace/transfers/usil5s8mdbgjwzvq HTTP/1.1
 > User-Agent: curl/7.19.7 (universal-apple-darwin10.0) libcurl/7.19.7 OpenSSL/0.9.8y zlib/1.2.3
 > Host: server.example.com
@@ -1802,7 +1804,6 @@ Response:
 >
 < HTTP/1.1 200 OK
 < Date: Fri, 22 May 2015 23:47:26 GMT
-< Server: Restlet-Framework/2.0.2
 < Cache-Control: private
 < Expires: Wed, 31 Dec 1969 16:00:00 PST
 < Accept-Ranges: bytes
@@ -1841,8 +1842,8 @@ Now start the UWS job:
 Response:
 \begin{lstlisting}
  About to connect() to server.example.com port 80 (#0)
-*   Trying 132.246.217.46... connected
-* Connected to server.example.com (132.246.217.46) port 80 (#0)
+*   Trying 192.168.0.0... connected
+* Connected to server.example.com (192.168.0.0) port 80 (#0)
 > POST /vospace/transfers/usil5s8mdbgjwzvq/phase HTTP/1.1
 > User-Agent: curl/7.19.7 (universal-apple-darwin10.0) libcurl/7.19.7 OpenSSL/0.9.8y zlib/1.2.3
 > Host: server.example.com
@@ -1852,7 +1853,6 @@ Response:
 >
 < HTTP/1.1 303 See Other
 < Date: Sun, 24 May 2015 16:51:37 GMT
-< Server: Restlet-Framework/2.0.2
 < Accept-Ranges: bytes
 < Location: http://server.example.com/vospace/transfers/usil5s8mdbgjwzvq
 < Content-Length: 0
@@ -1868,8 +1868,8 @@ Follow the redirect to see the phase.  The job will be either RUNNING, COMPLETED
 Response:
 \begin{lstlisting}
 * About to connect() to server.example.com port 80 (#0)
-*   Trying 132.246.217.46... connected
-* Connected to server.example.com (132.246.217.46) port 80 (#0)
+*   Trying 192.168.0.0... connected
+* Connected to server.example.com (192.168.0.0) port 80 (#0)
 > GET /vospace/transfers/usil5s8mdbgjwzvq/phase HTTP/1.1
 > User-Agent: curl/7.19.7 (universal-apple-darwin10.0) libcurl/7.19.7 OpenSSL/0.9.8y zlib/1.2.3
 > Host: server.example.com
@@ -1877,7 +1877,6 @@ Response:
 >
 < HTTP/1.1 200 OK
 < Date: Sun, 24 May 2015 16:51:45 GMT
-< Server: Restlet-Framework/2.0.2
 < Cache-Control: private
 < Expires: Wed, 31 Dec 1969 16:00:00 PST
 < Accept-Ranges: bytes
@@ -1937,8 +1936,8 @@ Request:
 Response:
 \begin{lstlisting}
 * About to connect() to example.server.com port 80 (#0)
-*   Trying 132.246.217.46... connected
-* Connected to example.server.com (132.246.217.46) port 80 (#0)
+*   Trying 192.168.0.0... connected
+* Connected to example.server.com (192.168.0.0) port 80 (#0)
 > DELETE /vospace/nodes/mydata1 HTTP/1.1
 > User-Agent: curl/7.19.7 (universal-apple-darwin10.0) libcurl/7.19.7 OpenSSL/0.9.8y zlib/1.2.3
 > Host: server.example.com
@@ -1946,7 +1945,6 @@ Response:
 >
 < HTTP/1.1 200 OK
 < Date: Sun, 24 May 2015 22:10:57 GMT
-< Server: Restlet-Framework/2.0.2
 < Cache-Control: private
 < Expires: Wed, 31 Dec 1969 16:00:00 PST
 < Accept-Ranges: bytes
@@ -1974,10 +1972,10 @@ This can take the optional parameters to control the size of the response:
     \begin{itemize}
         \item \emph{min}: the returned record for the node contains minimum detail with all optional parts removed - the node type should be returned
         \begin{itemize}
-            \item e.g. <Node uri="vos://service/name" xsi:type="Node"/>
+            \item e.g. <Node uri="vos://service/name" xs:type="Node"/>
         \end{itemize}
-        \item \emph{max}: the returned record for the node contains the maximum detail, including any xsi:type specific extensions
-        \item \emph{properties}: the returned record for the node contains the basic node element with a list of properties but no xsi:type specific extensions
+        \item \emph{max}: the returned record for the node contains the maximum detail, including any xs:type specific extensions
+        \item \emph{properties}: the returned record for the node contains the basic node element with a list of properties but no xs:type specific extensions
     \end{itemize}
     \item \emph{uri} with a value of a VOSpace identifier, URI-encoded according to RFC2396
     \item \emph{limit} with an integer value indicating the maximum number of results in the response.
@@ -1993,13 +1991,13 @@ The list of supported protocols for a node can be retrieved with:
     
 \paragraph{Response}
 A HTTP 200 status code and a Node representation in the entity-body
-When no parameters are present in the request, the full expanded record for the node SHALL be returned, including any xsi:type specific extensions; otherwise the appropriate form for the specified value of the "detail" parameter SHALL be returned.
+When no parameters are present in the request, the full expanded record for the node SHALL be returned, including any xs:type specific extensions; otherwise the appropriate form for the specified value of the "detail" parameter SHALL be returned.
 
 When the node is a container, the returned record will also contain a list of direct children nodes in the container (as <node> subelements under the < nodes> element).
 
 If a "uri" and "offset" are specified in the request then the returned list will consist of the subset of children which begins at the node matching the specified value of the "uri" parameter and with cardinality matching the specified value of the "offset" parameter drawn from an ordered sequence of all children. The ordering is determined by the server but results must always be drawn from the same ordered sequence.
 
-For the target node and for any children returned for a container node, the attribute \emph{xsi:type} SHALL be included in the resulting Node document.  
+For the target node and for any children returned for a container node, the attribute \emph{xs:type} SHALL be included in the resulting Node document.  
 
 \paragraph{Faults}
 \begin{itemize}
@@ -2019,8 +2017,8 @@ Request:
 Response:
 \begin{lstlisting}
 * About to connect() to server.example.com port 80 (#0)
-*   Trying 132.246.217.46... connected
-* Connected to server.example.com (132.246.217.46) port 80 (#0)
+*   Trying 192.168.0.0... connected
+* Connected to server.example.com (192.168.0.0) port 80 (#0)
 > GET /vospace/nodes/mydir?detail=min&uri=vos://example.com!vospace/mydir/file3401 HTTP/1.1
 > User-Agent: curl/7.19.7 (universal-apple-darwin10.0) libcurl/7.19.7 OpenSSL/0.9.8y zlib/1.2.3
 > Host: server.example.com
@@ -2028,7 +2026,6 @@ Response:
 >
 < HTTP/1.1 200 OK
 < Date: Sun, 24 May 2015 22:18:15 GMT
-< Server: Restlet-Framework/2.0.2
 < Cache-Control: private
 < Expires: Wed, 31 Dec 1969 16:00:00 PST
 < Accept-Ranges: bytes
@@ -2066,9 +2063,9 @@ A HTTP POST of a Node representation to the URL of an existing node http://rest-
 \begin{itemize}
     \item \emph{node}: A Node containing the Node uri and a list of the Properties to set (as defined in section 3.1)
 \end{itemize}
-This will add or update the node properties including any xsi:type specific elements.
+This will add or update the node properties including any xs:type specific elements.
 
-The operation is the union of existing values and new ones.  An empty value sets the value to blank.  To delete a Property, set the xsi:nil attribute to true
+The operation is the union of existing values and new ones.  An empty value sets the value to blank.  To delete a Property, set the xs:nil attribute to true
 
 This method cannot be used to modify the Node type.
 
@@ -2078,7 +2075,7 @@ This method cannot be used to create children of a container Node.
 
 \paragraph{Response}
 A HTTP 200 status code and a Node representation in the entity-body
-The full expanded record for the node SHALL be returned, including any xsi:type specific extensions.
+The full expanded record for the node SHALL be returned, including any xs:type specific extensions.
 
 \paragraph{Faults}
 \begin{itemize}
@@ -2115,8 +2112,8 @@ Request:
 Response:
 \begin{lstlisting}
 * About to connect() to server.example.com port 80 (#0)
-*   Trying 132.246.217.46... connected
-* Connected to server.example.com (132.246.217.46) port 80 (#0)
+*   Trying 192.168.0.0... connected
+* Connected to server.example.com (192.168.0.0) port 80 (#0)
 > POST /vospace/auth/nodes/majorb/testFile.txt HTTP/1.1
 > User-Agent: curl/7.19.7 (universal-apple-darwin10.0) libcurl/7.19.7 OpenSSL/0.9.8y zlib/1.2.3
 > Host: server.example.com
@@ -2126,7 +2123,6 @@ Response:
 >
 < HTTP/1.1 200 OK
 < Date: Sun, 24 May 2015 23:02:10 GMT
-< Server: Restlet-Framework/2.0.2
 < Accept-Ranges: bytes
 < Vary: Accept-Charset,Accept-Encoding,Accept-Language,Accept
 < Content-Type: text/xml
@@ -2134,7 +2130,7 @@ Response:
 < Connection: close
 <
 <?xml version="1.0" encoding="UTF-8"?>
-<vos:node xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.0" xmlns:xs="http://www.w3.org/2001/XMLSchema-instance" uri="vos://cadc.nrc.ca!vospace/majorb/testFile.txt" xs:type="vos:DataNode" busy="false">
+<vos:node xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1" xmlns:xs="http://www.w3.org/2001/XMLSchema-instance" uri="vos://cadc.nrc.ca!vospace/majorb/testFile.txt" xs:type="vos:DataNode" busy="false">
   <vos:properties>
     <vos:property uri="ivo://ivoa.net/vospace/core#length" readOnly="true">44</vos:property>
     <vos:property uri="ivo://ivoa.net/vospace/core#MD5" readOnly="true">12c13e49f2fd37e2c91bcca6acb78a08</vos:property>
@@ -2193,6 +2189,9 @@ A particular property is specified and does not exist in the space & Property No
 \vspace{3mm}
 
 \paragraph{Example}
+
+TODO: Add vos:search type to VOSpace-2.1.XSD
+
 Find VOSpace nodes
 \\[5px]
 \noindent
@@ -2252,14 +2251,14 @@ Response:
 < Server: CherryPy/3.1.2
 < 
 <uws:job xmlns:uws="http://www.ivoa.net/xml/UWS/v1.0" xmlns:xlink="http://www.w3.org/1999/xlink"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.ivoa.net/xml/UWS/v1.0 UWS.xsd ">
+  xmlns:xs="http://www.w3.org/2001/XMLSchema-instance" xs:schemaLocation="http://www.ivoa.net/xml/UWS/v1.0 UWS.xsd ">
   <uws:jobId>8c6e7bc53ee848638cda35817e47da65<
-  <uws:ownerId xsi:nil="true"/>
+  <uws:ownerId xs:nil="true"/>
   <uws:phase>COMPLETED</uws:phase>
   <uws:startTime>2010-03-12T19:50:56.552278</uws:startTime>
   <uws:endTime>2010-03-12T19:50:56.562416</uws:endTime>
   <uws:executionDuration>0</uws:executionDuration>
-  <uws:destruction xsi:nil="true"/>
+  <uws:destruction xs:nil="true"/>
   <uws:jobInfo>
     <vos:search>
       <vos:detail>properties</vos:detail>
@@ -2294,12 +2293,12 @@ Response:
 < 
 <nodes xmlns="http://www.ivoa.net/xml/VOSpace/v2.1"
 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-  <node uri="vos://nvo.caltech!vospace/mydir/img1" xsi:type="vos:UnstructuredDataNode">
+  <node uri="vos://nvo.caltech!vospace/mydir/img1" xs:type="vos:UnstructuredDataNode">
     <properties>
       <property uri="ivo://ivoa.net/vospace/core#description">This is an R-band image of the galaxy NGC 3276</property>
     </properties>
   </node>
-  <node uri="vos://nvo.caltech!vospace/mydir/img5" xsi:type="vos:StructuredDataNode">
+  <node uri="vos://nvo.caltech!vospace/mydir/img5" xs:type="vos:StructuredDataNode">
     <properties>
       <property uri="ivo://ivoa.net/vospace/core#description">This is a Chandra mosaic of the Fornax cluster of galaxies</property>
     </properties>
@@ -2367,7 +2366,7 @@ The list of Protocols SHOULD not contain endpoint addresses, the service will su
 
 The service SHALL ignore any of the requested protocols and security methods that it does not understand or is unable to support.
 
-.auto is the reserved URI to indicate an auto-generated URI for the destination, i.e. vos://service/path/.auto SHALL cause a new unique URI for the node within vos://service/path to be generated.  This URI SHALL be specified as a result in the Results list for the completed transfer with the id of "target".
+.auto is the reserved URI to indicate an auto-generated URI for the destination, i.e. vos://service/path/.auto SHOULD cause a new unique URI for the node within vos://service/path to be generated.  If supported, this URI SHALL be specified as a result in the Results list for the completed transfer with the id of "target".
 
 A pushToVoSpace transfer may be initiated with an HTTP POST of a Job representation of the transfer to http://rest-endpoint/transfers. The service SHALL respond with a redirect to the newly created job.  (See Example 1)
 
@@ -2466,7 +2465,6 @@ Response:
 >
 < HTTP/1.1 303 See Other
 < Date: Mon, 25 May 2015 23:06:45 GMT
-< Server: Restlet-Framework/2.0.2
 < Accept-Ranges: bytes
 < Location: http://server.example.com/vospace/transfers/zkqzpftmufdi8luh
 < Content-Length: 0
@@ -2491,7 +2489,6 @@ Response:
 >
 < HTTP/1.1 200 OK
 < Date: Mon, 25 May 2015 23:12:24 GMT
-< Server: Restlet-Framework/2.0.2
 < Cache-Control: private
 < Expires: Wed, 31 Dec 1969 16:00:00 PST
 < Accept-Ranges: bytes
@@ -2505,14 +2502,14 @@ Response:
   <uws:jobId>zkqzpftmufdi8luh</uws:jobId>
   <uws:phase>PENDING</uws:phase>
   <uws:quote>2015-05-26T11:06:45.713</uws:quote>
-  <uws:startTime xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
-  <uws:endTime xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+  <uws:startTime xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xs:nil="true" />
+  <uws:endTime xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xs:nil="true" />
   <uws:executionDuration>43200</uws:executionDuration>
   <uws:destruction>2015-06-01T23:06:45.713</uws:destruction>
   <uws:parameters />
   <uws:results />
   <uws:jobInfo>
-    <vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.0">
+    <vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1">
       <vos:target>vos://example.com~vospace/mydata1</vos:target>
       <vos:direction>pushToVoSpace</vos:direction>
       <vos:view uri="ivo://ivoa.net/vospace/core#fits" />
@@ -2540,7 +2537,6 @@ Response:
 >
 < HTTP/1.1 303 See Other
 < Date: Mon, 25 May 2015 23:17:41 GMT
-< Server: Restlet-Framework/2.0.2
 < Accept-Ranges: bytes
 < Location: http://server.examle.com/vospace/transfers/zkqzpftmufdi8luh
 < Content-Length: 0
@@ -2565,7 +2561,6 @@ Response:
 >
 < HTTP/1.1 200 OK
 < Date: Mon, 25 May 2015 23:17:46 GMT
-< Server: Restlet-Framework/2.0.2
 < Cache-Control: private
 < Expires: Wed, 31 Dec 1969 16:00:00 PST
 < Accept-Ranges: bytes
@@ -2580,7 +2575,7 @@ Response:
   <uws:phase>EXECUTING</uws:phase>
   <uws:quote>2015-05-26T11:06:45.713</uws:quote>
   <uws:startTime>2015-05-25T23:17:41.217</uws:startTime>
-  <uws:endTime xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+  <uws:endTime xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xs:nil="true" />
   <uws:executionDuration>43200</uws:executionDuration>
   <uws:destruction>2015-06-01T23:06:45.713</uws:destruction>
   <uws:parameters />
@@ -2666,8 +2661,8 @@ curl -v http://server.examle.com/vospace/transfers/zkqzpftmufdi8luh/phase
 Response:
 \begin{lstlisting}
 * About to connect() to server.example.com port 80 (#0)
-*   Trying 132.246.217.46... connected
-* Connected to server.example.com (132.246.217.46) port 80 (#0)
+*   Trying 192.168.0.0... connected
+* Connected to server.example.com (192.168.0.0) port 80 (#0)
 > GET /vospace/transfers/zkqzpftmufdi8luh/phase HTTP/1.1
 > User-Agent: curl/7.19.7 (universal-apple-darwin10.0) libcurl/7.19.7 OpenSSL/0.9.8y zlib/1.2.3
 > Host: server.example.com
@@ -2675,7 +2670,6 @@ Response:
 >
 < HTTP/1.1 200 OK
 < Date: Mon, 25 May 2015 23:37:38 GMT
-< Server: Restlet-Framework/2.0.2
 < Cache-Control: private
 < Expires: Wed, 31 Dec 1969 16:00:00 PST
 < Accept-Ranges: bytes
@@ -2719,7 +2713,6 @@ Response:
 >
 < HTTP/1.1 303 See Other
 < Date: Mon, 25 May 2015 23:17:41 GMT
-< Server: Restlet-Framework/2.0.2
 < Accept-Ranges: bytes
 < Location: http://server.example.com/vospace/transfers/zkqzpftmufdi8luh/results/transferDetails
 < Content-Length: 0
@@ -2780,8 +2773,8 @@ curl -v -X POST "http://server.example.com/vospace/synctransfers?TARGET=vos://ex
 Response:
 \begin{lstlisting}
 * About to connect() to server.example.com port 80 (#0)
-*   Trying 132.246.217.46... connected
-* Connected to server.example.com (132.246.217.46) port 80 (#0)
+*   Trying 192.168.0.0... connected
+* Connected to server.example.com (192.168.0.0) port 80 (#0)
 > POST /vospace/synctrans?TARGET=vos://example.com~vospace/mydata1&DIRECTION=pushToVoSpace&PROTOCOL=ivo://ivoa.net/vospace/core\%23httpput HTTP/1.1
 > User-Agent: curl/7.19.7 (universal-apple-darwin10.0) libcurl/7.19.7 OpenSSL/0.9.8y zlib/1.2.3
 > Host: server.example.com
@@ -2828,7 +2821,7 @@ A HTTP POST of a Job representation for the transfer to http://rest-endpoint/tra
 
 If a Node already exists at the target URI, then the data SHALL be imported into the existing Node and the Node properties SHALL be cleared unless the node is a ContainerNode.
 
-If there is no Node at the target URI, then the service SHALL create a new Node using the uri, and the default xsi:type for the space.
+If there is no Node at the target URI, then the service SHALL create a new Node using the uri, and the default xs:type for the space.
 
 \paragraph{Response}
 The initial response is a HTTP 303 status code with the Location header keyword assigned to the created job.
@@ -2959,7 +2952,7 @@ A pullFromVoSpace transfer may be initiated with an HTTP POST or GET to http://r
 The service SHALL respond with the job containing the transfer results in the response body.  (See Example 3)
 If the parameter key value REQUEST=redirect is included with the other transfer parameters, the service SHALL respond with an immediate redirect to the preferred protocol endpoint for data download.  (See Example 4)
 
-There is also an alternate convenience mode of for full data download using view=data on the http://rest-endpoint/nodes resource (This alternative is now deprecated and will be removed in v2.0.  This convenience mode has been replaced with the REQUEST=redirect functionality)
+There is also an alternate convenience mode of for full data download using view=data on the http://rest-endpoint/nodes resource (This alternative is now deprecated and will be removed in v3.0.  This convenience mode has been replaced with the REQUEST=redirect functionality)
 \begin{itemize}
     \item A HTTP GET to the node URL that wants to be read with a parameter of "view = data": \\*
         http://rest-endpoint/nodes/path?view=data
@@ -3051,7 +3044,6 @@ Response:
 >
 < HTTP/1.1 303 See Other
 < Date: Mon, 25 May 2015 23:06:45 GMT
-< Server: Restlet-Framework/2.0.2
 < Accept-Ranges: bytes
 < Location: http://server.example.com/vospace/transfers/m4ipu36gairz0dnl
 < Content-Length: 0
@@ -3076,7 +3068,6 @@ Response:
 >
 < HTTP/1.1 200 OK
 < Date: Mon, 25 May 2015 23:12:24 GMT
-< Server: Restlet-Framework/2.0.2
 < Cache-Control: private
 < Expires: Wed, 31 Dec 1969 16:00:00 PST
 < Accept-Ranges: bytes
@@ -3090,14 +3081,14 @@ Response:
   <uws:jobId>m4ipu36gairz0dnl</uws:jobId>
   <uws:phase>PENDING</uws:phase>
   <uws:quote>2015-05-26T11:06:45.713</uws:quote>
-  <uws:startTime xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
-  <uws:endTime xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+  <uws:startTime xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xs:nil="true" />
+  <uws:endTime xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xs:nil="true" />
   <uws:executionDuration>43200</uws:executionDuration>
   <uws:destruction>2015-06-01T23:06:45.713</uws:destruction>
   <uws:parameters />
   <uws:results />
   <uws:jobInfo>
-    <vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.0">
+    <vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1">
       <vos:target>vos://example.com~vospace/mydata1</vos:target>
       <vos:direction>pullFromVoSpace</vos:direction>
       <vos:protocol uri="ivo://ivoa.net/vospace/core#httpget" />
@@ -3124,7 +3115,6 @@ Response:
 >
 < HTTP/1.1 303 See Other
 < Date: Mon, 25 May 2015 23:17:41 GMT
-< Server: Restlet-Framework/2.0.2
 < Accept-Ranges: bytes
 < Location: http://server.examle.com/vospace/transfers/m4ipu36gairz0dnl
 < Content-Length: 0
@@ -3149,7 +3139,6 @@ Response:
 >
 < HTTP/1.1 200 OK
 < Date: Mon, 25 May 2015 23:17:46 GMT
-< Server: Restlet-Framework/2.0.2
 < Cache-Control: private
 < Expires: Wed, 31 Dec 1969 16:00:00 PST
 < Accept-Ranges: bytes
@@ -3164,7 +3153,7 @@ Response:
   <uws:phase>EXECUTING</uws:phase>
   <uws:quote>2015-05-26T11:06:45.713</uws:quote>
   <uws:startTime>2015-05-25T23:17:41.217</uws:startTime>
-  <uws:endTime xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+  <uws:endTime xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xs:nil="true" />
   <uws:executionDuration>43200</uws:executionDuration>
   <uws:destruction>2015-06-01T23:06:45.713</uws:destruction>
   <uws:parameters />
@@ -3224,8 +3213,8 @@ The file can now be retrieved over HTTP GET from one of the endpoints listed in 
 Response:
 \begin{lstlisting}
 * About to connect() to storage1.example.com port 80 (#0)
-*   Trying 132.246.217.46... connected
-* Connected to storage1.example.com (132.246.217.46) port 80 (#0)
+*   Trying 192.168.0.0... connected
+* Connected to storage1.example.com (192.168.0.0) port 80 (#0)
 > GET /mydata1 HTTP/1.1
 > User-Agent: curl/7.19.7 (universal-apple-darwin10.0) libcurl/7.19.7 OpenSSL/0.9.8y zlib/1.2.3
 > Host: storage1.example.com
@@ -3252,8 +3241,8 @@ curl -v http://server.examle.com/vospace/transfers/m4ipu36gairz0dnl/phase
 Response:
 \begin{lstlisting}
 * About to connect() to server.example.com port 80 (#0)
-*   Trying 132.246.217.46... connected
-* Connected to server.example.com (132.246.217.46) port 80 (#0)
+*   Trying 192.168.0.0... connected
+* Connected to server.example.com (192.168.0.0) port 80 (#0)
 > GET /vospace/transfers/m4ipu36gairz0dnl/phase HTTP/1.1
 > User-Agent: curl/7.19.7 (universal-apple-darwin10.0) libcurl/7.19.7 OpenSSL/0.9.8y zlib/1.2.3
 > Host: server.example.com
@@ -3261,7 +3250,6 @@ Response:
 >
 < HTTP/1.1 200 OK
 < Date: Mon, 25 May 2015 23:37:38 GMT
-< Server: Restlet-Framework/2.0.2
 < Cache-Control: private
 < Expires: Wed, 31 Dec 1969 16:00:00 PST
 < Accept-Ranges: bytes
@@ -3303,7 +3291,6 @@ Response:
 >
 < HTTP/1.1 303 See Other
 < Date: Mon, 25 May 2015 23:17:41 GMT
-< Server: Restlet-Framework/2.0.2
 < Accept-Ranges: bytes
 < Location: http://server.example.com/vospace/transfers/m4ipu36gairz0dnl/results/transferDetails
 < Content-Length: 0
@@ -3358,8 +3345,8 @@ curl -v -o mydata1 http://storage1.example.com/mydata1
 Response:
 \begin{lstlisting}
 * About to connect() to storage1.example.com port 80 (#0)
-*   Trying 132.246.217.46... connected
-* Connected to storage1.example.com (132.246.217.46) port 80 (#0)
+*   Trying 192.168.0.0... connected
+* Connected to storage1.example.com (192.168.0.0) port 80 (#0)
 > GET /mydata1 HTTP/1.1
 > User-Agent: curl/7.19.7 (universal-apple-darwin10.0) libcurl/7.19.7 OpenSSL/0.9.8y zlib/1.2.3
 > Host: storage1.example.com
@@ -3392,8 +3379,8 @@ curl -v -X POST "http://server.example.com/vospace/synctransfers?TARGET=vos://ex
 Response:
 \begin{lstlisting}
 * About to connect() to server.example.com port 80 (#0)
-*   Trying 132.246.217.46... connected
-* Connected to server.example.com (132.246.217.46) port 80 (#0)
+*   Trying 192.168.0.0... connected
+* Connected to server.example.com (192.168.0.0) port 80 (#0)
 > POST /vospace/synctrans?TARGET=vos://example.com~vospace/mydata1&DIRECTION=pullFromVoSpace&PROTOCOL=ivo://ivoa.net/vospace/core\%23httpget HTTP/1.1
 > User-Agent: curl/7.19.7 (universal-apple-darwin10.0) libcurl/7.19.7 OpenSSL/0.9.8y zlib/1.2.3
 > Host: server.example.com
@@ -3427,8 +3414,8 @@ curl -v -o mydata1 http://storage1.example.com/mydata1
 Response:
 \begin{lstlisting}
 * About to connect() to storage1.example.com port 80 (#0)
-*   Trying 132.246.217.46... connected
-* Connected to storage1.example.com (132.246.217.46) port 80 (#0)
+*   Trying 192.168.0.0... connected
+* Connected to storage1.example.com (192.168.0.0) port 80 (#0)
 > GET /mydata1 HTTP/1.1
 > User-Agent: curl/7.19.7 (universal-apple-darwin10.0) libcurl/7.19.7 OpenSSL/0.9.8y zlib/1.2.3
 > Host: storage1.example.com
@@ -3461,8 +3448,8 @@ curl -v -X POST "http://server.example.com/vospace/synctransfers?TARGET=vos://ex
 Response:
 \begin{lstlisting}
 * About to connect() to server.example.com port 80 (#0)
-*   Trying 132.246.217.46... connected
-* Connected to server.example.com (132.246.217.46) port 80 (#0)
+*   Trying 192.168.0.0... connected
+* Connected to server.example.com (192.168.0.0) port 80 (#0)
 > GET /vospace/synctrans?TARGET=vos://example.com~vospace/mydata1&DIRECTION=pullFromVoSpace&PROTOCOL=ivo://ivoa.net/vospace/core\%23httpget&REQUEST=redirect HTTP/1.1
 > User-Agent: curl/7.19.7 (universal-apple-darwin10.0) libcurl/7.19.7 OpenSSL/0.9.8y zlib/1.2.3
 > Host: server.example.com
@@ -3486,8 +3473,8 @@ curl -v -o mydata1 http://storage1.example.com/mydata1
 Response:
 \begin{lstlisting}
 * About to connect() to storage1.example.com port 80 (#0)
-*   Trying 132.246.217.46... connected
-* Connected to storage1.example.com (132.246.217.46) port 80 (#0)
+*   Trying 192.168.0.0... connected
+* Connected to storage1.example.com (192.168.0.0) port 80 (#0)
 > GET /mydata1 HTTP/1.1
 > User-Agent: curl/7.19.7 (universal-apple-darwin10.0) libcurl/7.19.7 OpenSSL/0.9.8y zlib/1.2.3
 > Host: storage1.example.com
@@ -3673,6 +3660,152 @@ The fault details must contain the full details of the LinkNode.
 \section{Changes since last version}
 \label{sec:changes since last version}
 
+\paragraph{From version 2.0-20140805:}
+\begin{itemize}
+    \item Removed asynchronous pushToVoSpace and pullToVoSpace (? TBD)
+    \item Added REQUEST=redirect for further optimized pullFromVoSpace
+    \item Added missing search element to XSD (TBD)
+    \item Changed pullToVoSpace, pushFromVoSpace to be client orchestrated. (? TBD)
+    \item Changed Transfer in XSD to accept parameters such as Content-length.
+    \item Redid all webservice operation examples
+    \item Changed XSD element authType to SecurityMethod to match IVOA standard.
+    \item Fixed text inconsistencies
+\end{itemize}
+
+\begin{appendices}
+
+\section{Machine readable definitions}
+\label{sec:machine readable definitions}
+\subsection{Message schema}
+\label{subsec:message schema}
+XML Schema
+The requests and responses of a VOSpace 2.0 service shall adhere to the following XML Schema:
+
+\lstinputlisting{VOSpace-2.1.xsd}
+
+\section{Compliance matrix}
+\label{sec:compliance matrix}
+This table summarizes the mandatory behaviour required of a fully compliant VOSpace 2.0 service, i.e. those operations denoted as SHALL and MUST occurring. Note that for faults the general condition is specified but specific details should be checked in the relevant sections. Those associated with optional features are marked with an asterisk in the appropriate section reference - if the service implements an optional feature then it must show this mandatory behaviour.
+
+\hskip-2.0cm\begin{tabular}{ | p {1cm} | p {11cm} | p {4cm} | }
+\hline
+\textbf{Item} & \textbf{Description} & \textbf{Occurs in section(s)} \\ \hline
+1 & VOSpace node identifiers are a URI with the scheme vos:// & ~\ref{sec:vospace identifiers} \\ \hline
+2 & The naming authority for a VOSpace node URI is the VOSpace service through which the node was created & ~\ref{sec:vospace identifiers} \\ \hline
+3 & "!" or "$\mathtt{\sim}$" are used consistently in VOSpace node URIs & ~\ref{sec:vospace identifiers} \\ \hline
+4 & "!" or "$\mathtt{\sim}$" are valid separator characters in service requests & ~\ref{sec:vospace identifiers} \\ \hline
+5 & All ancestors in a node hierarchy are resolvable as containers & ~\ref{sec:vospace identifiers} \\ \hline
+6 & The bit pattern for data stored in an UnstructuredDataNode is identical for read/write operations & ~\ref{subsec:nodes and node types}* \\ \hline
+7 & A Node has elements: uri, properties and capabilities & ~\ref{subsec:nodes and node types} \\ \hline
+8 & A DataNode has elements: uri, properties, capabilities, accepts, provides & ~\ref{subsec:nodes and node types} \\ \hline
+9 & A LinkNode has elements: uri, properties, capabilities and target & ~\ref{subsec:nodes and node types}* \\ \hline
+10 & A ContainerNode and a LinkNode have no data bytes associated with them & ~\ref{subsec:nodes and node types}* \\ \hline
+11 & A VOSpace service parses XML representations of all node types & ~\ref{subsec:node and nodes types} \\ \hline
+12 & A VOSpace services does not throw a XML parser error in response to requests about unsupported node types & ~\ref{subsec:nodes and node types} \\ \hline
+13 & A Property has elements:uri, endpoint and optional readonly flag & ~\ref{subsec:properties} \\ \hline
+14 & URIs must be valid (and unique) & ~\ref{subsubsec:property identifiers}, ~\ref{subsubsec:capability identifiers}, ~\ref{subsubsec:view identifiers}, ~\ref{subsubsec:protocol identifiers}, ~\ref{subsubsec:createnode}, ~\ref{subsubsec:pushtovospace}, ~\ref{subsubsec:pulltovospace} \\ \hline
+15 & A Capability has elements: uri, endpoint and param & ~\ref{subsec:capabilities} \\ \hline
+16 & Standard capabilities are represented by the specified URIs & ~\ref{subsubsec:standard capabilities} \\ \hline
+17 & Each Property is identified by a unique URI & ~\ref{subsubsec:property identifiers} \\ \hline
+18 & Each Capability is identified by a unique URI & ~\ref{subsubsec:capability identifiers} \\ \hline
+19 & Each View is identified by a unique URI & ~\ref{subsubsec:view identifiers} \\ \hline
+20 & Each Protocol is identified by a unique URI & ~\ref{subsubsec:protocol identifiers} \\ \hline
+21 & Standard views are represented by the specified URIs & ~\ref{subsubsec:default views} \\ \hline
+xx & Standard properties are represented by the specified URIs & ~\ref{subsubsec:standard properties} \\ \hline
+22 & Data imported with the default View is treated as a binary BLOB & ~\ref{subsubsec:default views} \\ \hline
+23 & Data exported with the default export View is returned in the most appropriate format & ~\ref{subsubsec:default views} \\ \hline
+24 & An archive format View on a ContainerNode provides access to the archive contents as children nodes of the container & ~\ref{subsubsec:container views}* \\ \hline
+25 & An archive format View specified in a data export operation on a ContainerNode will package the contents of the container and all its child nodes & ~\ref{subsubsec:container views}* \\ \hline
+\end{tabular}
+
+\hskip-2.0cm\begin{tabular}{ | p {1cm} | p {11cm} | p {4cm} | }
+\hline
+\textbf{Item} & \textbf{Description} & \textbf{Occurs in section(s)} \\ \hline
+26 & A Protocol has elements: uri and and endpoint & ~\ref{subsec:protocols} \\ \hline
+27 & text/xml are represented by the specified URIs & ~\ref{subsubsec:text/xml} \\ \hline
+28 & A Transfer UWS Job representation has elements: target, direction, view, protocol and keepBytes & ~\ref{subsec:transfers} \\ \hline
+29 & A Transfer results representation has elements: target, direction, view, and protocol & ~\ref{subsec:transfers} \\ \hline
+30 & A server responds with a fault if it is unable to handle any of the requested protocols in a data transfer & ~\ref{subsubsec:service-initiated transfers}, ~\ref{subsubsec:client-initiated transfers} \\ \hline
+31 & A server uses each requested protocol only once in a data transfer & ~\ref{subsubsec:service-initiated transfers}, ~\ref{subsubsec:client-initiated transfers} \\ \hline
+32 & A data transfer is complete once a specified protocol is successful & ~\ref{subsubsec:service-initiated transfers}, ~\ref{subsubsec:client-initiated transfers} \\ \hline
+33 & A data transfer has failed if none of the specified protocols has been successful & ~\ref{subsubsec:service-initiated transfers}, ~\ref{subsubsec:client-initiated transfers} \\ \hline
+34 & A server updates the status flag in the UWS Job representation as appropriate & ~\ref{subsubsec:service-initiated transfers}, ~\ref{subsubsec:client-initiated transfers} \\ \hline
+35 & A Search UWS Job representation has elements: uri, limit, detail, matches and node & ~\ref{subsec:searches}* \\ \hline
+36 & A Search results representation has elements: nodes & ~\ref{subsec:searches}* \\ \hline
+37 & A VOSpace service has the REST bindings: properties, views, protocols, searches, nodes, and transfers & ~\ref{subsec:rest bindings} \\ \hline
+38 & Access policies on a VOSpace service are declared in the registered metadata for the service & ~\ref{sec:access control} \\ \hline
+39 & VOSpace authentication employs IVOA SSO supported methods & ~\ref{sec:access control} \\ \hline
+40 & A VOSpace service supports the operations: getProtocols, getViews, getProperties, createNode, deleteNode, moveNode, copyNode, getNode, setNode, pullFromVoSpace. The following are optional operations: findNodes, pushToVoSpace, pullToVoSpace, pushFromVoSpace & ~\ref{subsubsec:getprotocols}, ~\ref{subsubsec:getviews}, ~\ref{subsubsec:getproperties}, ~\ref{subsubsec:createnode}, ~\ref{subsubsec:movenode}, ~\ref{subsubsec:copynode}, ~\ref{subsubsec:deletenode}, ~\ref{subsubsec:getnode}, ~\ref{subsubsec:setnode}, ~\ref{subsubsec:findnodes}*, ~\ref{subsubsec:pushtovospace}*, ~\ref{subsubsec:pushtovospace}*, ~\ref{subsubsec:pullfromvospace}, ~\ref{subsubsec:pushfromvospace}* \\ \hline
+41 & accepts and provides specify entities that the service supports & ~\ref{subsubsec:getprotocols}, ~\ref{subsubsec:getviews}, ~\ref{subsubsec:getproperties} \\ \hline
+42 & An autogenerated URI is specified as a result in the Results List & ~\ref{subsubsec:createnode}*, ~\ref{subsubsec:movenode}*, ~\ref{subsubsec:copynode}*, ~\ref{subsubsec:pushtovospace}* \\ \hline
+43 & Any data written to the reserved URI .null is discarded & ~\ref{subsec:rest bindings} \\ \hline
+44 & accepts is filled in based on service capabilities & ~\ref{subsubsec:createnode} \\ \hline
+45 & If a container is deleted then so are its children & ~\ref{subsubsec:deletenode} \\ \hline
+46 & If a container is listed, only direct children are listed & ~\ref{subsubsec:getnode} \\ \hline
+47 & Results are drawn from the same ordered sequence in any ordering imposed by the server & ~\ref{subsubsec:getnode} \\ \hline
+48 & Regex expressions comply with POSIX conventions & ~\ref{subsec:searches} \\ \hline
+49 & Moving a container moves its children as well & ~\ref{subsubsec:movenode} \\ \hline
+\end{tabular}
+
+\hskip-2.0cm\begin{tabular}{ | p {1cm} | p {11cm} | p {4cm} | }
+\hline
+\textbf{Item} & \textbf{Description} & \textbf{Occurs in section(s)} \\ \hline
+50 & Importing data into an existing container puts the new data within the container & ~\ref{subsubsec:pushtovospace} \\ \hline
+51 & Node types are not changed when a node is moved or copied & ~\ref{subsubsec:movenode}, ~\ref{subsubsec:copynode} \\ \hline
+52 & Copying a container copies its children as well & ~\ref{subsubsec:copynode} \\ \hline
+53 & Importing data into an existing node overwrites any preexisting data (unless it is a container) & ~\ref{subsubsec:pushtovospace}*, ~\ref{subsubsec:pulltovospace}* \\ \hline
+54 & A HTTP 200 status code is returned if the operation completes successfully & ~\ref{subsubsec:getprotocols}, ~\ref{subsubsec:getviews}, ~\ref{subsubsec:getproperties}, ~\ref{subsubsec:createnode}, ~\ref{subsubsec:deletenode}, ~\ref{subsubsec:getnode}, ~\ref{subsubsec:setnode} \\ \hline
+55 & A HTTP 303 status code is returned if the operation completes successfully & ~\ref{subsubsec:movenode}, ~\ref{subsubsec:copynode}, ~\ref{subsubsec:findnodes}*, ~\ref{subsubsec:pushtovospace}*, ~\ref{subsubsec:pulltovospace}*, ~\ref{subsubsec:pullfromvospace}, ~\ref{subsubsec:pushfromvospace}* \\ \hline
+56 & A HTTP 500 status code with an InternalFault fault in the body is thrown if the operation fails & ~\ref{subsubsec:getprotocols}, ~\ref{subsubsec:getviews}, ~\ref{subsubsec:getproperties}, ~\ref{subsubsec:createnode}, ~\ref{subsubsec:deletenode}, ~\ref{subsubsec:getnode}, ~\ref{subsubsec:setnode}, ~\ref{subsubsec:pullfromvospace} \\ \hline
+57 & A HTTP 400 status code with an InvalidArgument fault in the body is thrown if a specified value is invalid & ~\ref{subsubsec:setnode} \\ \hline
+58 & A HTTP 400 status code with an InvalidURI fault in the body is thrown if the specified URI is invalid & ~\ref{subsubsec:createnode} \\ \hline
+59 & A HTTP 400 status code with a TypeNotSupported fault in the body is thrown if the specified type is not supported & ~\ref{subsubsec:createnode} \\ \hline
+60 & A HTTP 403 status code with a PermissionDenied fault in the body is thrown if the user does not have permission to perform the operation & ~\ref{subsubsec:createnode}, ~\ref{subsubsec:deletenode}, ~\ref{subsubsec:getnode}, ~\ref{subsubsec:setnode}, ~\ref{subsubsec:pullfromvospace} \\ \hline
+61 & A HTTP 404 status code with a NodeNotFound fault in the body is thrown if... & ~\ref{subsubsec:movenode}, ~\ref{subsubsec:getnode}, ~\ref{subsubsec:copynode}, ~\ref{subsubsec:pullfromvospace} \\ \hline
+62 & A HTTP 409 status code with a DuplicateFault fault in the body is thrown if the specified node already exists & ~\ref{subsubsec:createnode} \\ \hline
+63 & A HTTP 404 status code with a ContainerNotFound fault in the body is thrown if a container is not found & ~\ref{subsubsec:createnode}, ~\ref{subsubsec:deletenode} \\ \hline
+64 & A HTTP 400 status code with a LinkFound fault in the body is thrown if a LinkNode is found & ~\ref{subsubsec:createnode}, ~\ref{subsubsec:deletenode} \\ \hline
+65 & The PHASE in the UWS Job representation is set to "ERROR" in case of a fault occurring & ~\ref{subsubsec:movenode}, ~\ref{subsubsec:findnodes}*, ~\ref{subsubsec:pushtovospace}*, ~\ref{subsubsec:pulltovospace}*, ~\ref{subsubsec:pullfromvospace}, ~\ref{subsubsec:pushfromvospace}* \\ \hline
+66 & The errorSummary element in the UWS Job representation is set to the appropriate value for the type of fault occurring & ~\ref{subsubsec:movenode}, ~\ref{subsubsec:findnodes}*, ~\ref{subsubsec:pushtovospace}*, ~\ref{subsubsec:pulltovospace}*, ~\ref{subsubsec:pullfromvospace}, ~\ref{subsubsec:pushfromvospace}* \\ \hline
+67 & The appropriate fault representation is provided at the error URI for the job & ~\ref{subsubsec:movenode}, ~\ref{subsubsec:findnodes}*, ~\ref{subsubsec:pushtovospace}*, ~\ref{subsubsec:pulltovospace}*, ~\ref{subsubsec:pullfromvospace}, ~\ref{subsubsec:pushfromvospace}* \\ \hline
+\end{tabular}
+
+\section{Standard properties}
+\label{sec:standard properties}
+This table summarizes the standard properties that SHALL be recognized by a VOSpace service and are registered in the IVOA Registry of Registries.
+
+\hskip-4.0cm\begin{tabular}{ | p {8cm} | p {8cm} | p {2cm} | }
+\hline
+\textbf{Property} & \textbf{Description} & \textbf{Data type} \\ \hline
+ivo://ivoa.net/vospace/core\#availableSpace & the amount of space available within a container & string \\ \hline
+ivo://ivoa.net/vospace/core\#btime & the initial creation time & string \\ \hline
+ivo://ivoa.net/vospace/core\#contributor & an entity responsible for making contributions to this resource & URI \\ \hline
+ivo://ivoa.net/vospace/core\#coverage & a spatial or temporal topic of the resource, the spatial applicability of the resource, or the jurisdiction under which the resource is relevant & string \\ \hline
+ivo://ivoa.net/vospace/core\#creator & an entity primarily responsible for making the resource & URI \\ \hline
+ivo://ivoa.net/vospace/core\#ctime & the status change (aka metadata modification) time & datetime \\ \hline
+ivo://ivoa.net/vospace/core\#date & a point or period of time associated with an event in the lifecycle of the resource & datetime \\ \hline
+ivo://ivoa.net/vospace/core\#description & an account of the resource & string \\ \hline
+ivo://ivoa.net/vospace/core\#format & the file format, physical medium or dimensions of the resource & string \\ \hline
+ivo://ivoa.net/vospace/core\#groupread & the list of groups which can only read this resource & delimiter-separated list \\ \hline
+ivo://ivoa.net/vospace/core\#groupwrite & the list of groups which can read and write to this resource & delimiter-separated list \\ \hline
+ivo://ivoa.net/vospace/core\#identifier & an unambiguous reference to the resource within a given context & string/URI \\ \hline
+ivo://ivoa.net/vospace/core\#language & a language of the resource & string \\ \hline
+ivo://ivoa.net/vospace/core\#length & the length or size of a resource & float \\ \hline
+ivo://ivoa.net/vospace/core\#mtime & the data modification time & datetime \\ \hline
+ivo://ivoa.net/vospace/core\#publicread & whether this resource is world readable & boolean \\ \hline
+ivo://ivoa.net/vospace/core\#publisher & an entity responsible for making the resource available & uri \\ \hline
+ivo://ivoa.net/vospace/core\#quota & the value of a system quota on the resource & string \\ \hline
+ivo://ivoa.net/vospace/core\#relation & a related resource & URI \\ \hline
+ivo://ivoa.net/vospace/core\#rights & information about rights held in and over the resource & string \\ \hline
+ivo://ivoa.net/vospace/core\#source & a related resource from which the described resource is derived & string \\ \hline
+ivo://ivoa.net/vospace/core\#subject & the topic of the resource & string \\ \hline
+ivo://ivoa.net/vospace/core\#title & a name given to the resource & string \\ \hline
+ivo://ivoa.net/vospace/core\#type & the nature or genre of the resource & string \\ \hline
+\end{tabular}
+
+\section{Changes from Previous Versions}
+\label{sec:changes from previous versions}
+
 \paragraph{From version 2.0-20130329:}
 \begin{itemize}
     \item Addition of optimized HTTP GET method of data transfer for pushToVoSpace, pullFromVoSpace
@@ -3731,175 +3864,11 @@ The fault details must contain the full details of the LinkNode.
     \item Removed text about WSDL/WADL
 \end{itemize}
 
-\section{Appendix A: Machine readable definitions}
-\label{sec:appendix a: machine readable definitions}
-\subsection{Message schema}
-\label{subsec:message schema}
-XML Schema
-The requests and responses of a VOSpace 2.0 service shall adhere to the following XML Schema:
-
-\lstinputlisting{VOSpace-2.1.xsd}[language=xml, basicsytle=\scriptsize]
-
-\section{Appendix B: Compliance matrix}
-\label{sec:appendix b: compliance matrix}
-This table summarizes the mandatory behaviour required of a fully compliant VOSpace 2.0 service, i.e. those operations denoted as SHALL and MUST occurring. Note that for faults the general condition is specified but specific details should be checked in the relevant sections. Those associated with optional features are marked with an asterisk in the appropriate section reference - if the service implements an optional feature then it must show this mandatory behaviour.
-
-\hskip-2.0cm\begin{tabular}{ | p {1cm} | p {11cm} | p {4cm} | }
-\hline
-\textbf{Item} & \textbf{Description} & \textbf{Occurs in section(s)} \\ \hline
-1 & VOSpace node identifiers are a URI with the scheme vos:// & ~\ref{sec:vospace identifiers} \\ \hline
-2 & The naming authority for a VOSpace node URI is the VOSpace service through which the node was created & ~\ref{sec:vospace identifiers} \\ \hline
-3 & "!" or "$\mathtt{\sim}$" are used consistently in VOSpace node URIs & ~\ref{sec:vospace identifiers} \\ \hline
-4 & "!" or "$\mathtt{\sim}$" are valid separator characters in service requests & ~\ref{sec:vospace identifiers} \\ \hline
-5 & All ancestors in a node hierarchy are resolvable as containers & ~\ref{sec:vospace identifiers} \\ \hline
-6 & The bit pattern for data stored in an UnstructuredDataNode is identical for read/write operations & ~\ref{subsec:nodes and node types}* \\ \hline
-7 & A Node has elements: uri, properties and capabilities & ~\ref{subsec:nodes and node types} \\ \hline
-8 & A DataNode has elements: uri, properties, capabilities, accepts, provides & ~\ref{subsec:nodes and node types} \\ \hline
-9 & A LinkNode has elements: uri, properties, capabilities and target & ~\ref{subsec:nodes and node types}* \\ \hline
-10 & A ContainerNode and a LinkNode have no data bytes associated with them & ~\ref{subsec:nodes and node types}* \\ \hline
-11 & A VOSpace service parses XML representations of all node types & ~\ref{subsec:node and nodes types} \\ \hline
-12 & A VOSpace services does not throw a XML parser error in response to requests about unsupported node types & ~\ref{subsec:nodes and node types} \\ \hline
-13 & A Property has elements:uri, endpoint and optional readonly flag & ~\ref{subsec:properties} \\ \hline
-14 & URIs must be valid (and unique) & ~\ref{subsubsec:property identifiers}, ~\ref{subsubsec:capability identifiers}, ~\ref{subsubsec:view identifiers}, ~\ref{subsubsec:protocol identifiers}, ~\ref{subsubsec:createnode}, ~\ref{subsubsec:pushtovospace}, ~\ref{subsubsec:pulltovospace} \\ \hline
-15 & A Capability has elements: uri, endpoint and param & ~\ref{subsec:capabilities} \\ \hline
-16 & Standard capabilities are represented by the specified URIs & ~\ref{subsubsec:standard capabilities} \\ \hline
-17 & Each Property is identified by a unique URI & ~\ref{subsubsec:property identifiers} \\ \hline
-18 & Each Capability is identified by a unique URI & ~\ref{subsubsec:capability identifiers} \\ \hline
-19 & Each View is identified by a unique URI & ~\ref{subsubsec:view identifiers} \\ \hline
-20 & Each Protocol is identified by a unique URI & ~\ref{subsubsec:protocol identifiers} \\ \hline
-21 & Standard views are represented by the specified URIs & ~\ref{subsubsec:default views} \\ \hline
-xx & Standard properties are represented by the specified URIs & ~\ref{subsubsec:standard properties} \\ \hline
-22 & Data imported with the default View is treated as a binary BLOB & ~\ref{subsubsec:default views} \\ \hline
-23 & Data exported with the default export View is returned in the most appropriate format & ~\ref{subsubsec:default views} \\ \hline
-24 & An archive format View on a ContainerNode provides access to the archive contents as children nodes of the container & ~\ref{subsubsec:container views}* \\ \hline
-25 & An archive format View specified in a data export operation on a ContainerNode will package the contents of the container and all its child nodes & ~\ref{subsubsec:container views}* \\ \hline
-\end{tabular}
-
-\hskip-2.0cm\begin{tabular}{ | p {1cm} | p {11cm} | p {4cm} | }
-\hline
-\textbf{Item} & \textbf{Description} & \textbf{Occurs in section(s)} \\ \hline
-26 & A Protocol has elements: uri and and endpoint & ~\ref{subsec:protocols} \\ \hline
-27 & text/xml are represented by the specified URIs & ~\ref{subsubsec:text/xml} \\ \hline
-28 & A Transfer UWS Job representation has elements: target, direction, view, protocol and keepBytes & ~\ref{subsec:transfers} \\ \hline
-29 & A Transfer results representation has elements: target, direction, view, and protocol & ~\ref{subsec:transfers} \\ \hline
-30 & A server responds with a fault if it is unable to handle any of the requested protocols in a data transfer & ~\ref{subsubsec:service-initiated transfers}, ~\ref{subsubsec:client-initiated transfers} \\ \hline
-31 & A server uses each requested protocol only once in a data transfer & ~\ref{subsubsec:service-initiated transfers}, ~\ref{subsubsec:client-initiated transfers} \\ \hline
-32 & A data transfer is complete once a specified protocol is successful & ~\ref{subsubsec:service-initiated transfers}, ~\ref{subsubsec:client-initiated transfers} \\ \hline
-33 & A data transfer has failed if none of the specified protocols has been successful & ~\ref{subsubsec:service-initiated transfers}, ~\ref{subsubsec:client-initiated transfers} \\ \hline
-34 & A server updates the status flag in the UWS Job representation as appropriate & ~\ref{subsubsec:service-initiated transfers}, ~\ref{subsubsec:client-initiated transfers} \\ \hline
-35 & A Search UWS Job representation has elements: uri, limit, detail, matches and node & ~\ref{subsec:searches}* \\ \hline
-36 & A Search results representation has elements: nodes & ~\ref{subsec:searches}* \\ \hline
-37 & A VOSpace service has the REST bindings: properties, views, protocols, searches, nodes, and transfers & ~\ref{subsec:rest bindings} \\ \hline
-38 & Access policies on a VOSpace service are declared in the registered metadata for the service & ~\ref{sec:access control} \\ \hline
-39 & VOSpace authentication employs IVOA SSO supported methods & ~\ref{sec:access control} \\ \hline
-40 & A VOSpace service supports the operations: getProtocols, getViews, getProperties, createNode, deleteNode, moveNode, copyNode, getNode, setNode, pullFromVoSpace. The following are optional operations: findNodes, pushToVoSpace, pullToVoSpace, pushFromVoSpace & ~\ref{subsubsec:getprotocols}, ~\ref{subsubsec:getviews}, ~\ref{subsubsec:getproperties}, ~\ref{subsubsec:createnode}, ~\ref{subsubsec:movenode}, ~\ref{subsubsec:copynode}, ~\ref{subsubsec:deletenode}, ~\ref{subsubsec:getnode}, ~\ref{subsubsec:setnode}, ~\ref{subsubsec:findnodes}*, ~\ref{subsubsec:pushtovospace}*, ~\ref{subsubsec:pushtovospace}*, ~\ref{subsubsec:pullfromvospace}, ~\ref{subsubsec:pushfromvospace}* \\ \hline
-41 & accepts and provides specify entities that the service supports & ~\ref{subsubsec:getprotocols}, ~\ref{subsubsec:getviews}, ~\ref{subsubsec:getproperties} \\ \hline
-42 & A URI is autogenerated if the reserved URI .auto is used & ~\ref{subsec:rest bindings}*, ~\ref{subsubsec:createnode}*, ~\ref{subsubsec:movenode}*, ~\ref{subsubsec:copynode}*, ~\ref{subsubsec:pushtovospace}* \\ \hline
-43 & An autogenerated URI is specified as a result in the Results List & ~\ref{subsubsec:createnode}*, ~\ref{subsubsec:movenode}*, ~\ref{subsubsec:copynode}*, ~\ref{subsubsec:pushtovospace}* \\ \hline
-44 & Any data written to the reserved URI .null is discarded & ~\ref{subsec:rest bindings} \\ \hline
-45 & accepts is filled in based on service capabilities & ~\ref{subsubsec:createnode} \\ \hline
-46 & If a container is deleted then so are its children & ~\ref{subsubsec:deletenode} \\ \hline
-47 & If a container is listed, only direct children are listed & ~\ref{subsubsec:getnode} \\ \hline
-48 & Results are drawn from the same ordered sequence in any ordering imposed by the server & ~\ref{subsubsec:getnode} \\ \hline
-49 & Regex expressions comply with POSIX conventions & ~\ref{subsec:searches} \\ \hline
-50 & Moving a container moves its children as well & ~\ref{subsubsec:movenode} \\ \hline
-\end{tabular}
-
-\hskip-2.0cm\begin{tabular}{ | p {1cm} | p {11cm} | p {4cm} | }
-\hline
-\textbf{Item} & \textbf{Description} & \textbf{Occurs in section(s)} \\ \hline
-51 & Importing data into an existing container puts the new data within the container & ~\ref{subsubsec:pushtovospace} \\ \hline
-52 & Node types are not changed when a node is moved or copied & ~\ref{subsubsec:movenode}, ~\ref{subsubsec:copynode} \\ \hline
-53 & Copying a container copies its children as well & ~\ref{subsubsec:copynode} \\ \hline
-54 & Importing data into an existing node overwrites any preexisting data (unless it is a container) & ~\ref{subsubsec:pushtovospace}*, ~\ref{subsubsec:pulltovospace}* \\ \hline
-55 & A HTTP 200 status code is returned if the operation completes successfully & ~\ref{subsubsec:getprotocols}, ~\ref{subsubsec:getviews}, ~\ref{subsubsec:getproperties}, ~\ref{subsubsec:createnode}, ~\ref{subsubsec:deletenode}, ~\ref{subsubsec:getnode}, ~\ref{subsubsec:setnode} \\ \hline
-56 & A HTTP 303 status code is returned if the operation completes successfully & ~\ref{subsubsec:movenode}, ~\ref{subsubsec:copynode}, ~\ref{subsubsec:findnodes}*, ~\ref{subsubsec:pushtovospace}*, ~\ref{subsubsec:pulltovospace}*, ~\ref{subsubsec:pullfromvospace}, ~\ref{subsubsec:pushfromvospace}* \\ \hline
-57 & A HTTP 500 status code with an InternalFault fault in the body is thrown if the operation fails & ~\ref{subsubsec:getprotocols}, ~\ref{subsubsec:getviews}, ~\ref{subsubsec:getproperties}, ~\ref{subsubsec:createnode}, ~\ref{subsubsec:deletenode}, ~\ref{subsubsec:getnode}, ~\ref{subsubsec:setnode}, ~\ref{subsubsec:pullfromvospace} \\ \hline
-58 & A HTTP 400 status code with an InvalidArgument fault in the body is thrown if a specified value is invalid & ~\ref{subsubsec:setnode} \\ \hline
-59 & A HTTP 400 status code with an InvalidURI fault in the body is thrown if the specified URI is invalid & ~\ref{subsubsec:createnode} \\ \hline
-60 & A HTTP 400 status code with a TypeNotSupported fault in the body is thrown if the specified type is not supported & ~\ref{subsubsec:createnode} \\ \hline
-61 & A HTTP 403 status code with a PermissionDenied fault in the body is thrown if the user does not have permission to perform the operation & ~\ref{subsubsec:createnode}, ~\ref{subsubsec:deletenode}, ~\ref{subsubsec:getnode}, ~\ref{subsubsec:setnode}, ~\ref{subsubsec:pullfromvospace} \\ \hline
-62 & A HTTP 404 status code with a NodeNotFound fault in the body is thrown if... & ~\ref{subsubsec:movenode}, ~\ref{subsubsec:getnode}, ~\ref{subsubsec:copynode}, ~\ref{subsubsec:pullfromvospace} \\ \hline
-63 & A HTTP 409 status code with a DuplicateFault fault in the body is thrown if the specified node already exists & ~\ref{subsubsec:createnode} \\ \hline
-64 & A HTTP 404 status code with a ContainerNotFound fault in the body is thrown if a container is not found & ~\ref{subsubsec:createnode}, ~\ref{subsubsec:deletenode} \\ \hline
-65 & A HTTP 400 status code with a LinkFound fault in the body is thrown if a LinkNode is found & ~\ref{subsubsec:createnode}, ~\ref{subsubsec:deletenode} \\ \hline
-66 & The PHASE in the UWS Job representation is set to "ERROR" in case of a fault occurring & ~\ref{subsubsec:movenode}, ~\ref{subsubsec:findnodes}*, ~\ref{subsubsec:pushtovospace}*, ~\ref{subsubsec:pulltovospace}*, ~\ref{subsubsec:pullfromvospace}, ~\ref{subsubsec:pushfromvospace}* \\ \hline
-67 & The errorSummary element in the UWS Job representation is set to the appropriate value for the type of fault occurring & ~\ref{subsubsec:movenode}, ~\ref{subsubsec:findnodes}*, ~\ref{subsubsec:pushtovospace}*, ~\ref{subsubsec:pulltovospace}*, ~\ref{subsubsec:pullfromvospace}, ~\ref{subsubsec:pushfromvospace}* \\ \hline
-68 & The appropriate fault representation is provided at the error URI for the job & ~\ref{subsubsec:movenode}, ~\ref{subsubsec:findnodes}*, ~\ref{subsubsec:pushtovospace}*, ~\ref{subsubsec:pulltovospace}*, ~\ref{subsubsec:pullfromvospace}, ~\ref{subsubsec:pushfromvospace}* \\ \hline
-\end{tabular}
-
-\section{Appendix C: Standard properties}
-\label{sec:appendix c: standard properties}
-This table summarizes the standard properties that SHALL be recognized by a VOSpace service and are registered in the IVOA Registry of Registries.
-
-\hskip-4.0cm\begin{tabular}{ | p {8cm} | p {8cm} | p {2cm} | }
-\hline
-\textbf{Property} & \textbf{Description} & \textbf{Data type} \\ \hline
-ivo://ivoa.net/vospace/core\#availableSpace & the amount of space available within a container & string \\ \hline
-ivo://ivoa.net/vospace/core\#btime & the initial creation time & string \\ \hline
-ivo://ivoa.net/vospace/core\#contributor & an entity responsible for making contributions to this resource & URI \\ \hline
-ivo://ivoa.net/vospace/core\#coverage & a spatial or temporal topic of the resource, the spatial applicability of the resource, or the jurisdiction under which the resource is relevant & string \\ \hline
-ivo://ivoa.net/vospace/core\#creator & an entity primarily responsible for making the resource & URI \\ \hline
-ivo://ivoa.net/vospace/core\#ctime & the status change (aka metadata modification) time & datetime \\ \hline
-ivo://ivoa.net/vospace/core\#date & a point or period of time associated with an event in the lifecycle of the resource & datetime \\ \hline
-ivo://ivoa.net/vospace/core\#description & an account of the resource & string \\ \hline
-ivo://ivoa.net/vospace/core\#format & the file format, physical medium or dimensions of the resource & string \\ \hline
-ivo://ivoa.net/vospace/core\#groupread & the list of groups which can only read this resource & delimiter-separated list \\ \hline
-ivo://ivoa.net/vospace/core\#groupwrite & the list of groups which can read and write to this resource & delimiter-separated list \\ \hline
-ivo://ivoa.net/vospace/core\#identifier & an unambiguous reference to the resource within a given context & string/URI \\ \hline
-ivo://ivoa.net/vospace/core\#language & a language of the resource & string \\ \hline
-ivo://ivoa.net/vospace/core\#length & the length or size of a resource & float \\ \hline
-ivo://ivoa.net/vospace/core\#mtime & the data modification time & datetime \\ \hline
-ivo://ivoa.net/vospace/core\#publicread & whether this resource is world readable & boolean \\ \hline
-ivo://ivoa.net/vospace/core\#publisher & an entity responsible for making the resource available & uri \\ \hline
-ivo://ivoa.net/vospace/core\#quota & the value of a system quota on the resource & string \\ \hline
-ivo://ivoa.net/vospace/core\#relation & a related resource & URI \\ \hline
-ivo://ivoa.net/vospace/core\#rights & information about rights held in and over the resource & string \\ \hline
-ivo://ivoa.net/vospace/core\#source & a related resource from which the described resource is derived & string \\ \hline
-ivo://ivoa.net/vospace/core\#subject & the topic of the resource & string \\ \hline
-ivo://ivoa.net/vospace/core\#title & a name given to the resource & string \\ \hline
-ivo://ivoa.net/vospace/core\#type & the nature or genre of the resource & string \\ \hline
-\end{tabular}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-\appendix
-\section{Changes from Previous Versions}
-
 No previous versions yet.  
 % these would be subsections "Changes from v. WD-..."
 % Use itemize environments.
 
+\end{appendices}
 
 \bibliography{ivoatex/ivoabib}
 
