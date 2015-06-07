@@ -30,15 +30,15 @@
 \editor{Matthew Graham}
 \editor{Brian Major}
 
-\previousversion[http://www.ivoa.net/Documents/WD/GWS/REC-VOSpace-2.0-20130329.html]{REC-VOSpace-2.0-20130329}
-\previousversion[http://www.ivoa.net/Documents/WD/GWS/PR-VOSpace-2.0-20121221.html]{PR-VOSpace-2.0-20121221}
-\previousversion[http://www.ivoa.net/Documents/WD/GWS/PR-VOSpace-2.0-20120824.html]{PR-VOSpace-2.0-20120824}
-\previousversion[http://www.ivoa.net/Documents/WD/GWS/PR-VOSpace-2.0-20111202.html]{PR-VOSpace-2.0-20111202}
-\previousversion[http://www.ivoa.net/Documents/WD/GWS/WD-VOSpace-2.0-20110628.html]{WD-VOSpace-2.0-20110628}
-\previousversion[http://www.ivoa.net/Documents/WD/GWS/WD-VOSpace-2.0-20101112.html]{WD-VOSpace-2.0-20101112}
-\previousversion[http://www.ivoa.net/Documents/GWS/WD-VOSpace-2.0-20100323.html]{WD-VOSpace-2.0-20100323}
-\previousversion[http://www.ivoa.net/Documents/GWS/WD-VOSpace-2.0-20090904.html]{WD-VOSpace-2.0-20090904}
-\previousversion[http://www.ivoa.net/Documents/GWS/WD-VOSpace-2.0-20090513.doc]{WD-VOSpace-2.0-20090513}
+\previousversion[http://www.ivoa.net/documents/VOSpace/20140805/index.html]{WD-VOSpace-2.1-20140805}
+\previousversion[http://www.ivoa.net/documents/VOSpace/20130329/index.html]{REC-VOSpace-2.0-20130329}
+\previousversion[http://www.ivoa.net/documents/VOSpace/20121221/index.html]{PR-VOSpace-2.0-20121221}
+\previousversion[http://www.ivoa.net/documents/VOSpace/20120824/index.html]{PR-VOSpace-2.0-20120824}
+\previousversion[http://www.ivoa.net/documents/VOSpace/20111202/index.html]{PR-VOSpace-2.0-20111202}
+\previousversion[http://www.ivoa.net/documents/VOSpace/20110628/index.html]{WD-VOSpace-2.0-20110628}
+\previousversion[http://www.ivoa.net/documents/VOSpace/20101112/index.html]{WD-VOSpace-2.0-20101112}
+\previousversion[http://www.ivoa.net/documents/VOSpace/20100323/index.html]{WD-VOSpace-2.0-20100323}
+\previousversion[http://www.ivoa.net/documents/VOSpace/20090513/index.html]{WD-VOSpace-2.0-20090513}
        
 \begin{document}
 \begin{abstract}
@@ -3862,16 +3862,17 @@ The fault details must contain the full details of the LinkNode.
 \section{Changes since last version}
 \label{sec:changes since last version}
 
-\paragraph{From version 2.0-20140805:}
+\paragraph{From version 2.1-20150601:}
 \begin{itemize}
-    \item Removed asynchronous pushToVoSpace and pullToVoSpace (? TBD)
     \item Added REQUEST=redirect for further optimized pullFromVoSpace
     \item Added missing search element to XSD (TBD)
     \item Changed pullToVoSpace, pushFromVoSpace to be client orchestrated. (? TBD)
-    \item Changed Transfer in XSD to accept parameters such as Content-length.
+    \item Removed asynchronous pushToVoSpace and pullToVoSpace (? TBD)
+    \item Changed Transfer in XSD to accept parameters.
     \item Redid all webservice operation examples
     \item Changed XSD element authType to SecurityMethod to match IVOA standard.
     \item Fixed text inconsistencies
+    \item Ported source to ivoatex format
 \end{itemize}
 
 \begin{appendices}
@@ -4008,7 +4009,7 @@ ivo://ivoa.net/vospace/core\#type & the nature or genre of the resource & string
 \section{Changes from Previous Versions}
 \label{sec:changes from previous versions}
 
-\paragraph{From version 2.0-20130329:}
+\paragraph{From version 2.1-20140805:}
 \begin{itemize}
     \item Addition of optimized HTTP GET method of data transfer for pushToVoSpace, pullFromVoSpace
     \item Addition of authType to Protocol in XML schema for transfer negotiation.
