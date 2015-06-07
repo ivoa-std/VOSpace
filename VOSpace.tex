@@ -42,7 +42,7 @@
        
 \begin{document}
 \begin{abstract}
-VOSpace is the IVOA interface to distributed storage. This specification presents the second RESTful version of the interface.  Except for minor additions to the 2.1 specification, it is functionally equivalent to the SOAP-based VOSpace 1.1 specification. Note that all 1.x VOSpace clients will not work with this new version of the interface.  Clients and services written for VOSpace 2.1 will interoperate with 2.0 clients and services, however 2.0 clients and services are incompatible with the 2.1 specification.
+VOSpace is the IVOA interface to distributed storage. This specification presents the second RESTful version of the interface.  Except for minor additions to the 2.1 specification, it is functionally equivalent to the SOAP-based VOSpace 1.1 specification. Note that all 1.x VOSpace clients will not work with this new version of the interface.  VOSpace 2.0 and 2.1 clients will work with 2.1 services.  VOSpace 2.1 clients, however, will not work with VOSpace 2.0 services.
 \end{abstract}
 
 \section*{Acknowledgments}
@@ -78,11 +78,11 @@ A VOSpace web service is an access point for a distributed storage network. Thro
 \end{itemize}
 VOSpace does not define how the data is stored or transferred, only the control messages to gain access. Thus, the VOSpace interface can readily be added to an existing storage system.
 
-When we speak of ''a VOSpace'', we mean the arrangement of data accessible through one particular VOSpace service.
+When we speak of ``a VOSpace'', we mean the arrangement of data accessible through one particular VOSpace service.
 
 Each data object within a VOSpace service is represented as a node and has a description called a representation. A useful analogy to have in mind when reading this document is that a node is equivalent to a file.
 
-Nodes in VOSpace have unique identifiers expressed as URIs in the 'vos' scheme, as defined below.
+Nodes in VOSpace have unique identifiers expressed as URIs in the `vos' scheme, as defined below.
 
 VOSpace 2.0 did not introduce any new functionality to that already offered by prior (SOAP-based) versions of the interface (VOSpace 1.1) but defines a RESTful binding for the interface. VOSpace 2.1 introduces minor changes to VOSpace 2.0 mainly addressing access control and operation optimizations.
 
@@ -93,50 +93,51 @@ A typical use case for VOSpace is uploading a local data file to a remote VOSpac
 Let's consider the first step: the user provides a XML description of the data file which they HTTP PUT to the appropriate VOSpace URI - this will be the HTTP identifier for the data file in the VOSpace, e.g. http://server.example.com/vospace/nodes/mytable1. The description will resemble this:
 
 \begin{lstlisting}
-<node xmlns="http://www.ivoa.net/xml/VOSpace/v2.1"
+<vos:node xmlns="http://www.ivoa.net/xml/VOSpace/v2.1"
     xmlns:xs="http://www.w3.org/2001/XMLSchema-instance" 
     uri="vos://example.com!vospace/mytable1"
     xs:type="vos:UnstructuredDataNode">  
-    <properties> 
-        <property uri="ivo://ivoa.net/vospace/core#mimetype">text/xml</property>     
-    </properties> 
-</node> 
+    <vos:properties> 
+        <vos:property uri="ivo://ivoa.net/vospace/core#mimetype">
+            text/xml
+        </vos:property>     
+    </vos:properties> 
+</vos:node> 
 \end{lstlisting}
-
-Note that the node path is specified in two places on this request:
+\noindent
+Note that the node path is specified in two places on this request, and that they must match:
 \begin{itemize}
    \item In the path of the URL in which the client performs the HTTP PUT
    \item In the node uri attribute of the XML description
 \end{itemize}
-These two paths must match.
 
 The service will reply with an amended version of the representation containing service-specific details in addition to the information supplied by the user. These will include data formats that the service can handle for the type of node created in the VOSpace, third-party interfaces (capabilities) to the data that the service offers and system metadata.
 
-The user will then describe the data format (the view) they want to use in uploading the file, e.g. VOTable, and the transport protocol (the protocol) that they want to employ to upload the file, e.g. HTTP PUT. This will result in the HTTP POSTing of a XML description of the transfer request to the appropriate VOSpace URL, e.g. http://server.example.com/vospace/synctrans. The description will resemble this:
+The user will then describe the data format (the view) they want to use in uploading the file, e.g. VOTable, and the transport protocol (the protocol) that they want to employ to upload the file, e.g. HTTP PUT. This will result in the HTTP POSTing of a XML description of the transfer request to the appropriate VOSpace transfer URL:  http://server.example.com/vospace/synctrans. The description will resemble this:
 
 \begin{lstlisting}
-<transfer xmlns="http://www.ivoa.net/xml/VOSpace/v2.1">
-    <target>vos://example.com!vospace/mytable1</target>
-    <direction>pushToVoSpace</direction> 
-    <view uri="ivo://ivoa.net/vospace/core#votable"/> 
-    <protocol uri="ivo://ivoa.net/vospace/core#httpput"/>  
-</transfer>
+<vos:transfer xmlns="http://www.ivoa.net/xml/VOSpace/v2.1">
+    <vos:target>vos://example.com!vospace/mytable1</vos:target>
+    <vos:direction>pushToVoSpace</vos:direction> 
+    <vos:view uri="ivo://ivoa.net/vospace/core#votable"/> 
+    <vos:protocol uri="ivo://ivoa.net/vospace/core#httpput"/>  
+</vos:transfer>
 \end{lstlisting}
 
-The service will reply with a redirect to a location with an amended version of the transfer representation that contains, for the protocols the service supports, URL endpoints that the user may HTTP PUT the data file to, e.g. http://storage1.example.com/vospace/mytable1.  The user will then use a regular HTTP client to transfer (PUT) the local file to one of the specified endpoint. This illustrates an important point about VOSpace - it is only concerned with the server-side management of data storage and transfer. A client negotiates the details of a data transfer with a VOSpace service but the actual transfer of bytes across a network is handled by other tools.
+The service will reply with a redirect to a location with an amended version of the transfer representation that contains, for the protocols the service supports, URL endpoints that the user may HTTP PUT the data file to, e.g. http://storage1.example.com/vospace/mytable1.  The user will then use a regular HTTP client to transfer (PUT) the local file to one of the endpoints. This illustrates an important point about VOSpace - it is only concerned with the server-side management of data storage and transfer. A client negotiates the details of a data transfer with a VOSpace service but the actual transfer of bytes across a network is handled by other tools.
 
-Similarly, when a user wants to retrieve a data file from a VOSpace service, they will specify the data format (view) they want to use in downloading the file, e.g. VOTable, and the transport protocol (the protocol) that they want to employ to download the file, e.g. HTTP GET, and HTTP POST a XML description of this transfer request to the appropriate VOSpace URL - the transfer URI for the node in the VOSpace, e.g. http://server.example.com/vospace/synctrans. The description will resemble this:
+Similarly, when a user wants to retrieve a data file from a VOSpace service, they will specify the data format (view) they want to use in downloading the file (e.g. VOTable), and the transport protocol (the protocol) that they want to employ to download the file (e.g. HTTP GET), and then HTTP POST a XML description of this transfer request to the VOSpace transfer URL (e.g. http://server.example.com/vospace/synctrans). The description will resemble this:
 
 \begin{lstlisting}
-<transfer xmlns="http://www.ivoa.net/xml/VOSpace/v2.1">
-    <target>vos://example.com!vospace/mytable1</target>
-    <direction>pullFromVoSpace</direction> 
-    <view uri="ivo://ivoa.net/vospace/core#votable"/> 
-    <protocol uri="ivo://ivoa.net/vospace/core#httpget"/>  
-</transfer>
+<vos:transfer xmlns="http://www.ivoa.net/xml/VOSpace/v2.1">
+    <vos:target>vos://example.com!vospace/mytable1</vos:target>
+    <vos:direction>pullFromVoSpace</vos:direction> 
+    <vos:view uri="ivo://ivoa.net/vospace/core#votable"/> 
+    <vos:protocol uri="ivo://ivoa.net/vospace/core#httpget"/>  
+</vos:transfer>
 \end{lstlisting}
 
-The service will reply with a redirect to a location that contains an amended version of the transfer representation that contains, for the protocols the service supports, the URL endpoints for the user to use, e.g. http://storage1.example.com/vospace/myDataNode. The user can then download the data file by pointing an HTTP client (e.g. web browser) at the specified endpoint.
+The service will reply with a redirect to a location that contains an amended version of the transfer representation that contains, for the protocols the service supports, the URL endpoints that the user may HTTP GET the data from, e.g. http://storage1.example.com/vospace/myDataNode. The user can then download the data file by pointing an HTTP client (e.g. web browser) at the specified endpoint.
 
 \subsection{Role within the VO Architecture}
 \label{subsec:role within the vo architecture}
@@ -158,7 +159,7 @@ The IVOA Architecture (Figure~\ref{fig:archdiag}) provides a high-level view of 
 \label{fig:archdiag}
 \end{figure}
 
-In this architecture, users employ a variety of tools (from the User Layer) to discover and access archives and services of interest (represented in the Resource Layer). VOSpace provides an interface to storage resources containing the results of using these archives and services and also to other storage solutions, e.g., local disks, where users might want to transfer these results for further work. Items in these resources are referenced by a VOSpace identifier which is related to the standard IVOA Resource Identifier (see section 2). This version of VOSpace employs the UWS design pattern [UWS] to manage data transfers (see section 3.6) and searches (see section 3.7). VOSpace instances may also employ the IVOA Single-Sign-On standard [SSO] for authentication purposes (see section 4) and IVOA Credential Delegation Protocol [CDP] to delegate data transfers.
+In this architecture, users employ a variety of tools (from the User Layer) to discover and access archives and services of interest (represented in the Resource Layer). VOSpace provides an interface to storage resources containing the results of using these archives and services and also to other storage solutions, e.g., local disks, where users might want to transfer these results for further work. Items in these resources are referenced by a VOSpace identifier which is related to the standard IVOA Resource Identifier (see section 2). This version of VOSpace employs the UWS design pattern [UWS] to manage data transfers (see section \ref{subsec:transfers}) and searches (see section \ref{subsec:searches}). VOSpace instances may also employ the IVOA Single-Sign-On standard [SSO] for authentication purposes (see section \ref{sec:access control}) and IVOA Credential Delegation Protocol [CDP] to delegate data transfers.
 
 \subsection{Document roadmap}
 \label{subsec:document roadmap}
@@ -168,13 +169,16 @@ In Section \ref{sec:vospace identifiers}, we specify the URI syntax for identify
 
 In Section \ref{sec:vospace data model}, we present the data model that underpins the VOSpace architecture. This consists of a number of data structures, which have XML representations that are used across the wire in message exchanges with a VOSpace service. These structures represent:
 
-the data objects themselves (nodes)
-metadata that can be associated with a data object (properties)
-third-party interfaces to the data (capabilities)
-the data format used when transferring data objects across the wire (views)
-the transport protocol employed in a data transfer (protocols)
-the data transfer itself (transfers)
-searches of data objects (searches)
+\begin{itemize}
+    \item the data objects themselves (nodes)
+    \item metadata that can be associated with a data object (properties)
+    \item third-party interfaces to the data (capabilities)
+    \item the data format used when transferring data objects across the wire (views)
+    \item the transport protocol employed in a data transfer (protocols)
+    \item the data transfer itself (transfers)
+    \item searches of data objects (searches)
+\end{itemize}
+
 We also describe the REST bindings between these representations and their URIs (HTTP identifiers).
 
 In Section \ref{sec:access control}, we outline how security and access control policies are currently handled in VOSpace.
@@ -187,45 +191,33 @@ In Appendex \ref{sec:machine readable definitions}, we formally define the VOSpa
 \label{sec:vospace identifiers}
 The identifier for a node in VOSpace SHALL be a URI with the scheme vos.
 
-Such a URI SHALL have the following parts with the meanings and encoding rules defined in RFC2396 [TODO].
+Such a URI SHALL have the following parts with the meanings and encoding rules defined in \href{https://www.ietf.org/rfc/rfc2396.txt}{RFC2396}.
 
 \begin{itemize}
   \item scheme
   \item naming authority
   \item path
   \item (optional) query
-  \item (optional) fragment identifier (with the expected semantics [TODO])
+  \item (optional) fragment identifier (with the expected semantics \href{http://www.ivoa.net/documents/Notes/URIFragments/index.html}{URI fragments in IVOA specifications})
 \end{itemize}
 
-The naming authority for a VOSpace node SHALL be the VOSpace service through which the node was created. The authority part of the URI SHALL be constructed from the IVO registry identifier [IVORN] for that service by deleting the ivo:// prefix and changing all forward-slash characters('/') in the resource key to exclamation marks ('!') or tildes ('$\mathtt{\sim}$'). Note that a service SHALL be consistent in its use of separator characters ('!' or '$\mathtt{\sim}$') when referring to its own data but SHALL accept either as valid in URIs in service requests. For the rest of the document, we shall use '!' as the default character.
+The naming authority for a VOSpace node SHALL be the VOSpace service through which the node was created. The authority part of the URI SHALL be constructed from the IVO registry identifier [IVORN] for that service by deleting the ivo:// prefix and changing all forward-slash characters(`/') in the resource key to exclamation marks (`!') or tildes (`$\mathtt{\sim}$'). Note that a service SHALL be consistent in its use of separator characters (`!' or `$\mathtt{\sim}$') when referring to its own data but SHALL accept either as valid in URIs in service requests. For the rest of the document, we shall use `!' as the default character.
 
 This is an example of a possible VOSpace identifier.
 
 \begin{verbatim}
-vos://nvo.caltech!vospace/myresults/siap-out-1.vot
+vos://example.com!vospace/myresults/siap-out-1.vot
 \end{verbatim}
 
 The URI scheme is \emph{vos}
 
 Using a separate URI scheme for VOSpace identifiers enables clients to distinguish between IVO registry identifiers and VOSpace identifiers.
 
-\begin{verbatim}
-nvo.caltech!vospace
-\end{verbatim}
+\emph{example.com!vospace} is the authority part of the URI, corresponding to the IVO registry identifier \emph{ivo://example.com/vospace}.  This is the IVO registry identifier of the VOSpace service that contains the node.
 
-is the authority part of the URI, corresponding to the IVO registry identifier
+\emph{/siap-out-1.vot} is the URI path
 
-\begin{verbatim}
-ivo://nvo.caltech/vospace
-\end{verbati}
-
-This is the IVO registry identifier of the VOSpace service that contains the node.
-
-\begin{verbatim}
-/siap-out-1.vot is the URI path
-\end{verbatim}
-
-Slashes in the URI path imply a hierarchical arrangement of data: the data object identified by vos://nvo.caltech!vospace/myresults/siap-out-1.vot is within the container identified by vos://nvo.caltech!vospace/myresults.
+Slashes in the URI path imply a hierarchical arrangement of data: the data object identified by \emph{vos://example.com!vospace/myresults/siap-out-1.vot} is within the container identified by \emph{vos://example.com!vospace/myresults}.
 
 Literal space characters are also not allowed in URIs.
 
@@ -244,33 +236,33 @@ A VOSpace identifier can be resolved to a HTTP endpoint for accessing representa
 
 \begin{itemize}
     \item Resolve HTTP service endpoint of VOSpace service with registry
-    \item Append "nodes/" and the path following the naming authority part of the VOSpace identifier to the service endpoint
+    \item Append ``nodes/'' and the path following the naming authority part of the VOSpace identifier to the service endpoint
 \end{itemize}
 
+\noindent
 Given the example identifier
 
 \begin{verbatim}
-    vos://org.astrogrid.cam!vospace/container-6/siap-out-1.vot?foo=bar
+    vos://example.com!vospace/container-6/siap-out-1.vot?foo=bar
 \end{verbatim}
 
-processing the URI to resolve the VOSpace service would involve :
+\noindent
+Processing the URI to resolve the VOSpace service would involve:
+\\* \\*
+1.  Extract the IVO registry identifier of the VOSpace service by prepending an ivo scheme to the naming authority part:
+\begin{verbatim}
+ivo://example.com/vospace
+\end{verbatim}
+2.  Resolve the IVO identifier in a registry and retrieve the access URL of the service endpoint:
+\begin{verbatim}
+http://server.example.com/vospace
+\end{verbatim}
+3.  Append ``nodes/'' and the path part of the VOSpace identifier:
+\begin{verbatim}
+http://server.example.com/vospace/nodes/container-6/siap-out-1.vot?foo=bar
+\end{verbatim}
 
-\begin{enumerate}
-    \item Extract the IVO registry identifier of the VOSpace service by prepending an ivo scheme to the naming authority part:
-        \begin{verbatim}
-            ivo://org.astrogrid.cam/vospace
-        \end{verbatim}
-    \item Resolve the IVO identifier in a registry and retrieve the access URL of the service endpoint:
-        \begin{verbatim}
-            http://some.uni.ac.uk/vospace
-        \end{verbatim}
-    \item Append "nodes/" and the path part of the VOSpace identifier:
-        \begin{verbatim}
-            http://some.uni.ac.uk/vospace/nodes/container-6/siap-out-1.vot?foo=bar
-        \end{verbatim}
-\end{enumerate}
-
-Note that any fragment identifier in the identifier SHOULD be removed when resolving the identifier to a HTTP endpoint, consistent with the implied semantics of URI fragments [TODO].
+Note that any fragment identifier in the identifier SHOULD be removed when resolving the identifier to a HTTP endpoint, consistent with the implied semantics of URI fragments (\href{http://www.ivoa.net/documents/Notes/URIFragments/index.html}{URI fragments in IVOA specifications}).
 
 \section{VOSpace data model}
 \label{sec:vospace data model}
@@ -278,7 +270,7 @@ Note that any fragment identifier in the identifier SHOULD be removed when resol
 \subsection{Nodes and node types}
 \label{subsec:nodes and node types}
 
-We refer to the arrangement of data accessible through one particular VOSpace service as "a VOSpace".
+We refer to the arrangement of data accessible through one particular VOSpace service as ``a VOSpace''.
 
 Each data object within a VOSpace SHALL be represented as a node that is identified by a URI.
 
@@ -311,7 +303,7 @@ When data is stored and retrieved from a \emph{StructuredDataNode}, the bit patt
 A Node representation SHALL have the following elements:
 
 \begin{itemize}
-    \item \emph{uri}: the vos:// identifier for the node, URI-encoded according to RFC2396 [TODO]
+    \item \emph{uri}: the vos:// identifier for the node, URI-encoded according to \href{https://www.ietf.org/rfc/rfc2396.txt}{RFC2396}.
     \item \emph{properties}: a set of metadata properties for the node
     \item \emph{capabilities}: a third-party interface to a data object
 \end{itemize}
@@ -334,13 +326,13 @@ The \emph{busy} flag is used to indicate that an internal operation is in progre
 A \emph{ContainerNode} representation SHALL have the following elements, in addition to those it inherits from the \emph{Node} representation:
 
 \begin{itemize}
-    \item \emph{nodes}: a list of the direct children, if applicable, that the container has. Each child is represented as a node subelement containing its vos:// identifier, URI-encoded according to RFC2396 [TODO]
+    \item \emph{nodes}: a list of the direct children, if applicable, that the container has. Each child is represented as a node subelement containing its vos:// identifier, URI-encoded according to \href{https://www.ietf.org/rfc/rfc2396.txt}{RFC2396}
 \end{itemize}
 
 A \emph{LinkNode} representation SHALL have the following elements, in addition to those it inherits from the Node representation:
 
 \begin{itemize}
-    \item \emph{target}: the target URI, URI-encoded according to RFC2396 [TODO]
+    \item \emph{target}: the target URI, URI-encoded according to \href{https://www.ietf.org/rfc/rfc2396.txt}{RFC2396}
 \end{itemize}
 
 The link target can be a URI that points to any type of resource, including other VOSpace Nodes (within the same VOSpace service or in another service), or external resources outside VOSpace altogether.
@@ -386,14 +378,14 @@ Every new type of \emph{Property} SHALL require a unique URI to identify the \em
 The rules for the \emph{Property} identifiers are similar to the rules for namespace URIs in XML schema. The only restriction is that it SHALL be a valid (unique) URI.
 
 \begin{itemize}
-    \item An XML schema namespace identifier can be just a simple URN, e.g. urn:my?namespace
+    \item An XML schema namespace identifier can be just a simple URN, e.g. urn:my-namespace
     \item Within the IVOA, the convention for namespace identifiers is to use a HTTP URL pointing to the namespace schema or a resource describing it
 \end{itemize}
 
 The current VOSpace schema defines \emph{Property} identifiers as anyURI. The only restriction is that it SHALL be a valid (unique) URI.
 
 \begin{itemize}
-    \item A \emph{Property} URI can be a simple URN, e.g. urn:my?property
+    \item A \emph{Property} URI can be a simple URN, e.g. urn:my-property
 \end{itemize}
 
 This may be sufficient for testing and development on a private system, but it is not scalable for use on a public service.
@@ -403,7 +395,7 @@ For a production system, any new Properties SHOULD have unique URIs that can be 
 Ideally, these should be IVO registry URIs that point to a description registered in the IVO registry:
 
 \begin{itemize}
-    \item ivo://my?registry/vospace/properties\#my?property
+    \item ivo://my-registry/vospace/properties\#my-property
 \end{itemize}
 
 Using an IVO registry URI to identify Properties has two main advantages:
@@ -430,7 +422,7 @@ A PropertyDescription SHOULD have the following members:
 A PropertyDescription MAY have the following OPTIONAL members:
 
 \begin{itemize}
-    \item \emph{UCD}: the Universal Content Descriptor (in the UCD1+ scheme) for the Property
+    \item \emph{UCD}: the Universal Content Descriptor (in the UCD1 + scheme) for the Property
     \item \emph{Unit}: the unit of measurement of the Property
 \end{itemize}
 
@@ -517,7 +509,7 @@ A Capability representation SHALL have the following members:
 \label{subsubsec:example use cases}
 A ContainerNode containing image files may offer a DAL SIAP capability so that the images in the container can be accessed using a SIAP service. In this way, a user could create a (DAL enabled) Container in VOSpace, transfer some images into it and then query the set of images using the SIAP interface.
 
-Another example is a DataNode that provides an iRODS capability so that the data replication for this data object can be handled using the iRODS service API.
+Another example is a DataNode that provides a OpenStack Swift capability so that the OpenStack service API is exposed on that node.
 
 \subsubsection{Capability identifiers}
 \label{subsubsec:capability identifiers}
@@ -566,13 +558,13 @@ Note that at the time of writing, the schema for registering CapabilityDescripti
 If a client is unable to resolve a Capability identifier into a description then it may just display the identifier as a text string:
 
 \begin{itemize}
-    \item Access data using urn:edu.sdsc.irods
+    \item Access data using urn:openstack
 \end{itemize}
 
 If a client can resolve the Capability identifier into a description then the client may use the information in the description to display a human readable name and description of the Capability:
 
 \begin{itemize}
-    \item Access data using iRODS
+    \item Access data using openstack
 \end{itemize}
 
 \subsubsection{Standard capabilities}
@@ -587,7 +579,7 @@ Capability URIs and CapabilityDescriptions for the core set of Capabilities are 
 \end{itemize}
 If a service implementation supports more than one version of the VOSpace interface then these capability URIs can be used with a VOSpace service to identify different VOSpace capabilities for a node.
 
-One use case for this would be a VOSpace 1.1 client talking to a service that implements both VOSpace 1.0 and VOSpace 1.1, where the client is acting on behalf of a third party agent that only understands VOSpace 1.0. In this case, the client can use the information in the VOSpace 1.0 capability to direct the third party agent to the VOSpace 1.0 endpoint.
+One use case for this would be a VOSpace 2.1 client talking to a service that implements both VOSpace 2.0 and VOSpace 2.1, where the client is acting on behalf of a third party agent that only understands VOSpace 2.0. In this case, the client can use the information in the VOSpace 2.0 capability to direct the third party agent to the VOSpace 2.0 endpoint.
 
 Other standard service interfaces will also be registered, e.g.
 
@@ -622,7 +614,11 @@ A View representation SHALL have the following members:
 \label{subsubsec:example use cases}
 A simple VOSpace system that stores data as a binary files can just return the contents of the original file. The client supplies a View identifier when it imports the data, and the service uses this information to describe the data to other clients.
 
-A file based system can use the special case identifier 'ivo://ivoa.net/vospace/core\#view?any' to indicate that it will accept any data format or View for a Node.
+A file based system can use the special case identifier
+\begin{verbatim}
+        ivo://ivoa.net/vospace/core#anyview
+\end{verbatim}
+to indicate that it will accept any data format or View for a Node.
 
 For example:
 
@@ -643,7 +639,7 @@ On the output side, a database system would not be able to provide access to the
 
 In order to support this, the service needs to be able to tell the client what Views of the data are available.
 
-A database system may offer access to the table contents as either VOTable or FITS files, it may also offer zip or tar.gz compressed versions of these. In which case the system needs to be able to express nested file formats such as 'zip containing VOTable' and 'tar.gz containing FITS'.
+A database system may offer access to the table contents as either VOTable or FITS files, it may also offer zip or tar.gz compressed versions of these. In which case the system needs to be able to express nested file formats such as ``zip containing VOTable'' and ``tar.gz containing FITS''.
 
 A service may also offer subsets of the data. For example, a work flow system may only want to look at the table headers to decide what steps are required to process the data. If the table contains a large quantity of data, then downloading the whole contents just to look at the header information is inefficient. To make this easier, a database system may offer a 'metadata only' View of the table, returning a VOTable or FITS file containing just the metadata headers and no rows.
 
@@ -671,14 +667,14 @@ Every new type of View SHALL require a unique URI to identify the View and its c
 The rules for the View identifiers are similar to the rules for namespace URIs in XML schema. The only restriction is that it SHALL be a valid (unique) URI.
 
 \begin{itemize}
-    \item An XML schema namespace identifier can be just a simple URN, e.g. urn:my?namespace
+    \item An XML schema namespace identifier can be just a simple URN, e.g. urn:my-namespace
     \item Within the IVOA, the convention for namespace identifiers is to use a HTTP URL pointing to the namespace schema, or a resource describing it
 \end{itemize}
 
 The current VOSpace schema defines View identifiers as anyURI. The only restriction is that it SHALL be a valid (unique) URI.
 
 \begin{itemize}
-    \item A View URI can be a simple URN, e.g. urn:my?view
+    \item A View URI can be a simple URN, e.g. urn:my-view
 \end{itemize}
 
 This may be sufficient for testing and development on a private system, but it is not scalable for use on a public service.
@@ -688,7 +684,7 @@ For a production system, any new Views SHOULD have unique URIs that can be resol
 Ideally, these should be IVO registry URIs that point to a description registered in the IVO registry:
 
 \begin{itemize}
-    \item ivo://my?registry/vospace/views\#my?view
+    \item ivo://my-registry/vospace/views\#my-view
 \end{itemize}
 
 Using an IVO registry URI to identify Views has two main advantages:
@@ -704,7 +700,7 @@ If the URI for a particular View is resolvable, i.e. an IVO registry identifier 
 
 A ViewDescription SHOULD describe the data format and/or content of the view.
 
-A ViewDescription SHOULD have the following members :
+A ViewDescription SHOULD have the following members:
 
 \begin{itemize}
     \item \emph{uri}: the formal URI of the View
@@ -781,8 +777,8 @@ A Protocol representation SHALL have the following members:
 A protocol representation MAY have the following members:
 
 \begin{itemize}
-    \item \emph{param}: A list of name-value pairs that specify any additional arguments requried to support the protocol
-    \item \emph{securityMethod}: The requested (or resulting) authentication type
+    \item \emph{param}: A list of name-value pairs that specify any additional arguments required to support the protocol
+    \item \emph{securityMethod}: The requested (and/or resulting) authentication type
 \end{itemize}
 
 Note: endpoint will only contain a value after the response from the service is received.
@@ -794,14 +790,14 @@ Every new type of Protocol requires a unique URI to identify the Protocol and ho
 The rules for the Protocol identifiers are similar to the rules for namespace URIs in XML schema. The only restriction is that it SHALL be a valid (unique) URI
 
 \begin{itemize}
-    \item An XML schema namespace identifier can be just a simple URN, e.g. urn:my?namespace
+    \item An XML schema namespace identifier can be just a simple URN, e.g. urn:my-namespace
     \item Within the IVOA, the convention for namespace identifiers is to use a HTTP URL pointing to the namespace schema, or a resource describing it
 \end{itemize}
 
 The current VOSpace schema defines Protocol identifiers as anyURI. The only restriction is that it SHALL be a valid (unique) URI.
 
 \begin{itemize}
-    \item A Protocol URI can be a simple URN, e.g. urn:my?protocol
+    \item A Protocol URI can be a simple URN, e.g. urn:my-protocol
 \end{itemize}
 
 This may be sufficient for testing and development on a private system, but it is not scalable for use on a public service.
@@ -811,7 +807,7 @@ For a production system, any new Protocols SHOULD have unique URIs that can be r
 Ideally, these should be IVO registry URIs that point to a description registered in the IVO registry:
 
 \begin{itemize}
-    \item \begin{verbatim}ivo://my?registry/vospace/protocols#my?protocol\end{verbatim}
+    \item \begin{verbatim}ivo://my-registry/vospace/protocols#my-protocol\end{verbatim}
 \end{itemize}
 
 Using an IVO registry URI to identify Protocols has two main advantages:
@@ -842,7 +838,7 @@ However, at the time of writing, the schema for registering ProtocolDescriptions
 If a client is unable to resolve a Protocol identifier into a description, then it MAY just display the identifier as a text string:
 
 \begin{itemize}
-    \item Download using urn:my?protocol
+    \item Download using urn:my-protocol
 \end{itemize}
 
 If the client can resolve the Protocol identifier into a description, then the client MAY use the information in the description to display a human readable name and description of the Protocol:
@@ -858,6 +854,8 @@ Protocol URIs and ProtocolDescriptions for the core set of standard transport pr
 \begin{itemize}
     \item \begin{verbatim}ivo://ivoa.net/vospace/core#httpget\end{verbatim} SHALL be used as the protocol URI for a HTTP GET transfer
     \item \begin{verbatim}ivo://ivoa.net/vospace/core#httpput\end{verbatim} SHALL be used as the protocol URI for a HTTP PUT transfer
+    \item \begin{verbatim}ivo://ivoa.net/vospace/core#httpsget\end{verbatim} SHALL be used as the protocol URI for a HTTP GET transfer over a Secure Socket Layer (SSL)
+    \item \begin{verbatim}ivo://ivoa.net/vospace/core#httpsput\end{verbatim} SHALL be used as the protocol URI for a HTTP PUT transfer over a Secure Socket Layer (SSL)
 \end{itemize}
 
 However, this is not intended to be a closed list, different implementations are free to define and use their own transfer Protocols and authentication types.
@@ -867,7 +865,7 @@ However, this is not intended to be a closed list, different implementations are
 There are several use cases where a specific VOSpace implementation may want to define and use a custom VOSpace transfer Protocol, either extending an existing Protocol, or defining a new one.
 
 \paragraph{SRB Gateway}
-One example would be a VOSpace service that was integrated with a SRB system. In order to enable the service to use the native SRB transport protocol to transfer data, the service providers would need to register a new ProtocolDescription to represent the SRB transport protocol.
+One example would be a VOSpace service that was integrated with a SRB (Storage Resource Broker) system. In order to enable the service to use the native SRB transport protocol to transfer data, the service providers would need to register a new ProtocolDescription to represent the SRB transport protocol.
 
 The ProtocolDescription would refer to the technical specification for the SRB transport protocol, and define how it should be used to transfer data to and from the VOSpace service.
 
@@ -891,7 +889,7 @@ If an institute has one or more VOSpace services co-located with a number of dat
 In this case, the local system administrators could register a custom ProtocolDescription which described how to transfer data using their local NFS file system.
 
 \begin{itemize}
-    \item \begin{verbatim}ivo://my.institute/vospace/protocols#internal?nfs\end{verbatim}
+    \item \begin{verbatim}ivo://my.institute/vospace/protocols#internal-nfs\end{verbatim}
 \end{itemize}
 
 Data transfers using this Protocol would be done using file:// URLs pointing to locations within the local NFS file system:
@@ -916,15 +914,30 @@ Enabling different groups to define, register and use their own custom Protocols
 
 \subsection{Transfers}
 \label{subsec:transfers}
-A Transfer describes the details of a data transfer to or from a space.
+A Transfer describes the details of a data transfer to or from a VOSpace.
 
-A UWS Job representation [UWS] of a Transfer SHALL have the following parameters:
+\subsubsection{XML Document Transfers}
+\label{subsubsec:xml document transfers}
+
+Transfers can be represented as XML documents.  For example:
+
+\begin{verbatim}
+<vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1">
+  <vos:target>vos://example.com!vospace/myspace/myfile</vos:target>
+  <vos:direction>pushToVoSpace</vos:direction>
+  <vos:protocol uri="ivo://ivoa.net/vospace/core#httpput" />
+</vos:transfer>
+\end{verbatim}
+
+Clients send transfer XML documents to a VOSpace synchronous or asynchronous UWS transfer endpoint.  The VOSpace service SHALL put, in the UWS Job results, a resulting transfer XML document.
+
+A client initiated UWS Job representation of a Transfer SHALL have the following parameters:
 
 \begin{itemize}
     \item \emph{target}: denotes the VOSpace node to/from which data is to be transferred
     \item \emph{direction}: denotes the direction of a data transfer
         \begin{itemize}
-            \item It can be a URI for internal data transfers (move and copy operations) or one of: pushToVoSpace, pullToVoSpace, pushFromVoSpace or pullFromVoSpace - for an external data transfer.
+            \item It can be a URI for internal data transfers (move and copy operations) or one of: pushToVoSpace, pullToVoSpace, pushFromVoSpace or pullFromVoSpace - for external data transfer.
         \end{itemize}
     \item \emph{view}: denotes the requested View
         \begin{itemize}
@@ -934,18 +947,23 @@ A UWS Job representation [UWS] of a Transfer SHALL have the following parameters
     \item \emph{protocol}: denotes the transfer protocol(s) to use
         \begin{itemize}
             \item A transfer may contain more than one protocol with different Protocol URIs.
+            \item Each protocol may contain one or more security methods that can be applied to the protocol.
             \item For an internal data transfer, this parameter is not required.
         \end{itemize}
     \item \emph{keepBytes}: denotes whether the source object is to be kept in an internal data transfer, i.e. distinguishes between a move and a copy
         \begin{itemize}
             \item For an external data transfer, this parameter is not required.
         \end{itemize}
-    \item \emph{param}: A list of name-value pairs that specify any additional arguments for the transfer.
+    \item \emph{param}: A list of zero or more parameters that specify any additional arguments for the transfer.
+        \begin{itemize}
+            \item Standard Property URIs should be used as the parameter key.
+            \item e.g. Clients may tell the service the size of a file they intend to upload: <vos:param uri="ivo://ivoa.net/vospace/core\#length">1024</vos:param>
+        \end{itemize}
 \end{itemize}
 
 This representation will be used as a child of the jobInfo element in a UWS Job representation.
 
-The representation of the results of a Transfer SHALL have the following members:
+The service representation of the results of a Transfer SHALL have the following members:
 
 \begin{itemize}
     \item \emph{target}: denotes the VOSpace node to/from which data is to be transferred
@@ -962,9 +980,55 @@ The representation of the results of a Transfer SHALL have the following members
         \begin{itemize}
             \item A transfer may contain more than one protocol with different Protocol URIs.
             \item A Transfer may contain more than one Protocol element with the same Protocol URI with different endpoints
+            \item Each protocol on the result must contain an endpoint.
+            \item Each protocol may contain one or more security methods that can be applied to the protocol.
             \item For an internal data transfer, this parameter is not required.
         \end{itemize}
+    \item \emph{param}: parameters related to the transfer
+        \begin{itemize}
+            \item A transfer may contain zero or more transfer parameters.
+        \end{itemize}
 \end{itemize}
+
+\subsubsection{URL Parameter Transfers}
+\label{subsubsec:url parameter transfers}
+A simplified and restricted method of transfer negotiation makes use of URL query string parameters rather than XML documents.  Parameter based transfer negotiation support is optional and is limited to the UWS synchronous transfer endpoint.  An example URL for a parameter transfer negotiation:
+
+\begin{verbatim}
+http://server.example.com/vospace/synctrans?
+    TARGET=vos://example.com~vospace/mydata1&
+    DIRECTION=pullFromVoSpace&
+    PROTOCOL=ivo://ivoa.net/vospace/core#httpget
+\end{verbatim}
+
+The following parameters MUST be supplied by the client requesting a transfer:
+
+\begin{itemize}
+    \item \emph{TARGET}: denotes the VOSpace node to/from which data is to be transferred
+    \item \emph{DIRECTION}: denotes the direction of a data transfer
+        \begin{itemize}
+            \item With parameter based negotiation, only pushToVoSpace and pullFromVoSpace are allowed as values for DIRECTION.
+        \end{itemize}
+    \item \emph{PROTOCOL}: denotes the transfer protocol(s) to use. 
+        \begin{itemize}
+            \item With parameter based negotiation, clients MUST provide exactly one PROTOCOL parameter.
+        \end{itemize}
+\end{itemize}
+
+The following parameters MAY be supplied by the client requesting a transfer:
+
+\begin{itemize}
+    \item \emph{VIEW}: The standard URI of the view to use.  If no view is provided the service SHALL use the default view.
+    \item \emph{SECURITYMETHOD}: The standard URI of the security method that can be used for the supplied PROTOCOL.
+    \item \emph{REQUEST=redirect}: If the supplied, the service SHALL respond with an HTTP redirect to an endpoint for the PROTOCOL.
+    \begin{itemize}
+        \item This parameter is only applicable when the value of the DIRECTION parameter is \emph{pullFromVoSpace}.
+    \end{itemize}
+\end{itemize}
+
+Since the parameter values are in the request URL they must be URL-encoded.
+
+Upon receipt of a parameter based transfer negotiation request to the synchronous transfer endpoint, the service SHALL reply with a XML representation of the transfer results in the response body.  The only exception to this is when the DIRECTION is \emph{pullFromVoSpace} and the REDIRECT parameter is provided and set to \emph{true}, in which case the service SHALL respond with a redirect to the endpoint of the supplied PROTOCOL.
 
 \subsubsection{Service-initiated transfers}
 \label{subsubsec:service-initiated transfers}
@@ -994,7 +1058,7 @@ If none of the Protocol options succeed, then the transfer SHALL be considered t
 
 \subsubsection{Client-initiated transfers}
 \label{subsubsec:client-initiated transfers}
-Two of the VOSpace external transfer methods rely on an external actor performing the data transfer outside the scope of the service call.
+Two of the VOSpace external transfer methods (pushToVoSpace and pullFromVoSpace) rely on an external actor performing the data transfer outside the scope of the service call.
 
 In these methods, the client sends a Job request to the server which SHOULD contain details of the View and one or more protocol parameters.
 
@@ -1046,15 +1110,15 @@ A UWS Job representation of a Search SHALL have the following parameters:
         \begin{itemize}
             \item min: The list contains the minimum detail for each Node with all optional parts removed - the node type should be returned
                 \begin{itemize}
-                    \item e.g. \begin{verbatim}<node uri="vos://service/name" xs:type="Node"/>\end{verbatim}
+                    \item e.g. \emph{<node uri="vos://service/name" xs:type="Node"/>}
                 \end{itemize}
             \item max : The list contains the maximum detail for each Node, including any xs:type specific extensions
             \item properties : The list contains a basic node element with a list of properties for each Node with no xs:type specific extensions.
         \end{itemize}
     \item \emph{matches}: An OPTIONAL search string consisting of properties and values to match against and joined in conjunction (and) or disjunction (or).
         \begin{itemize}
-            \item Each property-value pair consists of the uri identifying a particular property and a regular expression against which the property values are to be matched: 'uri' = 'regex'
-            \item The match pairs can be combined in conjunction and/or disjunction using 'and' and 'or' respectively. For example: "(property1 = 'value1' and property2 = 'value2') or property3 = 'value3'".
+            \item Each property-value pair consists of the uri identifying a particular property and a regular expression against which the property values are to be matched: `uri' = `regex'
+            \item The match pairs can be combined in conjunction and/or disjunction using 'and' and 'or' respectively. For example: (property1 = `value1' and property2 = `value2') or property3 = `value3'.
             \item The regex syntax SHALL comply with POSIX conventions.
         \end{itemize}
     \item \emph{node}: An OPTIONAL URI(s) identifying the starting node for a search, i.e., the matches constraints are applied to this node and its children
@@ -1062,14 +1126,16 @@ A UWS Job representation of a Search SHALL have the following parameters:
 
 This representation will be used as a child of the jobInfo element in a UWS Job representation. For example:
 
-\begin{lstlisting}
+\begin{verbatim}
 <uws:jobInfo>
   <vos:search>
     <vos:detail>properties</vos:detail>
-    <vos:matches>ivo://ivoa.net/vospace/core#description='galax'</vos:matches>
+    <vos:matches>
+        ivo://ivoa.net/vospace/core#description="galax"
+    </vos:matches>
   <vos:search>
 <uws:jobInfo>
-\end{lstlisting}
+\end{verbatim}
 
 The representation of the results of a Search SHALL have the following members:
 
@@ -1103,17 +1169,9 @@ In a REST (Representational State Transfer) binding of VOSpace, each of the obje
 \end{tabular}
 \vspace{3mm}
 
-The service implementor is free to choose the names given in parentheses above; the other names are part of the VOSpace 2.1 standard.
+These names are part of the VOSpace 2.1 standard.
 
-The endpoint /synctrans is defined to receive HTTP POST requests of synchronous transfer jobs. This should respond with a redirect to the transfer details for synchronous jobs resource:
-\begin{verbatim}
-http://rest-endpoint/transfers/(jobid)/results/transferDetails
-\end{verbatim}
-Synchronous transfers are limited to pushToVoSpace and pullFromVoSpace operations only where the client is requesting endpoint URLs where it can read or write data.
-
-As an optimization, the /sync endpoint should support parameter-based HTTP POST transfer requests. Instead of returning a redirect to the transfer details, the parameter-based request to /sync returns the transferDetails document itself. As a further optimization, if the parameter name value pair REQUEST=redirect is supplied, the /sync endpoint should issue a redirect to the first transfer endpoint that would be contained in the transfer details. In the case of an error with the optimized transfers, clients may wish to fall back to the HTTP POST to /sync and step through the entire transfer negotiation.
-
-In addition, the following Nodes, appearing as part of a node-path, are reserved:
+The following Nodes, appearing as part of a node-path, are reserved:
 
 \begin{itemize}
     \item .auto indicates that the service should auto-generate an endpoint URI to replace this placeholder (Note: that this is an OPTIONAL feature of a service)
@@ -1135,6 +1193,8 @@ VOSpace implementations may support a number of authentication methods including
 For a full list of authentication methods and the associated standardIDs please refer to the document: \href{http://www.ivoa.net/documents/latest/SSOAuthMech.html}{IVOA Single-Sign-On Profile: Authentication Mechanisms}. 	
 
 When a client is requesting a transfer from the service, the authentication type (securityMethod) may be supplied along side the list of transfer protocols. The \emph{securityMethod} is specified by standardID.  If the service supports the requested type, it may base the construction of the endpoint URL for data transfer from this information.  (Services may encounter situations when the URL for data transfer will depend on the authentication type the client wished to use.)
+
+For backwards compatibility support, services SHALL include the securityMethod element in the transfer response if and only if a securityMethod was provided by the client in the protocol.
 
 The access control policy for a VOSpace is defined by the implementor of that space according to the use cases for which the implementation is intended.
 
@@ -1184,13 +1244,13 @@ A Protocols representation giving:
 \begin{itemize}
     \item accepts: A list of Protocols that the service SHALL accept
     \begin{itemize}
-        \item In this context 'accepting a protocol' means that the service SHALL act as a client for the protocol
-        \item e.g. 'accepting httpget' means the service can read data from an external HTTP web server
+        \item In this context `accepting a protocol' means that the service SHALL act as a client for the protocol
+        \item e.g. `accepting httpget' means the service can read data from an external HTTP web server
     \end{itemize}
     \item provides: A list of Protocols that the service SHALL provide
     \begin{itemize}
-        \item In this context 'providing a protocol' means that the service SHALL act as a server for the protocol
-        \item e.g. 'providing httpget' means the service can act as a http web server
+        \item In this context `providing a protocol' means that the service SHALL act as a server for the protocol
+        \item e.g. `providing httpget' means the service can act as a http web server
     \end{itemize}
 \end{itemize}
 
@@ -1250,12 +1310,12 @@ A Views representation giving:
 \begin{itemize}
     \item accepts: A list of Views that the service SHALL accept
     \begin{itemize}
-        \item In this context 'accepting a view' means that the service SHALL receive input data in this format
+        \item In this context `accepting a view' means that the service SHALL receive input data in this format
         \item A simple file based system may use the reserved View URI ivo://net.ivoa.vospace/views/any to indicate that it can accept data in any format
     \end{itemize}
     \item provides: A list of Views that the service SHALL provide
     \begin{itemize}
-        \item In this context 'providing a view' means that the service SHALL produce output data in this format
+        \item In this context `providing a view' means that the service SHALL produce output data in this format
         \item A simple file based system may use the reserved View URI ivo://net.ivoa.vospace/views/any to indicate that it can provide data in any format
     \end{itemize}
 \end{itemize}
@@ -1313,7 +1373,7 @@ A HTTP request to http://rest-endpoint/properties
 \subparagraph{Body}
 A Properties representation including:
 \begin{itemize}
-    \item accepts: A list of identifiers for the Properties that the service SHALL accept and understand. This refers to metadata (Properties) that is implementation dependent but can be used by a client to control operational aspects of the service: for example, a VOSpace implementation might allow individual users to control the permissions on data objects via a Property called "permissions". If the VOSpace receives a data object with this Property then it 'understands' what this property refers to and can deal with it accordingly.
+    \item accepts: A list of identifiers for the Properties that the service SHALL accept and understand. This refers to metadata (Properties) that is implementation dependent but can be used by a client to control operational aspects of the service: for example, a VOSpace implementation might allow individual users to control the permissions on data objects via a Property called ``permissions''. If the VOSpace receives a data object with this Property then it `understands' what this property refers to and can deal with it accordingly.
     \item provides: A list of identifiers for the Properties that the service SHALL provide
     \item contains: A list of identifiers for all the Properties currently used by Nodes within the service
 \end{itemize}
@@ -1378,14 +1438,14 @@ Create a new node at a specified location
 
 \paragraph{Request}
 A HTTP PUT of a node representation to path of the node to be created on the /nodes resource:
-\begin{lstlisting}
+\begin{verbatim}
 http://server.example.com/vospace/nodes/<path to node>
-\end{lstlisting}
-The node representation is template Node (as defined in section \ref{sec:nodes and node types}) for the node to be created.
+\end{verbatim}
+The node representation is template Node (as defined in section \ref{subsec:nodes and node types}) for the node to be created.
 
 A valid uri attribute SHALL be required. The name .auto is a reserved URI to indicate an auto-generated URI for the destination, i.e. given the following URI vos://service/path/.auto a service SHOULD create a new unique URI for the node within vos://service/path.
 
-If the uri in the node representation does not match the path in the HTTP PUT URL the service SHALL return an error.
+If the node path of the uri in the node representation does not match the node path in the HTTP PUT URL the service SHALL return an error.
 
 If the Node xs:type is not specified then a generic node of type Node is implied.
 
@@ -1409,7 +1469,7 @@ The capabilities list for the Node cannot be set using this method.
 \paragraph{Response}
 \subparagraph{Status code} A HTTP 201 status code
 \subparagraph{Body}
-A node representation including
+A node representation including:
 \begin{itemize}
     \item \emph{node}: details of the new Node
 \end{itemize}
@@ -1425,6 +1485,7 @@ The \emph{capabilities} list for the Node MAY not be filled in until some data h
     \item The service SHOULD throw a HTTP 500 status code including an InternalFault fault in the entity body if the operation fails
     \item The service SHALL throw a HTTP 409 status code including a DuplicateNode fault in the entity body if a Node already exists with the same URI
     \item The service SHALL throw a HTTP 400 status code including an InvalidURI fault in the entity body if the requested URI is invalid
+    \item If the URI node path does not match the node path of the HTTP PUT request the service must throw a HTTP 400 status including an InvalidURI fault in the entity body.
     \item The service SHALL throw a HTTP 400 status code including a TypeNotSupported fault in the entity body if the type specified in xs:type is not supported
     \item The service SHALL throw a HTTP 403 status code including PermissionDenied fault in the entity body if the user does not have permissions to perform the operation
     \item If a parent node in the URI path does not exist then the service SHALL throw a HTTP 404 status code including a ContainerNotFound fault in the entity body.
@@ -1444,9 +1505,7 @@ Create a node
 The node to be created (newNode.xml):
 \begin{lstlisting}
 <vos:node xmlns:xs="http://www.w3.org/2001/XMLSchema-instance"
-    xmlns="http://www.ivoa.net/xml/VOSpace/v2.1" uri="vos://example.com!vospace/mydata1"
-    xs:type="vos:UnstructuredDataNode"
-    uri="vos://example.com!vospace/mydata1">
+    xmlns="http://www.ivoa.net/xml/VOSpace/v2.1" xs:type="vos:UnstructuredDataNode" uri="vos://example.com!vospace/mydata1">
   <vos:properties>
     <vos:property uri="ivo://ivoa.net/vospace/core#description">My important results</vos:property>
   </vos:properties>
@@ -1457,7 +1516,7 @@ The node to be created (newNode.xml):
 \end{lstlisting}
 Request:
 \begin{lstlisting}
-> curl -v -X PUT -d @newNode.xml  -H "Content-type: text/xml" "http://server.example.com/vospace/nodes/mydata1"
+> curl -v -X PUT -d @newNode.xml -H "Content-type: text/xml" "http://server.example.com/vospace/nodes/mydata1"
 \end{lstlisting}
 Response:
 \begin{lstlisting}
@@ -1521,7 +1580,7 @@ The Node type cannot be changed using this method.
 \paragraph{Response}
 \subparagraph{Status code} The initial response is a HTTP 303 status code with the Location header keyword assigned to the created job.
 \subparagraph{Body}
-If an autogenerated URI for the destination was specified in the request then its value SHALL be specified as a result in the Results List for the completed transfer with the id of "destination":
+If an autogenerated URI for the destination was specified in the request then its value SHALL be specified as a result in the Results List for the completed transfer with the id of ``destination'':
 \begin{lstlisting}
 <uws:job>
   ...
@@ -1537,7 +1596,7 @@ If an autogenerated URI for the destination was specified in the request then it
 
 \paragraph{Faults}
 
-For all faults, the service shall set the PHASE to "ERROR" in the Job representation. The <errorSummary> element in the Job representation shall be set to the appropriate value for the fault type and the appropriate fault representation (see section 5.5) provided at the error URI: http://rest-endpoint/transfers/(jobid)/error.
+For all faults, the service shall set the PHASE to ``ERROR'' in the Job representation. The <errorSummary> element in the Job representation shall be set to the appropriate value for the fault type and the appropriate fault representation (see section 5.5) provided at the error URI: http://rest-endpoint/transfers/(jobid)/error.
 
 \vspace{3mm}
 \begin{tabular}{ p{5cm} l p{4cm} }
@@ -1571,7 +1630,7 @@ The Job to be submitted (moveJob.xml):
 \end{lstlisting}
 Request:
 \begin{lstlisting}
-> curl -v -X POST -d @moveJob.xml -H "Content-type: text/xml" "http://server.example.come/vospace/transfers"
+> curl -v -X POST -d @moveJob.xml -H "Content-type: text/xml" "http://server.example.com/vospace/transfers"
 \end{lstlisting}
 Response:
 \begin{lstlisting}
@@ -1709,7 +1768,7 @@ When the destination is an existing ContainerNode, the copy SHALL be placed unde
 The Node type cannot be changed using this method.
 
 \paragraph{Request}
-A HTTP POST of a Job representation for the transfer (see section 3.6) to http://rest-endpoint/transfers.
+A HTTP POST of a Job representation for the transfer (see section \ref{subsec:transfers}) to http://rest-endpoint/transfers.
 .auto is the reserved URI to indicate an auto-generated URI for the destination, i.e. vos://service/path/.auto SHOULD cause a new unique URI for the node within vos://service/path to be generated.
 
 \paragraph{Response}
@@ -1730,7 +1789,7 @@ If an autogenerated URI for the destination was specified in the request then it
 \end{lstlisting}
 
 \paragraph{Faults}
-For all faults, the service shall set the PHASE to "ERROR" in the Job representation. The <errorSummary> element in the Job representation shall be set to the appropriate value for the fault type and the appropriate fault representation (see section 5.5) provided at the error URI: http://rest-endpoint/transfers/(jobid)/error.
+For all faults, the service shall set the PHASE to "ERROR" in the Job representation. The <errorSummary> element in the Job representation shall be set to the appropriate value for the fault type and the appropriate fault representation (see section \ref{subsec:fault arguments}) provided at the error URI: http://rest-endpoint/transfers/(jobid)/error.
 
 \vspace{3mm}
 \begin{tabular}{ p{5cm} l p{4cm} }
@@ -1898,7 +1957,7 @@ Error and result details can be seen by performing an HTTP GET to the job URL:
 \label{subsubsec:deletenode}
 Delete a node.
 When the target is a ContainerNode, all its children (the contents of the container) SHALL also be deleted.
-Note that the same operation can also be achieved with a moveNode (see 5.2.2) with a .null node as the direction (destination node).
+Note that the same operation can also be achieved with a moveNode (see \ref{subsubsec:movenode}) with a .null node as the direction (destination node).
 
 \paragraph{Request}
 A HTTP DELETE to the URL of an existing node
@@ -1995,7 +2054,7 @@ When no parameters are present in the request, the full expanded record for the 
 
 When the node is a container, the returned record will also contain a list of direct children nodes in the container (as <node> subelements under the < nodes> element).
 
-If a "uri" and "offset" are specified in the request then the returned list will consist of the subset of children which begins at the node matching the specified value of the "uri" parameter and with cardinality matching the specified value of the "offset" parameter drawn from an ordered sequence of all children. The ordering is determined by the server but results must always be drawn from the same ordered sequence.
+If a ``uri'' and ``offset'' are specified in the request then the returned list will consist of the subset of children which begins at the node matching the specified value of the ``uri'' parameter and with cardinality matching the specified value of the ``offset'' parameter drawn from an ordered sequence of all children. The ordering is determined by the server but results must always be drawn from the same ordered sequence.
 
 For the target node and for any children returned for a container node, the attribute \emph{xs:type} SHALL be included in the resulting Node document.  
 
@@ -2114,7 +2173,7 @@ Response:
 * About to connect() to server.example.com port 80 (#0)
 *   Trying 192.168.0.0... connected
 * Connected to server.example.com (192.168.0.0) port 80 (#0)
-> POST /vospace/auth/nodes/majorb/testFile.txt HTTP/1.1
+> POST /vospace/nodes/mydata1 HTTP/1.1
 > User-Agent: curl/7.19.7 (universal-apple-darwin10.0) libcurl/7.19.7 OpenSSL/0.9.8y zlib/1.2.3
 > Host: server.example.com
 > Accept: */*
@@ -2130,7 +2189,7 @@ Response:
 < Connection: close
 <
 <?xml version="1.0" encoding="UTF-8"?>
-<vos:node xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1" xmlns:xs="http://www.w3.org/2001/XMLSchema-instance" uri="vos://cadc.nrc.ca!vospace/majorb/testFile.txt" xs:type="vos:DataNode" busy="false">
+<vos:node xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1" xmlns:xs="http://www.w3.org/2001/XMLSchema-instance" uri="vos://cadc.nrc.ca!vospace/mydata1" xs:type="vos:DataNode" busy="false">
   <vos:properties>
     <vos:property uri="ivo://ivoa.net/vospace/core#length" readOnly="true">44</vos:property>
     <vos:property uri="ivo://ivoa.net/vospace/core#MD5" readOnly="true">12c13e49f2fd37e2c91bcca6acb78a08</vos:property>
@@ -2171,7 +2230,7 @@ The search results representation can be retrieved directly from the link report
 \end{lstlisting}
 
 \paragraph{Faults}
-For all faults, the service shall set the PHASE to "ERROR" in the Job representation. The <errorSummary> element in the Job representation shall be set to the appropriate value for the fault type and the appropriate fault representation (see section 5.5) provided at the error URI: http://rest-endpoint/transfers/(jobid)/error.
+For all faults, the service shall set the PHASE to ``ERROR'' in the Job representation. The <errorSummary> element in the Job representation shall be set to the appropriate value for the fault type and the appropriate fault representation (see section 5.5) provided at the error URI: http://rest-endpoint/transfers/(jobid)/error.
 
 \vspace{3mm}
 \begin{tabular}{ p{5cm} l p{4cm} }
@@ -2190,7 +2249,10 @@ A particular property is specified and does not exist in the space & Property No
 
 \paragraph{Example}
 
+\begin{lstlisting}
+TO BE COMPLETED
 TODO: Add vos:search type to VOSpace-2.1.XSD
+\end{lstlisting}
 
 Find VOSpace nodes
 \\[5px]
@@ -2310,7 +2372,7 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 
 \subsection{Transferring data}
 \label{subsec:transferringdata}
-Two modes are supported for external data transfers: a simple HTTP GET to retrieve data from a service (pullFromVoSpace) and a more general mechanism which employs a UWS-based approach [UWS] for submitting general data transfer requests (see section 3.6). In the latter, four directions are specified in which external data transfers can happen:
+Two modes are supported for external data transfers: a simple HTTP GET to retrieve data from a service (pullFromVoSpace) and a more general mechanism which employs a UWS-based approach [UWS] for submitting general data transfer requests (see section \ref{subsec:transfers}). In the latter, four directions are specified in which external data transfers can happen:
 \begin{itemize}
     \item sending data to a service (pushToVoSpace)
     \item importing data into a service (pullToVoSpace)
@@ -2318,26 +2380,28 @@ Two modes are supported for external data transfers: a simple HTTP GET to retrie
     \item sending data from a service (pushFromVoSpace)
 \end{itemize}
 
-A transfer job is created by a HTTP POST of an appropriate Job representation to the transfers endpoint of the service: http://rest-endpoint/transfers.  The following example shows a transfer document for a pushToVoSpace operation that uses client certificates for authentication and authorization:
+A transfer job is created by a HTTP POST of an appropriate Job representation to the transfers endpoint of the service: http://rest-endpoint/transfers.  The following example shows a transfer document for a pushToVoSpace operation:
 
 \begin{lstlisting}
 <vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1">   
   <vos:target>vos://server.example.com!vospace/mydata1</vos:target>
   <vos:direction>pushToVoSpace</vos:direction>
   <vos:view uri="ivo://net.ivoa/vospace/core#fits"/>
-  <vos:protocol uri="ivo://net.ivoa/vospace/core#httpput">
+  <vos:protocol uri="ivo://net.ivoa/vospace/core#httpsput">
        <vos:securityMethod uri="ivo://ivoa.net/sso#tls-with-certificate"/>
   </vos:protocol>
 </vos:transfer>
 \end{lstlisting}
 
-The service returns the UWS jobid of the transfer and it can then be initiated with a HTTP POST of the single parameter "PHASE=RUN" to the appropriate job endpoint: http://rest-endpoint/transfers/(jobid)/phase. Alternatively the transfer can also be run immediately on creation by adding a "PHASE=RUN" to the initial Job representation.
+This example transfer job is making a request for an TLS endpoint that supports client certificates that is to be used for performing an HTTP PUT of a file.  
+
+The service returns the UWS jobid of the transfer and it can then be initiated with a HTTP POST of the single parameter ``PHASE=RUN'' to the appropriate job endpoint: http://rest-endpoint/transfers/(jobid)/phase. Alternatively the transfer can also be run immediately on creation by adding a ``PHASE=RUN'' to the initial Job representation.
 
 The status of any transfer can be obtained by polling the phase endpoint for a particular transfer, i.e. a HTTP GET to http://rest-endpoint/transfers/(jobid)/phase.
 
 Once a transfer has completed, any results can be obtained by following the link in the Results List available from the results endpoint for that transfer, i.e. with a HTTP GET to http://rest-endpoint/transfers/(jobid)/results. This pertains particularly to the transfer methods in which data is sent to or read from a service-negotiated URL (pushToVoSpace and pullFromVoSpace).
 
-A transfer can also be aborted at any stage with a HTTP POST of the parameter "PHASE=ABORT" to the endpoint: http://rest-endpoint/transfers/(jobid)/phase
+A transfer can also be aborted at any stage with a HTTP POST of the parameter ``PHASE=ABORT'' to the endpoint: http://rest-endpoint/transfers/(jobid)/phase
 
 More specific details for each of the four directions are given in the sections following.
 
@@ -2419,7 +2483,7 @@ Operation not supported & Operation Not Supported & OperationNotSupported \\
 \hline
 Operation fails & Internal Fault & InternalFault \\
 \hline
-User does not have permissions to perform the operation	 & Permission Denied & PermissionDenied \\
+User does not have permissions to perform the operation & Permission Denied & PermissionDenied \\
 \hline
 Service does not support the requested View & View Not Supported & ViewNotSupported \\
 \hline
@@ -2432,7 +2496,7 @@ A Protocol parameter is invalid & Invalid Argument & InvalidArgument \\
 \end{tabular}
 \vspace{3mm}
 
-If an error occurs with the alternate convenience mode, the resulting transfers document SHOULD have no protocols. The client can then retrieve the Job representation for error information as with asynchronous transfers.
+If an error occurs with the synchronous convenience mode, the resulting transfers document SHOULD have no protocols. The client can then retrieve the Job representation for error information as with asynchronous transfers.
 
 \paragraph{Example 1}
 pushToVoSpace over the asynchronous endpoint
@@ -2441,10 +2505,11 @@ pushToVoSpace over the asynchronous endpoint
 The Job to be submitted (pushToVoSpace.xml):
 \begin{lstlisting}
 <vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1">
-  <vos:target>vos://example.com~vospace/mydata1</vos:target>
+  <vos:target>vos://example.com!vospace/mydata1</vos:target>
   <vos:direction>pushToVoSpace</vos:direction>
   <vos:view uri="ivo://ivoa.net/vospace/core#fits"/>
   <vos:protocol uri="ivo://ivoa.net/vospace/core#httpput" />
+  <vos:param uri="ivo://ivoa.net/vospace/core#length">388943</vos:param>
 </vos:transfer>
 \end{lstlisting}
 Request:
@@ -2475,7 +2540,7 @@ Response:
 \end{lstlisting}
 The PENDING job can be seen by following the redirect to:
 \begin{lstlisting}
-> curl -v http://www.canfar.phys.uvic.ca/vospace/auth/transfers/zkqzpftmufdi8luh
+> curl -v http://server.example.com/vospace/transfers/zkqzpftmufdi8luh
 \end{lstlisting}
 Response:
 \begin{lstlisting}
@@ -2510,7 +2575,7 @@ Response:
   <uws:results />
   <uws:jobInfo>
     <vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1">
-      <vos:target>vos://example.com~vospace/mydata1</vos:target>
+      <vos:target>vos://example.com!vospace/mydata1</vos:target>
       <vos:direction>pushToVoSpace</vos:direction>
       <vos:view uri="ivo://ivoa.net/vospace/core#fits" />
       <vos:protocol uri="ivo://ivoa.net/vospace/core#httpput" />
@@ -2581,11 +2646,11 @@ Response:
   <uws:parameters />
   <uws:results>
     <uws:result id="transferDetails" xlink:href="http://server.example.com/vospace/transfers/zkqzpftmufdi8luh/results/transferDetails" />
-    <uws:result id="dataNode" xlink:href="vos://example.com~vospace/mydata1" />
+    <uws:result id="dataNode" xlink:href="vos://example.com!vospace/mydata1" />
   </uws:results>
   <uws:jobInfo>
     <vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1">
-      <vos:target>vos://example.com~vospace/mydata1</vos:target>
+      <vos:target>vos://example.com!vospace/mydata1</vos:target>
       <vos:direction>pushToVoSpace</vos:direction>
       <vos:view uri="ivo://ivoa.net/vospace/core#fits" />
       <vos:protocol uri="ivo://ivoa.net/vospace/core#httpput" />
@@ -2596,7 +2661,7 @@ Response:
 \end{lstlisting}
 The details of the transfer negotiation can be see by following the \emph{transferDetails} result:
 \begin{lstlisting}
-> curl -v http://www.canfar.phys.uvic.ca/vospace/transfers/zkqzpftmufdi8luh/results/transferDetails
+> curl -v http://server.example.com/vospace/transfers/zkqzpftmufdi8luh/results/transferDetails
 \end{lstlisting}
 Response:
 \begin{lstlisting}
@@ -2618,7 +2683,7 @@ Response:
 <
 <?xml version="1.0" encoding="UTF-8"?>
 <vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1">
-  <vos:target>vos://example.com~vospace/mydata1</vos:target>
+  <vos:target>vos://example.com!vospace/mydata1</vos:target>
   <vos:direction>pushToVoSpace</vos:direction>
   <vos:protocol uri="ivo://ivoa.net/vospace/core#httpput">
     <vos:endpoint>http://storage1.example.com/trans/mydata1</vos:endpoint>
@@ -2689,7 +2754,7 @@ pushToVoSpace over the synchronous endpoint
 The Job to be submitted (pushToVoSpace.xml):
 \begin{lstlisting}
 <vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1">
-  <vos:target>vos://example.com~vospace/mydata1</vos:target>
+  <vos:target>vos://example.com!vospace/mydata1</vos:target>
   <vos:direction>pushToVoSpace</vos:direction>
   <vos:view uri="ivo://ivoa.net/vospace/core#fits"/>
   <vos:protocol uri="ivo://ivoa.net/vospace/core#httpput" />
@@ -2727,7 +2792,7 @@ http://server.examlpe.com/vospace/transfers/zkqzpftmufdi8luh/results/transferDet
 \end{lstlisting}
 Request:
 \begin{lstlisting}
-> curl -v http://www.canfar.phys.uvic.ca/vospace/transfers/zkqzpftmufdi8luh/results/transferDetails
+> curl -v http://server.example.com/vospace/transfers/zkqzpftmufdi8luh/results/transferDetails
 \end{lstlisting}
 Response:
 \begin{lstlisting}
@@ -2749,7 +2814,7 @@ Response:
 <
 <?xml version="1.0" encoding="UTF-8"?>
 <vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1">
-  <vos:target>vos://example.com~vospace/mydata1</vos:target>
+  <vos:target>vos://example.com!vospace/mydata1</vos:target>
   <vos:direction>pushToVoSpace</vos:direction>
   <vos:protocol uri="ivo://ivoa.net/vospace/core#httpput">
     <vos:endpoint>http://storage1.example.com/trans/mydata1</vos:endpoint>
@@ -2762,14 +2827,99 @@ Response:
 \end{lstlisting}
 
 \paragraph{Example 3}
+pushToVoSpace over the synchronous endpoint with securityMethod
+\\[5px]
+\noindent
+A transfer request for endpoints supporting basic authentication over HTTP or TLS with a client certificate over SSL.\\
+The Job to be submitted (pushToVoSpace.xml):
+\begin{lstlisting}
+<vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1">
+  <vos:target>vos://example.com!vospace/mydata1</vos:target>
+  <vos:direction>pushToVoSpace</vos:direction>
+  <vos:view uri="ivo://ivoa.net/vospace/core#fits"/>
+  <vos:protocol uri="ivo://ivoa.net/vospace/core#httpsput">
+      <vos:securityMethod uri="ivo://ivoa.net/sso#tls-with-certificate"/>
+  </vos:protocol>
+  <vos:protocol uri="ivo://ivoa.net/vospace/core#httpput">
+      <vos:securityMethod uri="uri="http://www.w3.org/Protocols/HTTP/1.0/spec/html#BasicAA"/>
+  </vos:protocol>
+</vos:transfer>
+\end{lstlisting}
+Request:
+\begin{lstlisting}
+> curl -v -X POST -d @pushToVoSpace.xml -H "Content-type: text/xml" "http://server.example.com/vospace/synctrans"
+\end{lstlisting}
+Response:
+\begin{lstlisting}
+* About to connect() to server.example.com port 80 (#0)
+*   Trying 132.246.217.44... connected
+* Connected to server.example.com (132.246.217.44) port 80 (#0)
+> POST /vospace/synctrans HTTP/1.1
+> User-Agent: curl/7.19.7 (universal-apple-darwin10.0) libcurl/7.19.7 OpenSSL/0.9.8y zlib/1.2.3
+> Host: server.example.com
+> Accept: */*
+> Content-Length: 9
+> Content-Type: application/x-www-form-urlencoded
+>
+< HTTP/1.1 303 See Other
+< Date: Mon, 25 May 2015 23:17:41 GMT
+< Accept-Ranges: bytes
+< Location: http://server.example.com/vospace/transfers/zkqzpftmufdi8luh/results/transferDetails
+< Content-Length: 0
+< Connection: close
+< Content-Type: text/plain
+<
+* Closing connection #0
+\end{lstlisting}
+The negotiated transfer details can be seen by following the redirect to:
+\begin{lstlisting}
+http://server.example.com/vospace/transfers/zkqzpftmufdi8luh/results/transferDetails
+\end{lstlisting}
+Request:
+\begin{lstlisting}
+> curl -v http://server.example.come/vospace/transfers/zkqzpftmufdi8luh/results/transferDetails
+\end{lstlisting}
+Response:
+\begin{lstlisting}
+* About to connect() to server.example.com port 80 (#0)
+*   Trying 132.246.217.44... connected
+* Connected to server.example.com (132.246.217.44) port 80 (#0)
+> GET /vospace/transfers/zkqzpftmufdi8luh/results/transferDetails HTTP/1.1
+> User-Agent: curl/7.19.7 (universal-apple-darwin10.0) libcurl/7.19.7 OpenSSL/0.9.8y zlib/1.2.3
+> Host: server.example.com
+> Accept: */*
+>
+< HTTP/1.1 200 OK
+< Date: Mon, 25 May 2015 23:26:48 GMT
+< Cache-Control: private
+< Expires: Wed, 31 Dec 1969 16:00:00 PST
+< Content-Type: text/xml;charset=ISO-8859-1
+< Connection: close
+< Transfer-Encoding: chunked
+<
+<?xml version="1.0" encoding="UTF-8"?>
+<vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1">
+  <vos:target>vos://example.com!vospace/mydata1</vos:target>
+  <vos:direction>pushToVoSpace</vos:direction>
+  <vos:protocol uri="ivo://ivoa.net/vospace/core#httpsput">
+    <vos:endpoint>https://storage1.example.com/trans/mydata1</vos:endpoint>
+    <vos:securityMethod uri="ivo://ivoa.net/sso#tls-with-certificate"/>
+  </vos:protocol>
+</vos:transfer>
+* Closing connection #0
+\end{lstlisting}
+The service has replied with a single HTTPS endpoint that support TLS with client certificates.
+
+\paragraph{Example 4}
 pushToVoSpace over the synchronous endpoint with URL parameters
 \\[5px]
 \noindent
 Request:
 \begin{lstlisting}
-curl -v -X POST "http://server.example.com/vospace/synctransfers?TARGET=vos://example.com~vospace/mydata1&DIRECTION=pushToVoSpace&PROTOCOL=ivo://ivoa.net/vospace/core%23httpput"
+curl -v -X POST "http://server.example.com/vospace/synctrans?TARGET=vos://example.com~vospace/mydata1&DIRECTION=pushToVoSpace&PROTOCOL=ivo://ivoa.net/vospace/core%23httpput"
 \end{lstlisting}
-(Note that the \# sign in PROTOCOL is URL encoded as \%23) \\*
+(Note that the \# sign in PROTOCOL is URL encoded as \%23 and that the alternate separator `$\mathtt{\sim}$' is used instead of `!' in the TARGET) \\
+\\
 Response:
 \begin{lstlisting}
 * About to connect() to server.example.com port 80 (#0)
@@ -2790,7 +2940,7 @@ Response:
 <
 <?xml version="1.0" encoding="UTF-8"?>
 <vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1">
-  <vos:target>vos://example.com~vospace/mydata1</vos:target>
+  <vos:target>vos://example.com!vospace/mydata1</vos:target>
   <vos:direction>pushToVoSpace</vos:direction>
   <vos:protocol uri="ivo://ivoa.net/vospace/core#httpput">
     <vos:endpoint>http://storage1.example.com/trans/mydata1</vos:endpoint>
@@ -2837,7 +2987,7 @@ Operation not supported & Operation Not Supported & OperationNotSupported \\
 \hline
 Operation fails & Internal Fault & InternalFault \\
 \hline
-User does not have permissions to perform the operation	 & Permission Denied & PermissionDenied \\
+User does not have permissions to perform the operation & Permission Denied & PermissionDenied \\
 \hline
 Service does not support the requested View & View Not Supported & ViewNotSupported \\
 \hline
@@ -2861,62 +3011,8 @@ If the Job request contains more than one protocol parameter, then the service M
 pullToVoSpace
 \\[5px]
 \\noindent
-The Job to be submitted (newJob.xml):
 \begin{lstlisting}
-<vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1">
-  <vos:target>vos://nvo.caltech!vospace/mydata1</vos:target>
-  <vos:direction>pullToVoSpace</vos:direction>
-  <vos:view uri="ivo://ivoa.net/vospace/core#fits"/>
-  <vos:protocol uri="ivo://ivoa.net/vospace/core#httpget">
-    <vos:protocolEndpoint>http://some.server.com/here/is/the/data</vos:protocolEndpoint>
-    </vos:protocol>
-</vos:transfer>
-\end{lstlisting}
-Request
-\begin{lstlisting}
-> curl -v -X POST -d @newJob.xml "http://localhost:8000/transfers"
-\end{lstlisting}
-Response:
-\begin{lstlisting}
-* Connected to localhost (127.0.0.1) port 8000 (#0)
-> POST /transfers HTTP/1.1
-> User-Agent: curl/7.19.4 (universal-apple-darwin10.0) libcurl/7.19.4 OpenSSL/0.9.8l zlib/1.2.3
-> Host: localhost:8000
-> Accept: */*
-> Content-Length: 932
-> Content-Type: application/x-www-form-urlencoded
-> 
-< HTTP/1.1 303 See Other
-< Content-Length: 174
-< Server: CherryPy/3.1.2
-< Location: http://localhost:8000/transfers/ea901be0f7ef41668df9916ca25820f8
-< Allow: DELETE, GET, HEAD, POST, PUT
-< Date: Fri, 12 Mar 2010 23:36:58 GMT
-< Content-Type: text/html
-< 
-* Connection #0 to host localhost left intact
-* Closing connection #0
-This resource can be found at http://localhost:8000/transfers/ea901be0f7ef41668df9916ca25820f8.
-\end{lstlisting}
-\textbf{The status of the job can now be polled at the phase endpoint:} \\
-\begin{lstlisting}
-> curl -v "http://localhost:8000/transfers/ea901be0f7ef41668df9916ca25820f8/phase"
-* Connected to localhost (127.0.0.1) port 8000 (#0)
-> GET /transfers/ea901be0f7ef41668df9916ca25820f8/phase HTTP/1.1
-> User-Agent: curl/7.19.4 (universal-apple-darwin10.0) libcurl/7.19.4 OpenSSL/0.9.8l zlib/1.2.3
-> Host: localhost:8000
-> Accept: */*
-> 
-< HTTP/1.1 200 OK
-< Date: Fri, 12 Mar 2010 23:37:02 GMT
-< Content-Length: 9
-< Content-Type: text/html
-< Allow: DELETE, GET, HEAD, POST, PUT
-< Server: CherryPy/3.1.2
-<
-EXECUTING
-* Connection #0 to host localhost left intact
-* Closing connection #0
+TO BE COMPLETED
 \end{lstlisting}
 
 \subsubsection{pullFromVoSpace}
@@ -3009,7 +3105,9 @@ A Protocol parameter is invalid & Invalid Argument & InvalidArgument \\
 \end{tabular}
 \vspace{3mm}
 
-If an error occurs with the alternate convenience mode, the resulting transfers document SHOULD have no protocols. The client can then retrieve the Job representation for error information as with asynchronous transfers.
+If an error occurs with the synchronous convenience mode, the resulting transfers document SHOULD have no protocols. The client can then retrieve the Job representation for error information as with asynchronous transfers.
+
+If an error occurs with the synchronous convenience mode where the preferred endpoint is immediately returned as a redirect, the error information is returned directly in the response body with the associated HTTP status code.
 
 \paragraph{Notes}
 The endpoint URLs supplied in the UWS response SHOULD be considered as 'one shot' URLs. A VOSpace service connected to a standard web server MAY return the public URL for the data. However, a different implementation MAY create a unique single use URL specifically for this transfer.
@@ -3021,7 +3119,7 @@ pullFromVoSpace over the asynchronous endpoint
 The Job to be submitted (pullFromVoSpace.xml):
 \begin{lstlisting}
 <vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1">
-  <vos:target>vos://example.com~vospace/mydata1</vos:target>
+  <vos:target>vos://example.com!vospace/mydata1</vos:target>
   <vos:direction>pullFromVoSpace</vos:direction>
   <vos:protocol uri="ivo://ivoa.net/vospace/core#httpget" />
 </vos:transfer>
@@ -3054,7 +3152,7 @@ Response:
 \end{lstlisting}
 The PENDING job can be seen by following the redirect to:
 \begin{lstlisting}
-> curl -v http://www.canfar.phys.uvic.ca/vospace/auth/transfers/m4ipu36gairz0dnl
+> curl -v http://server.example.com/vospace/transfers/m4ipu36gairz0dnl
 \end{lstlisting}
 Response:
 \begin{lstlisting}
@@ -3089,7 +3187,7 @@ Response:
   <uws:results />
   <uws:jobInfo>
     <vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1">
-      <vos:target>vos://example.com~vospace/mydata1</vos:target>
+      <vos:target>vos://example.com!vospace/mydata1</vos:target>
       <vos:direction>pullFromVoSpace</vos:direction>
       <vos:protocol uri="ivo://ivoa.net/vospace/core#httpget" />
     </vos:transfer>
@@ -3159,11 +3257,11 @@ Response:
   <uws:parameters />
   <uws:results>
     <uws:result id="transferDetails" xlink:href="http://server.example.com/vospace/transfers/m4ipu36gairz0dnl/results/transferDetails" />
-    <uws:result id="dataNode" xlink:href="vos://example.com~vospace/mydata1" />
+    <uws:result id="dataNode" xlink:href="vos://example.com!vospace/mydata1" />
   </uws:results>
   <uws:jobInfo>
     <vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1">
-      <vos:target>vos://example.com~vospace/mydata1</vos:target>
+      <vos:target>vos://example.com!vospace/mydata1</vos:target>
       <vos:direction>pullFromVoSpace</vos:direction>
       <vos:protocol uri="ivo://ivoa.net/vospace/core#httpget" />
     </vos:transfer>
@@ -3173,7 +3271,7 @@ Response:
 \end{lstlisting}
 The details of the transfer negotiation can be see by following the \emph{transferDetails} result:
 \begin{lstlisting}
-> curl -v http://www.canfar.phys.uvic.ca/vospace/transfers/m4ipu36gairz0dnl/results/transferDetails
+> curl -v http://server.example.com/vospace/transfers/m4ipu36gairz0dnl/results/transferDetails
 \end{lstlisting}
 Response:
 \begin{lstlisting}
@@ -3195,7 +3293,7 @@ Response:
 <
 <?xml version="1.0" encoding="UTF-8"?>
 <vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1">
-  <vos:target>vos://example.com~vospace/mydata1</vos:target>
+  <vos:target>vos://example.com!vospace/mydata1</vos:target>
   <vos:direction>pullFromVoSpace</vos:direction>
   <vos:protocol uri="ivo://ivoa.net/vospace/core#httpget">
     <vos:endpoint>http://storage1.example.com/trans/mydata1</vos:endpoint>
@@ -3268,7 +3366,7 @@ pullFromVoSpace over the synchronous endpoint
 The Job to be submitted (pullFromVoSpace.xml):
 \begin{lstlisting}
 <vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1">
-  <vos:target>vos://example.com~vospace/mydata1</vos:target>
+  <vos:target>vos://example.com!vospace/mydata1</vos:target>
   <vos:direction>pullFromVoSpace</vos:direction>
   <vos:protocol uri="ivo://ivoa.net/vospace/core#httpget" />
 </vos:transfer>
@@ -3305,7 +3403,7 @@ http://server.examlpe.com/vospace/transfers/m4ipu36gairz0dnl/results/transferDet
 \end{lstlisting}
 Request:
 \begin{lstlisting}
-> curl -v http://www.canfar.phys.uvic.ca/vospace/transfers/m4ipu36gairz0dnl/results/transferDetails
+> curl -v http://server.example.com/vospace/transfers/m4ipu36gairz0dnl/results/transferDetails
 \end{lstlisting}
 Response:
 \begin{lstlisting}
@@ -3327,7 +3425,7 @@ Response:
 <
 <?xml version="1.0" encoding="UTF-8"?>
 <vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1">
-  <vos:target>vos://example.com~vospace/mydata1</vos:target>
+  <vos:target>vos://example.com!vospace/mydata1</vos:target>
   <vos:direction>pullFromVoSpace</vos:direction>
   <vos:protocol uri="ivo://ivoa.net/vospace/core#httpget">
     <vos:endpoint>http://storage1.example.com/trans/mydata1</vos:endpoint>
@@ -3368,14 +3466,126 @@ Response:
 \end{lstlisting}
 
 \paragraph{Example 3}
+pullFromVoSpace over the synchronous endpoint with securityMethod
+\\[5px]
+\noindent
+A transfer request for endpoints supporting basic authentication over HTTP or TLS with a client certificate over SSL.\\
+The Job to be submitted (pullFromVoSpace.xml):
+\begin{lstlisting}
+<vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1">
+  <vos:target>vos://example.com!vospace/mydata1</vos:target>
+  <vos:direction>pullFromVoSpace</vos:direction>
+  <vos:protocol uri="ivo://ivoa.net/vospace/core#httpsget">
+      <vos:securityMethod uri="ivo://ivoa.net/sso#tls-with-certificate"/>
+  </vos:protocol>
+  <vos:protocol uri="ivo://ivoa.net/vospace/core#httpget">
+      <vos:securityMethod uri="uri="http://www.w3.org/Protocols/HTTP/1.0/spec/html#BasicAA"/>
+  </vos:protocol>
+</vos:transfer>
+\end{lstlisting}
+Request:
+\begin{lstlisting}
+> curl -v -X POST -d @pullFromVoSpace.xml -H "Content-type: text/xml" "http://server.example.com/vospace/synctrans"
+\end{lstlisting}
+Response:
+\begin{lstlisting}
+* About to connect() to server.example.com port 80 (#0)
+*   Trying 132.246.217.44... connected
+* Connected to server.example.com (132.246.217.44) port 80 (#0)
+> POST /vospace/synctrans HTTP/1.1
+> User-Agent: curl/7.19.7 (universal-apple-darwin10.0) libcurl/7.19.7 OpenSSL/0.9.8y zlib/1.2.3
+> Host: server.example.com
+> Accept: */*
+> Content-Length: 9
+> Content-Type: application/x-www-form-urlencoded
+>
+< HTTP/1.1 303 See Other
+< Date: Mon, 25 May 2015 23:17:41 GMT
+< Accept-Ranges: bytes
+< Location: http://server.example.com/vospace/transfers/zkqzpftmufdi8luh/results/transferDetails
+< Content-Length: 0
+< Connection: close
+< Content-Type: text/plain
+<
+* Closing connection #0
+\end{lstlisting}
+The negotiated transfer details can be seen by following the redirect to:
+\begin{lstlisting}
+http://server.examlpe.com/vospace/transfers/zkqzpftmufdi8luh/results/transferDetails
+\end{lstlisting}
+Request:
+\begin{lstlisting}
+> curl -v http://server.example.com/vospace/transfers/zkqzpftmufdi8luh/results/transferDetails
+\end{lstlisting}
+Response:
+\begin{lstlisting}
+* About to connect() to server.example.com port 80 (#0)
+*   Trying 132.246.217.44... connected
+* Connected to server.example.com (132.246.217.44) port 80 (#0)
+> GET /vospace/transfers/zkqzpftmufdi8luh/results/transferDetails HTTP/1.1
+> User-Agent: curl/7.19.7 (universal-apple-darwin10.0) libcurl/7.19.7 OpenSSL/0.9.8y zlib/1.2.3
+> Host: server.example.com
+> Accept: */*
+>
+< HTTP/1.1 200 OK
+< Date: Mon, 25 May 2015 23:26:48 GMT
+< Cache-Control: private
+< Expires: Wed, 31 Dec 1969 16:00:00 PST
+< Content-Type: text/xml;charset=ISO-8859-1
+< Connection: close
+< Transfer-Encoding: chunked
+<
+<?xml version="1.0" encoding="UTF-8"?>
+<vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1">
+  <vos:target>vos://example.com!vospace/mydata1</vos:target>
+  <vos:direction>pullFromVoSpace</vos:direction>
+  <vos:protocol uri="ivo://ivoa.net/vospace/core#httpsget">
+    <vos:endpoint>https://storage1.example.com/trans/mydata1</vos:endpoint>
+    <vos:securityMethod uri="ivo://ivoa.net/sso#tls-with-certificate"/>
+  </vos:protocol>
+</vos:transfer>
+* Closing connection #0
+\end{lstlisting}
+The service has replied with a single HTTPS endpoint that support TLS with client certificates.\\
+The file can be retrieved with an HTTPS GET to the endpoint:
+\begin{lstlisting}
+curl -v -o mydata1 -E mycert.pem https://storage1.example.com/mydata1
+\end{lstlisting}
+Response:
+\begin{lstlisting}
+* About to connect() to storage1.example.com port 443 (#0)
+*   Trying 192.168.0.0... connected
+* Connected to storage1.example.com (192.168.0.0) port 443 (#0)
+> GET /mydata1 HTTP/1.1
+> User-Agent: curl/7.19.7 (universal-apple-darwin10.0) libcurl/7.19.7 OpenSSL/0.9.8y zlib/1.2.3
+> Host: storage1.example.com
+> Accept: */*
+>
+  \% Total  \% Received \% Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0< HTTP/1.1 401 Unauthorized
+< Date: Fri, 29 May 2015 18:33:29 GMT
+< Content-MD5:
+< Content-Disposition:
+< Content-Encoding:
+< Content-Type: text/plain;charset=UTF-8
+< Content-Length: 12
+< Connection: close
+<
+{ [data not shown]
+  0    12    0    12    0     0   
+\end{lstlisting}
+
+\paragraph{Example 4}
 pullFromVoSpace over the synchronous endpoint with URL parameters
 \\[5px]
 \noindent
 Request:
 \begin{lstlisting}
-curl -v -X POST "http://server.example.com/vospace/synctransfers?TARGET=vos://example.com~vospace/mydata1&DIRECTION=pullFromVoSpace&PROTOCOL=ivo://ivoa.net/vospace/core%23httpget"
+curl -v -X POST "http://server.example.com/vospace/synctrans?TARGET=vos://example.com~vospace/mydata1&DIRECTION=pullFromVoSpace&PROTOCOL=ivo://ivoa.net/vospace/core%23httpget"
 \end{lstlisting}
-(Note that the \# sign in PROTOCOL is URL encoded as \%23) \\*
+(Note that the \# sign in PROTOCOL is URL encoded as \%23 and that the alternate separator `$\mathtt{\sim}$' is used instead of `!' in the TARGET) \\
+\\
 Response:
 \begin{lstlisting}
 * About to connect() to server.example.com port 80 (#0)
@@ -3396,7 +3606,7 @@ Response:
 <
 <?xml version="1.0" encoding="UTF-8"?>
 <vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1">
-  <vos:target>vos://example.com~vospace/mydata1</vos:target>
+  <vos:target>vos://example.com!vospace/mydata1</vos:target>
   <vos:direction>pullFromVoSpace</vos:direction>
   <vos:protocol uri="ivo://ivoa.net/vospace/core#httpget">
     <vos:endpoint>http://storage1.example.com/trans/mydata1</vos:endpoint>
@@ -3436,21 +3646,22 @@ Response:
   0    12    0    12    0     0   
  \end{lstlisting}
 
-\paragraph{Example 4}
+\paragraph{Example 5}
 pullFromVoSpace over the synchronous endpoint with URL parameters and REQUEST=redirect
 \\[5px]
 \noindent
 Request:
 \begin{lstlisting}
-curl -v -X POST "http://server.example.com/vospace/synctransfers?TARGET=vos://example.com~vospace/mydata1&DIRECTION=pullFromVoSpace&PROTOCOL=ivo://ivoa.net/vospace/core%23httpget&REQUEST=redirect"
+curl -v -X POST "http://server.example.com/vospace/synctrans?TARGET=vos://example.com~vospace/mydata1&DIRECTION=pullFromVoSpace&PROTOCOL=ivo://ivoa.net/vospace/core%23httpget&REQUEST=redirect"
 \end{lstlisting}
-(Note that the \# sign in PROTOCOL is URL encoded as \%23) \\*
+(Note that the \# sign in PROTOCOL is URL encoded as \%23 and the alternate separator `$\mathtt{\sim}$' is used instead of `!' in the TARGET) \\
+\\
 Response:
 \begin{lstlisting}
 * About to connect() to server.example.com port 80 (#0)
 *   Trying 192.168.0.0... connected
 * Connected to server.example.com (192.168.0.0) port 80 (#0)
-> GET /vospace/synctrans?TARGET=vos://example.com~vospace/mydata1&DIRECTION=pullFromVoSpace&PROTOCOL=ivo://ivoa.net/vospace/core\%23httpget&REQUEST=redirect HTTP/1.1
+> POST /vospace/synctrans?TARGET=vos://example.com~vospace/mydata1&DIRECTION=pullFromVoSpace&PROTOCOL=ivo://ivoa.net/vospace/core\%23httpget&REQUEST=redirect HTTP/1.1
 > User-Agent: curl/7.19.7 (universal-apple-darwin10.0) libcurl/7.19.7 OpenSSL/0.9.8y zlib/1.2.3
 > Host: server.example.com
 > Accept: */*
@@ -3494,6 +3705,68 @@ Response:
 { [data not shown]
   0    12    0    12    0     0   1717      0 --:--:-- --:--:-- --:--:--  6000* Closing connection #0
 \end{lstlisting}
+
+\paragraph{Example 6}
+pullFromVoSpace over the synchronous endpoint with URL parameters, REQUEST=redirect and SecurityMethod
+\\[5px]
+\noindent
+Request:
+\begin{lstlisting}
+curl -v -X POST -E mycert.pem "https://server.example.com/vospace/synctrans?TARGET=vos://example.com~vospace/mydata1&DIRECTION=pullFromVoSpace&PROTOCOL=ivo://ivoa.net/vospace/core%23httpsget&REQUEST=redirect&SECURITYMETHOD=ivo://ivoa.net/sso%23tls-with-certificate"
+\end{lstlisting}
+Since the expected response is a redirect, the initial protocol on the post is HTTPS and the certificate is supplied.\\*
+(Note that the \# sign in PROTOCOL is URL encoded as \%23 and that the alternate separator `$\mathtt{\sim}$' is used instead of `!' in the TARGET) \\
+\\
+Response:
+\begin{lstlisting}
+* About to connect() to server.example.com port 443 (#0)
+*   Trying 192.168.0.0... connected
+* Connected to server.example.com (192.168.0.0) port 443 (#0)
+> POST /vospace/synctrans?TARGET=vos://example.com~vospace/mydata1&DIRECTION=pullFromVoSpace&PROTOCOL=ivo://ivoa.net/vospace/core\%23httpget&REQUEST=redirect&SECURITYMETHOD=ivo://ivoa.net/sso%23tls-with-certificate HTTP/1.1
+> User-Agent: curl/7.19.7 (universal-apple-darwin10.0) libcurl/7.19.7 OpenSSL/0.9.8y zlib/1.2.3
+> Host: server.example.com
+> Accept: */*
+>
+< HTTP/1.1 303 See Other
+< Date: Fri, 29 May 2015 18:33:13 GMT
+< Cache-Control: private
+< Expires: Wed, 31 Dec 1969 16:00:00 PST
+< Location: https://storage1.example.com/mydata1
+< Content-Length: 0
+< Connection: close
+< Content-Type: text/plain
+<
+* Closing connection #0
+\end{lstlisting}
+The file can be retrieved by following the redirect:
+\begin{lstlisting}
+curl -v -o mydata1 -E mycert.pem https://storage1.example.com/mydata1
+\end{lstlisting}
+Response:
+\begin{lstlisting}
+* About to connect() to storage1.example.com port 443 (#0)
+*   Trying 192.168.0.0... connected
+* Connected to storage1.example.com (192.168.0.0) port 443 (#0)
+> GET /mydata1 HTTP/1.1
+> User-Agent: curl/7.19.7 (universal-apple-darwin10.0) libcurl/7.19.7 OpenSSL/0.9.8y zlib/1.2.3
+> Host: storage1.example.com
+> Accept: */*
+>
+  \% Total  \% Received \% Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0< HTTP/1.1 401 Unauthorized
+< Date: Fri, 29 May 2015 18:33:29 GMT
+< Content-MD5:
+< Content-Disposition:
+< Content-Encoding:
+< Content-Type: text/plain;charset=UTF-8
+< Content-Length: 12
+< Connection: close
+<
+{ [data not shown]
+  0    12    0    12    0     0   1717      0 --:--:-- --:--:-- --:--:--  6000* Closing connection #0
+\end{lstlisting}
+
 \subsubsection{pushFromVoSpace}
 \label{subsubsec:pushfromvospace}
 Ask the server to send data to a remote location.
@@ -3545,83 +3818,12 @@ If the Job request contains more than one protocol parameter then the service MA
 pushFromVoSpace
 \\[5px]
 \\noindent
-The Job to be submitted (newJob.xml):
 \begin{lstlisting}
-<vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1">
-  <vos:target>vos://nvo.caltech!vospace/mydata1</uws:parameter>
-  <vos:direction>pushFromVoSpace</uws:parameter>
-  <vos:view>ivo://ivoa.net/vospace/core#defaultview</uws:parameter>
-  <vos:protocol uri="ivo://ivoa.net/vospace/core#httpput">
-    <vos:protocolEndpoint>http://some.server.com/put/the/data/here</vos:protocolEndpoint>
-  </vos:protocol>
-  <vos:protocol uri="ivo://ivoa.net/vospace/core#ftpput">
-    <vos:protocolEndpoint>ftp://some.other.server.com/put/the/data/here</vos:protocolEndpoint>
-  </vos:protocol>
-</vos:transfer>
-\end{lstlisting}
-Request:
-\begin{lstlisting}
-> curl -v -X POST -d @newJob.xml "http://localhost:8000/transfers"
-\end{lstlisting}
-Response:
-\begin{lstlisting}
-* Connected to localhost (127.0.0.1) port 8000 (#0)
-> POST /transfers HTTP/1.1
-> User-Agent: curl/7.19.4 (universal-apple-darwin10.0) libcurl/7.19.4 OpenSSL/0.9.8l zlib/1.2.3
-> Host: localhost:8000
-> Accept: */*
-> Content-Length: 942
-> Content-Type: application/x-www-form-urlencoded
-> 
-< HTTP/1.1 303 See Other
-< Content-Length: 174
-< Server: CherryPy/3.1.2
-< Location: http://localhost:8000/transfers/346d5cd27a0d405a8311819c90818cbc
-< Allow: DELETE, GET, HEAD, POST, PUT
-< Date: Sat, 13 Mar 2010 00:41:20 GMT
-< Content-Type: text/html
-< 
-* Connection #0 to host localhost left intact
-* Closing connection #0
-This resource can be found at http://localhost:8000/transfers/346d5cd27a0d405a8311819c90818cbc.
-\end{lstlisting}
-The Job can then be started with:
-\begin{lstlisting}
-> curl -v -d PHASE=RUN http://localhost:8000/transfers/346d5cd27a0d405a8311819c90818cbc
-\end{lstlisting}
-Response:
-\begin{lstlisting}
-* Connected to localhost (127.0.0.1) port 8000 (#0)
-> POST /transfers HTTP/1.1
-> User-Agent: curl/7.19.4 (universal-apple-darwin10.0) libcurl/7.19.4 OpenSSL/0.9.8l zlib/1.2.3
-> Host: localhost:8000
-> Accept: */*
-> Content-Length: 9
-> Content-Type: application/x-www-form-urlencoded
-> 
-\end{lstlisting}
-The status of the job can now be polled at the phase endpoint:
-\begin{lstlisting}
-> curl -v "http://localhost:8000/transfers/346d5cd27a0d405a8311819c90818cbc/phase"
-* Connected to localhost (127.0.0.1) port 8000 (#0)
-> GET /transfers/346d5cd27a0d405a8311819c90818cbc/phase HTTP/1.1
-> User-Agent: curl/7.19.4 (universal-apple-darwin10.0) libcurl/7.19.4 OpenSSL/0.9.8l zlib/1.2.3
-> Host: localhost:8000
-> Accept: */*
-> 
-< HTTP/1.1 200 OK
-< Date: Fri, 12 Mar 2010 23:37:02 GMT
-< Content-Length: 9
-< Content-Type: text/html
-< Allow: DELETE, GET, HEAD, POST, PUT
-< Server: CherryPy/3.1.2
-<
-COMPLETED
-* Connection #0 to host localhost left intact
-* Closing connection #0
+TO BE COMPLETED
 \end{lstlisting}
 
 \subsection{Fault arguments}
+\label{subsec:fault arguments}
 Faults reported by a VOSpace service SHALL contain the following information:
 
 \paragraph{InternalFault}

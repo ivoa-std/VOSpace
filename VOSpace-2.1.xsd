@@ -253,7 +253,7 @@
   <xs:complexType name="Param">
     <xs:annotation>
       <xs:documentation>
-        A view or protocol parameter.
+        A view, protocol, or transfer parameter.
       </xs:documentation>
     </xs:annotation>
     <xs:simpleContent>
