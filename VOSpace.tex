@@ -1,7 +1,6 @@
 \documentclass[11pt,a4paper]{ivoa}
 \input tthdefs
 
-\usepackage[utf8]{inputenc}
 \usepackage{listings}
 \usepackage{courier}
 \usepackage{appendix}
@@ -55,7 +54,7 @@ This document has been developed with support from the National Science Foundati
 \label{sec:conformance-related definitions}
 The words ``MUST'', ``SHALL'', ``SHOULD'', ``MAY'', ``RECOMMENDED'', and
 ``OPTIONAL'' (in upper or lower case) used in this document are to be
-interpreted as described in IETF standard, \citet{std:RFC2119}.
+interpreted as described in IETF standard, \citep{std:RFC2119}.
 
 The \emph{Virtual Observatory (VO)} is
 general term for a collection of federated resources that can be used
@@ -142,7 +141,7 @@ The service will reply with a redirect to a location that contains an amended ve
 \subsection{Role within the VO Architecture}
 \label{subsec:role within the vo architecture}
 
-The IVOA Architecture (Figure~\ref{fig:archdiag}) provides a high-level view of how IVOA standards work together to connect users and applications with providers of data and services, as depicted in the diagram in Figure ~\ref{fig:archdiag}.
+The IVOA Architecture \citep{note:VOARCH} provides a high-level view of how IVOA standards work together to connect users and applications with providers of data and services, as depicted in the diagram in Figure ~\ref{fig:archdiag}.
 
 \begin{figure}
 \centering
@@ -159,7 +158,7 @@ The IVOA Architecture (Figure~\ref{fig:archdiag}) provides a high-level view of 
 \label{fig:archdiag}
 \end{figure}
 
-In this architecture, users employ a variety of tools (from the User Layer) to discover and access archives and services of interest (represented in the Resource Layer). VOSpace provides an interface to storage resources containing the results of using these archives and services and also to other storage solutions, e.g., local disks, where users might want to transfer these results for further work. Items in these resources are referenced by a VOSpace identifier which is related to the standard IVOA Resource Identifier (see section 2). This version of VOSpace employs the UWS design pattern [UWS] to manage data transfers (see section \ref{subsec:transfers}) and searches (see section \ref{subsec:searches}). VOSpace instances may also employ the IVOA Single-Sign-On standard [SSO] for authentication purposes (see section \ref{sec:access control}) and IVOA Credential Delegation Protocol [CDP] to delegate data transfers.
+In this architecture, users employ a variety of tools (from the User Layer) to discover and access archives and services of interest (represented in the Resource Layer). VOSpace provides an interface to storage resources containing the results of using these archives and services and also to other storage solutions, e.g., local disks, where users might want to transfer these results for further work. Items in these resources are referenced by a VOSpace identifier which is related to the standard IVOA Resource Identifier (see section 2). This version of VOSpace employs the UWS design pattern \citep{std:UWS} to manage data transfers (see section \ref{subsec:transfers}) and searches (see section \ref{subsec:searches}). VOSpace instances may also employ the IVOA Single-Sign-On standard \citep{std:SSOAUTH} for authentication purposes (see section \ref{sec:access control}) and IVOA Credential Delegation Protocol \citep{std:CDP} to delegate data transfers.
 
 \subsection{Document roadmap}
 \label{subsec:document roadmap}
@@ -191,17 +190,17 @@ In Appendex \ref{sec:machine readable definitions}, we formally define the VOSpa
 \label{sec:vospace identifiers}
 The identifier for a node in VOSpace SHALL be a URI with the scheme vos.
 
-Such a URI SHALL have the following parts with the meanings and encoding rules defined in \href{https://www.ietf.org/rfc/rfc2396.txt}{RFC2396}.
+Such a URI SHALL have the following parts with the meanings and encoding rules defined in RFC3986 \citep{std:RFC3986}.
 
 \begin{itemize}
   \item scheme
   \item naming authority
   \item path
   \item (optional) query
-  \item (optional) fragment identifier (with the expected semantics \href{http://www.ivoa.net/documents/Notes/URIFragments/index.html}{URI fragments in IVOA specifications})
+  \item (optional) fragment identifier (with the expected semantics noted in URI fragments in IVOA specifications \citep{note:uriforms})
 \end{itemize}
 
-The naming authority for a VOSpace node SHALL be the VOSpace service through which the node was created. The authority part of the URI SHALL be constructed from the IVO registry identifier [IVORN] for that service by deleting the ivo:// prefix and changing all forward-slash characters(`/') in the resource key to exclamation marks (`!') or tildes (`$\mathtt{\sim}$'). Note that a service SHALL be consistent in its use of separator characters (`!' or `$\mathtt{\sim}$') when referring to its own data but SHALL accept either as valid in URIs in service requests. For the rest of the document, we shall use `!' as the default character.
+The naming authority for a VOSpace node SHALL be the VOSpace service through which the node was created. The authority part of the URI SHALL be constructed from the IVO registry identifier \citep{std:VOID} for that service by deleting the ivo:// prefix and changing all forward-slash characters(`/') in the resource key to exclamation marks (`!') or tildes (`$\mathtt{\sim}$'). Note that a service SHALL be consistent in its use of separator characters (`!' or `$\mathtt{\sim}$') when referring to its own data but SHALL accept either as valid in URIs in service requests. For the rest of the document, we shall use `!' as the default character.
 
 This is an example of a possible VOSpace identifier.
 
@@ -262,7 +261,7 @@ http://server.example.com/vospace
 http://server.example.com/vospace/nodes/container-6/siap-out-1.vot?foo=bar
 \end{verbatim}
 
-Note that any fragment identifier in the identifier SHOULD be removed when resolving the identifier to a HTTP endpoint, consistent with the implied semantics of URI fragments (\href{http://www.ivoa.net/documents/Notes/URIFragments/index.html}{URI fragments in IVOA specifications}).
+Note that any fragment identifier in the identifier SHOULD be removed when resolving the identifier to a HTTP endpoint, consistent with the implied semantics of URI fragments \citep{note:uriforms}.
 
 \section{VOSpace data model}
 \label{sec:vospace data model}
@@ -303,7 +302,7 @@ When data is stored and retrieved from a \emph{StructuredDataNode}, the bit patt
 A Node representation SHALL have the following elements:
 
 \begin{itemize}
-    \item \emph{uri}: the vos:// identifier for the node, URI-encoded according to \href{https://www.ietf.org/rfc/rfc2396.txt}{RFC2396}.
+    \item \emph{uri}: the vos:// identifier for the node, URI-encoded according to RFC3986 \citep{std:RFC3986}.
     \item \emph{properties}: a set of metadata properties for the node
     \item \emph{capabilities}: a third-party interface to a data object
 \end{itemize}
@@ -326,13 +325,13 @@ The \emph{busy} flag is used to indicate that an internal operation is in progre
 A \emph{ContainerNode} representation SHALL have the following elements, in addition to those it inherits from the \emph{Node} representation:
 
 \begin{itemize}
-    \item \emph{nodes}: a list of the direct children, if applicable, that the container has. Each child is represented as a node subelement containing its vos:// identifier, URI-encoded according to \href{https://www.ietf.org/rfc/rfc2396.txt}{RFC2396}
+    \item \emph{nodes}: a list of the direct children, if applicable, that the container has. Each child is represented as a node subelement containing its vos:// identifier, URI-encoded according to RFC3986 \citep{std:RFC3986}
 \end{itemize}
 
 A \emph{LinkNode} representation SHALL have the following elements, in addition to those it inherits from the Node representation:
 
 \begin{itemize}
-    \item \emph{target}: the target URI, URI-encoded according to \href{https://www.ietf.org/rfc/rfc2396.txt}{RFC2396}
+    \item \emph{target}: the target URI, URI-encoded according to RFC3986 \citep{std:RFC3986}
 \end{itemize}
 
 The link target can be a URI that points to any type of resource, including other VOSpace Nodes (within the same VOSpace service or in another service), or external resources outside VOSpace altogether.
@@ -462,7 +461,7 @@ Note that at the time of writing, the schema for registering validation rules in
 
 \subsubsection{Standard properties}
 \label{subsubsec:standard properties}
-Property URIs and PropertyDescriptions for the core set of Properties are registered under a StandardKeyEnumeration resource [VOStd] in the IVOA registry with the resource identifier ivo://ivoa.net/vospace/core. The following URIs SHOULD be used to represent the service properties:
+Property URIs and PropertyDescriptions for the core set of Properties are registered under a StandardKeyEnumeration resource \citep{std:STDREGEXT} in the IVOA registry with the resource identifier ivo://ivoa.net/vospace/core. The following URIs SHOULD be used to represent the service properties:
 
 \begin{itemize}
     \item ivo://ivoa.net/vospace/core\#title SHALL be used as the property URI denoting a name given to the resource
@@ -569,7 +568,7 @@ If a client can resolve the Capability identifier into a description then the cl
 
 \subsubsection{Standard capabilities}
 \label{subsubsec:standard capabilities}
-Capability URIs and CapabilityDescriptions for the core set of Capabilities are registered under a StandardKeyEnumeration resource [VOStd] in the IVOA registry with the resource identifier ivo://ivoa.net/vospace/core.. The following URIs SHALL be used to represent the service capabilities:
+Capability URIs and CapabilityDescriptions for the core set of Capabilities are registered under a StandardKeyEnumeration resource \citep{std:STDREGEXT} in the IVOA registry with the resource identifier ivo://ivoa.net/vospace/core.. The following URIs SHALL be used to represent the service capabilities:
 
 \begin{itemize}
     \item ivo://ivoa.net/vospace/core\#vospace-1.0 SHALL be used as the capability URI for a VOSpace 1.0 service
@@ -735,7 +734,7 @@ If a VOSpace service provides HTTP access to the data contained in a Node, then 
 
 \subsubsection{Default views}
 \label{subsubsec:default views}
-The following standard URIs are registered under a StandardKeyEnumeration resource [VOStd] in the IVOA registry with the resource identifier ivo://ivoa.net/vospace/core. They SHALL be used to refer to the default import and export views:
+The following standard URIs are registered under a StandardKeyEnumeration resource \citep{std:STDREGEXT} in the IVOA registry with the resource identifier ivo://ivoa.net/vospace/core. They SHALL be used to refer to the default import and export views:
 
 \begin{itemize}
     \item ivo://ivoa.net/vospace/core\#anyview SHALL be used as the view URI to indicate that a service will accept any view for an import operation
@@ -849,7 +848,7 @@ If the client can resolve the Protocol identifier into a description, then the c
 
 \subsubsection{Standard protocols}
 \label{subsubsec:standard protocols}
-Protocol URIs and ProtocolDescriptions for the core set of standard transport protocols are registered under a StandardKeyEnumeration resource [VOStd] in the IVOA registry with the resource identifier ivo://ivoa.net/vospace/core. The following URIs SHALL be used to represent the standard protocols:
+Protocol URIs and ProtocolDescriptions for the core set of standard transport protocols are registered under a StandardKeyEnumeration resource \citep{std:STDREGEXT} in the IVOA registry with the resource identifier ivo://ivoa.net/vospace/core. The following URIs SHALL be used to represent the standard protocols:
 
 \begin{itemize}
     \item \begin{verbatim}ivo://ivoa.net/vospace/core#httpget\end{verbatim} SHALL be used as the protocol URI for a HTTP GET transfer
@@ -3875,7 +3874,7 @@ The fault details must contain the full details of the LinkNode.
     \item Ported source to ivoatex format
 \end{itemize}
 
-\begin{appendices}
+\appendix
 
 \section{Machine readable definitions}
 \label{sec:machine readable definitions}
@@ -4066,12 +4065,6 @@ ivo://ivoa.net/vospace/core\#type & the nature or genre of the resource & string
     \item Added IVOA architecture text
     \item Removed text about WSDL/WADL
 \end{itemize}
-
-No previous versions yet.  
-% these would be subsections "Changes from v. WD-..."
-% Use itemize environments.
-
-\end{appendices}
 
 \bibliography{ivoatex/ivoabib}
 
