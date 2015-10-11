@@ -504,8 +504,8 @@ A Capability representation SHALL have the following members:
     \item \emph{param}: a set of parameters for the capability
 \end{itemize}
 
-\subsubsection{Example use cases}
-\label{subsubsec:example use cases}
+\subsubsection{Example capability use cases}
+\label{subsubsec:example capability use cases}
 A ContainerNode containing image files may offer a DAL SIAP capability so that the images in the container can be accessed using a SIAP service. In this way, a user could create a (DAL enabled) Container in VOSpace, transfer some images into it and then query the set of images using the SIAP interface.
 
 Another example is a DataNode that provides a OpenStack Swift capability so that the OpenStack service API is exposed on that node.
@@ -609,8 +609,8 @@ A View representation SHALL have the following members:
     \item \emph{original}: a set of name-value pairs that can be used to specify additional arguments for the View
 \end{itemize}
 
-\subsubsection{Example use cases}
-\label{subsubsec:example use cases}
+\subsubsection{Example view use cases}
+\label{subsubsec:example view use cases}
 A simple VOSpace system that stores data as a binary files can just return the contents of the original file. The client supplies a View identifier when it imports the data, and the service uses this information to describe the data to other clients.
 
 A file based system can use the special case identifier
@@ -2201,7 +2201,7 @@ Response:
   <vos:provides />
 </vos:node>
 * Closing connection #0
-end{lstlisting}
+\end{lstlisting}
 
 \subsubsection{findNodes}
 \label{subsubsec:findnodes}
@@ -2440,12 +2440,12 @@ A pushToVoSpace transfer may be initiated with an HTTP POST or GET to http://res
     \item \emph{TARGET}: The value is the URI of the target node
         \begin{itemize}
            \item Example:  vos://example.com$\mathtt{\sim}$vospace/mydata1
-        \end {itemize}
+        \end{itemize}
     \item \emph{DIRECTION}: pushToVoSpace
     \item \emph{PROTOCOL}: The standard URI of the protocol to use (see section ~\ref{subsubsec:standard protocols})
         \begin{itemize}
            \item Example: ivo://ivoa.net/vospace/core\#httpput
-        \end {itemize}
+        \end{itemize}
 \end{itemize}
 The service SHALL respond with the job containing the transfer results in the response body.  (See Example 3)
 
@@ -3037,12 +3037,12 @@ A pullFromVoSpace transfer may be initiated with an HTTP POST or GET to http://r
     \item \emph{TARGET}: The value is the URI of the target node
         \begin{itemize}
            \item Example:  vos://example.com$\mathtt{\sim}$vospace/mydata1
-        \end {itemize}
+        \end{itemize}
     \item \emph{DIRECTION}: pullFromVoSpace
     \item \emph{PROTOCOL}: The standard URI of the protocol to use (see section ~\ref{subsubsec:standard protocols})
         \begin{itemize}
            \item Example: ivo://ivoa.net/vospace/core\#httpget
-        \end {itemize}
+        \end{itemize}
 \end{itemize}
 The service SHALL respond with the job containing the transfer results in the response body.  (See Example 3)
 If the parameter key value REQUEST=redirect is included with the other transfer parameters, the service SHALL respond with an immediate redirect to the preferred protocol endpoint for data download.  (See Example 4)
@@ -3902,7 +3902,7 @@ This table summarizes the mandatory behaviour required of a fully compliant VOSp
 8 & A DataNode has elements: uri, properties, capabilities, accepts, provides & ~\ref{subsec:nodes and node types} \\ \hline
 9 & A LinkNode has elements: uri, properties, capabilities and target & ~\ref{subsec:nodes and node types}* \\ \hline
 10 & A ContainerNode and a LinkNode have no data bytes associated with them & ~\ref{subsec:nodes and node types}* \\ \hline
-11 & A VOSpace service parses XML representations of all node types & ~\ref{subsec:node and nodes types} \\ \hline
+11 & A VOSpace service parses XML representations of all node types & ~\ref{subsec:nodes and node types} \\ \hline
 12 & A VOSpace services does not throw a XML parser error in response to requests about unsupported node types & ~\ref{subsec:nodes and node types} \\ \hline
 13 & A Property has elements:uri, endpoint and optional readonly flag & ~\ref{subsec:properties} \\ \hline
 14 & URIs must be valid (and unique) & ~\ref{subsubsec:property identifiers}, ~\ref{subsubsec:capability identifiers}, ~\ref{subsubsec:view identifiers}, ~\ref{subsubsec:protocol identifiers}, ~\ref{subsubsec:createnode}, ~\ref{subsubsec:pushtovospace}, ~\ref{subsubsec:pulltovospace} \\ \hline
@@ -3924,7 +3924,7 @@ xx & Standard properties are represented by the specified URIs & ~\ref{subsubsec
 \hline
 \textbf{Item} & \textbf{Description} & \textbf{Occurs in section(s)} \\ \hline
 26 & A Protocol has elements: uri and and endpoint & ~\ref{subsec:protocols} \\ \hline
-27 & text/xml are represented by the specified URIs & ~\ref{subsubsec:text/xml} \\ \hline
+27 & Standard Protocols are represented by the specified URIs & ~\ref{subsubsec:standard protocols} \\ \hline	
 28 & A Transfer UWS Job representation has elements: target, direction, view, protocol and keepBytes & ~\ref{subsec:transfers} \\ \hline
 29 & A Transfer results representation has elements: target, direction, view, and protocol & ~\ref{subsec:transfers} \\ \hline
 30 & A server responds with a fault if it is unable to handle any of the requested protocols in a data transfer & ~\ref{subsubsec:service-initiated transfers}, ~\ref{subsubsec:client-initiated transfers} \\ \hline
