@@ -71,7 +71,7 @@ VOSpace is the IVOA interface to distributed storage. It specifies how VO agents
 A VOSpace web service is an access point for a distributed storage network. Through this access point, a client can:
 
 \begin{itemize}
-    \item add or delete data objects
+    \item add or delete data objects in a tree data structure
     \item manipulate metadata for the data objects
     \item obtain URIs through which the content of the data objects can be accessed
 \end{itemize}
@@ -881,6 +881,7 @@ Other implementations that plan to use the SRB transport protocol in the same wa
 The two implementations would then be able use the common Protocol URI to negotiate data transfers using the SRB transport protocol.
 
 \paragraph{Local NFS transfers}
+
 Another example of a custom Protocol use case would to transfer data using the local NFS file system within an institute.
 
 If an institute has one or more VOSpace services co-located with a number of data processing applications, all located within the same local network, then it would be inefficient to use HTTP GET and PUT to transfer the data between the services if they could all access the same local file system.
@@ -911,6 +912,13 @@ The two different Protocol URIs and ProtocolDescriptions describe how to use the
 
 Enabling different groups to define, register and use their own custom Protocols in this way means that systems can be configured to use the best available transport protocols for transferring data, without conflicting with other systems who may be using similar a transport protocol in a different context.
 
+\subsubsection{Security Methods}
+Each protocol may have an associated securityMethod element that describes the supported authentication method for that protocol.
+
+For transfer requests, the securityMethod indicates that the client is capable of that authentication method for that protocol.  The protocols should be listed in preferred order.  It is recommended that the entire list of protocol securityMethod combinations that the client supports be provided.
+
+The Protocol list in transfer responses represent the protocol and securityMethod combinations that are supported by the server.  The server must only list supported combinations.  The server may choose to consult the protocol and securityMethod combinations in the transfer request to generate the ordered list of protocols.
+
 \subsection{Transfers}
 \label{subsec:transfers}
 A Transfer describes the details of a data transfer to or from a VOSpace.
@@ -924,7 +932,10 @@ Transfers can be represented as XML documents.  For example:
 <vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1">
   <vos:target>vos://example.com!vospace/myspace/myfile</vos:target>
   <vos:direction>pushToVoSpace</vos:direction>
-  <vos:protocol uri="ivo://ivoa.net/vospace/core#httpput" />
+  <vos:protocol uri="ivo://ivoa.net/vospace/core#httpsput">
+    <vos:securityMethod uri="ivo://ivoa.net/sso#tls-with-certificate"/>
+  </vos:protocol>
+  <vos:protocol uri="ivo://ivoa.net/vospace/core#httpput">    <vos:securityMethod "uri="http://www.w3.org/Protocols/HTTP/1.0/spec/html#BasicAA"/>  </vos:protocol>
 </vos:transfer>
 \end{verbatim}
 
@@ -946,7 +957,7 @@ A client initiated UWS Job representation of a Transfer SHALL have the following
     \item \emph{protocol}: denotes the transfer protocol(s) to use
         \begin{itemize}
             \item A transfer may contain more than one protocol with different Protocol URIs.
-            \item Each protocol may contain one or more security methods that can be applied to the protocol.
+            \item Each protocol may contain one or more security methods that can be applied to the protocol.  It is recommended that a protocol for each securityMethod be included in the transfer.
             \item For an internal data transfer, this parameter is not required.
         \end{itemize}
     \item \emph{keepBytes}: denotes whether the source object is to be kept in an internal data transfer, i.e. distinguishes between a move and a copy
@@ -1069,7 +1080,7 @@ The service selects the Protocols from the request that it is capable of handlin
 
 If available, the service may choose to consult the securityMethod in the Protocols to construct correct endpoints.
 
-The order of the Protocol elements in the request indicates the order of preference that the client would like to use. However, this is only a suggestion, and the server is free to use its own preferences when generating the list of Protocols in the response.
+The order of the Protocol elements (and their corresponding security methods) in the request indicates the order of preference that the client would like to use. However, this is only a suggestion, and the server is free to use its own preferences when generating the list of Protocols in the response.
 
 In effect, the server is responding with the subset of the requested Protocols that it (the server) is prepared to offer.
 
