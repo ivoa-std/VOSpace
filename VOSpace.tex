@@ -29,6 +29,7 @@
 \editor{Matthew Graham}
 \editor{Brian Major}
 
+\previousversion[http://www.ivoa.net/documents/VOSpace/20150601/index.html]{WD-VOSpace-2.1-20150601}
 \previousversion[http://www.ivoa.net/documents/VOSpace/20140805/index.html]{WD-VOSpace-2.1-20140805}
 \previousversion[http://www.ivoa.net/documents/VOSpace/20130329/index.html]{REC-VOSpace-2.0-20130329}
 \previousversion[http://www.ivoa.net/documents/VOSpace/20121221/index.html]{PR-VOSpace-2.0-20121221}
@@ -110,7 +111,7 @@ Note that the node path is specified in two places on this request, and that the
    \item In the node uri attribute of the XML description
 \end{itemize}
 
-The service will reply with an amended version of the representation containing service-specific details in addition to the information supplied by the user. These will include data formats that the service can handle for the type of node created in the VOSpace, third-party interfaces (capabilities) to the data that the service offers and system metadata.
+The service will reply with an amended version of the representation containing service-specific details in addition to the information supplied by the user. These will include data formats that the service can handle for the type of node created in the VOSpace, third-party interfaces (capabilities) to the data that the service offers, and system metadata.
 
 The user will then describe the data format (the view) they want to use in uploading the file, e.g. VOTable, and the transport protocol (the protocol) that they want to employ to upload the file, e.g. HTTP PUT. This will result in the HTTP POSTing of a XML description of the transfer request to the appropriate VOSpace transfer URL:  http://server.example.com/vospace/synctrans. The description will resemble this:
 
@@ -158,7 +159,9 @@ The IVOA Architecture \citep{note:VOARCH} provides a high-level view of how IVOA
 \label{fig:archdiag}
 \end{figure}
 
-In this architecture, users employ a variety of tools (from the User Layer) to discover and access archives and services of interest (represented in the Resource Layer). VOSpace provides an interface to storage resources containing the results of using these archives and services and also to other storage solutions, e.g., local disks, where users might want to transfer these results for further work. Items in these resources are referenced by a VOSpace identifier which is related to the standard IVOA Resource Identifier (see section 2). This version of VOSpace employs the UWS design pattern \citep{std:UWS} to manage data transfers (see section \ref{subsec:transfers}) and searches (see section \ref{subsec:searches}). VOSpace instances may also employ the IVOA Single-Sign-On standard \citep{std:SSOAUTH} for authentication purposes (see section \ref{sec:access control}) and IVOA Credential Delegation Protocol \citep{std:CDP} to delegate data transfers.
+In this architecture, users employ a variety of tools (from the User Layer) to discover and access archives and services of interest (represented in the Resource Layer). VOSpace provides an interface to storage resources containing the results of using these archives and services and also to other storage solutions, e.g., local disks, where users might want to transfer these results for further work. Items in these resources are referenced by a VOSpace identifier which is related to the standard IVOA Resource Identifier (see section 2). This version of VOSpace employs the UWS design pattern \citep{std:UWS} to manage data transfers (see section \ref{subsec:transfers}). VOSpace instances may also employ the IVOA Single-Sign-On standard \citep{std:SSOAUTH} for authentication purposes (see section \ref{sec:access control}) and IVOA Credential Delegation Protocol \citep{std:CDP} to delegate data transfers.
+
+% Note: add 'search' section to above paragraph when reinstated
 
 \subsection{Document roadmap}
 \label{subsec:document roadmap}
@@ -175,7 +178,7 @@ In Section \ref{sec:vospace data model}, we present the data model that underpin
     \item the data format used when transferring data objects across the wire (views)
     \item the transport protocol employed in a data transfer (protocols)
     \item the data transfer itself (transfers)
-    \item searches of data objects (searches)
+%    \item searches of data objects (searches)
 \end{itemize}
 
 We also describe the REST bindings between these representations and their URIs (HTTP identifiers).
@@ -1002,7 +1005,7 @@ The service representation of the results of a Transfer SHALL have the following
 
 \subsubsection{URL Parameter Transfers}
 \label{subsubsec:url parameter transfers}
-A simplified and restricted method of transfer negotiation makes use of URL query string parameters rather than XML documents.  Parameter based transfer negotiation support is optional and is limited to the UWS synchronous transfer endpoint.  An example URL for a parameter transfer negotiation:
+A simplified and restricted method of transfer negotiation makes use of URL query string parameters rather than XML documents.  Parameter based transfer negotiation support is optional and is limited to the UWS synchronous transfer endpoint.  The following is an example URL for a parameter transfer negotiation:
 
 \begin{verbatim}
 http://server.example.com/vospace/synctrans?
@@ -1036,9 +1039,9 @@ The following parameters MAY be supplied by the client requesting a transfer:
     \end{itemize}
 \end{itemize}
 
-Since the parameter values are in the request URL they must be URL-encoded.
+Parameter values must be URL-encoded.
 
-Upon receipt of a parameter based transfer negotiation request to the synchronous transfer endpoint, the service SHALL reply with a XML representation of the transfer results in the response body.  The only exception to this is when the DIRECTION is \emph{pullFromVoSpace} and the REDIRECT parameter is provided and set to \emph{true}, in which case the service SHALL respond with a redirect to the endpoint of the supplied PROTOCOL.
+Upon receipt of a parameter based transfer negotiation request to the synchronous transfer endpoint, the service SHALL reply with a XML representation of the transfer results in the response body.  The only exception to this is when the DIRECTION is \emph{pullFromVoSpace} and the REQUEST=redirect parameter is provided and set to \emph{true}, in which case the service SHALL respond with an HTTP redirect to the endpoint of the supplied PROTOCOL.
 
 \subsubsection{Service-initiated transfers}
 \label{subsubsec:service-initiated transfers}
@@ -1104,54 +1107,55 @@ Some Protocols MAY require the agent to call a callback address when a data tran
 
 If none of the Protocol options succeed, then the transfer SHALL be considered to have failed and the status will be updated.
 
-\subsection{Searches}
-\label{subsec:searches}
-A Search describes the details of data objects in the space which meet specified search criteria, i.e. that are the results of a submitted search request.
-
-A UWS Job representation of a Search SHALL have the following parameters:
-
-\begin{itemize}
-    \item \emph{uri}: An OPTIONAL identifier indicating from which item to continue a search
-    \item \emph{limit}: An OPTIONAL limit indicating the maximum number of results in the response
-        \begin{itemize}
-            \item No limit indicates a request for an unpaged list. However the server MAY still impose its own limit on the size of an individual response, splitting the results into more than one page if required
-        \end{itemize}
-    \item \emph{detail}: The level of detail in the results
-        \begin{itemize}
-            \item min: The list contains the minimum detail for each Node with all optional parts removed - the node type should be returned
-                \begin{itemize}
-                    \item e.g. \emph{<node uri="vos://service/name" xs:type="Node"/>}
-                \end{itemize}
-            \item max : The list contains the maximum detail for each Node, including any xs:type specific extensions
-            \item properties : The list contains a basic node element with a list of properties for each Node with no xs:type specific extensions.
-        \end{itemize}
-    \item \emph{matches}: An OPTIONAL search string consisting of properties and values to match against and joined in conjunction (and) or disjunction (or).
-        \begin{itemize}
-            \item Each property-value pair consists of the uri identifying a particular property and a regular expression against which the property values are to be matched: `uri' = `regex'
-            \item The match pairs can be combined in conjunction and/or disjunction using 'and' and 'or' respectively. For example: (property1 = `value1' and property2 = `value2') or property3 = `value3'.
-            \item The regex syntax SHALL comply with POSIX conventions.
-        \end{itemize}
-    \item \emph{node}: An OPTIONAL URI(s) identifying the starting node for a search, i.e., the matches constraints are applied to this node and its children
-\end{itemize}
-
-This representation will be used as a child of the jobInfo element in a UWS Job representation. For example:
-
-\begin{verbatim}
-<uws:jobInfo>
-  <vos:search>
-    <vos:detail>properties</vos:detail>
-    <vos:matches>
-        ivo://ivoa.net/vospace/core#description="galax"
-    </vos:matches>
-  <vos:search>
-<uws:jobInfo>
-\end{verbatim}
-
-The representation of the results of a Search SHALL have the following members:
-
-\begin{itemize}
-    \item \emph{nodes}: A list containing zero or more Nodes of appropriate detail identifying the target URIs meeting the search criteria
-\end{itemize}
+% Searches have been removed in version 2.1 due to no implementations
+% \subsection{Searches}
+% \label{subsec:searches}
+% A Search describes the details of data objects in the space which meet specified search criteria, i.e. that are the results of a submitted search request.
+% 
+% A UWS Job representation of a Search SHALL have the following parameters:
+% 
+% \begin{itemize}
+%     \item \emph{uri}: An OPTIONAL identifier indicating from which item to continue a search
+%     \item \emph{limit}: An OPTIONAL limit indicating the maximum number of results in the response
+%         \begin{itemize}
+%             \item No limit indicates a request for an unpaged list. However the server MAY still impose its own limit on the size of an individual response, splitting the results into more than one page if required
+%         \end{itemize}
+%     \item \emph{detail}: The level of detail in the results
+%         \begin{itemize}
+%             \item min: The list contains the minimum detail for each Node with all optional parts removed - the node type should be returned
+%                 \begin{itemize}
+%                     \item e.g. \emph{<node uri="vos://service/name" xs:type="Node"/>}
+%                 \end{itemize}
+%             \item max : The list contains the maximum detail for each Node, including any xs:type specific extensions
+%             \item properties : The list contains a basic node element with a list of properties for each Node with no xs:type specific extensions.
+%         \end{itemize}
+%     \item \emph{matches}: An OPTIONAL search string consisting of properties and values to match against and joined in conjunction (and) or disjunction (or).
+%         \begin{itemize}
+%             \item Each property-value pair consists of the uri identifying a particular property and a regular expression against which the property values are to be matched: `uri' = `regex'
+%             \item The match pairs can be combined in conjunction and/or disjunction using 'and' and 'or' respectively. For example: (property1 = `value1' and property2 = `value2') or property3 = `value3'.
+%             \item The regex syntax SHALL comply with POSIX conventions.
+%         \end{itemize}
+%     \item \emph{node}: An OPTIONAL URI(s) identifying the starting node for a search, i.e., the matches constraints are applied to this node and its children
+% \end{itemize}
+% 
+% This representation will be used as a child of the jobInfo element in a UWS Job representation. For example:
+% 
+% \begin{verbatim}
+% <uws:jobInfo>
+%   <vos:search>
+%     <vos:detail>properties</vos:detail>
+%     <vos:matches>
+%         ivo://ivoa.net/vospace/core#description="galax"
+%     </vos:matches>
+%   <vos:search>
+% <uws:jobInfo>
+% \end{verbatim}
+% 
+% The representation of the results of a Search SHALL have the following members:
+% 
+% \begin{itemize}
+%     \item \emph{nodes}: A list containing zero or more Nodes of appropriate detail identifying the target URIs meeting the search criteria
+% \end{itemize}
 
 \subsection{REST bindings}
 \label{subsec:rest bindings}
@@ -1165,8 +1169,8 @@ In a REST (Representational State Transfer) binding of VOSpace, each of the obje
     /views & the views employed in the space \\
     \hline
     /protocols & the protocols employed in the space \\
-    \hline
-    /searches & the searches of the space \\
+%     \hline
+%     /searches & the searches of the space \\
     \hline
     /nodes/(node-path) & a Node under the nodes of the space \\
     \hline
@@ -1202,7 +1206,7 @@ VOSpace implementations may support a number of authentication methods including
 
 For a full list of authentication methods and the associated standardIDs please refer to the document: \href{http://www.ivoa.net/documents/latest/SSOAuthMech.html}{IVOA Single-Sign-On Profile: Authentication Mechanisms}. 	
 
-When a client is requesting a transfer from the service, the authentication type (securityMethod) may be supplied along side the list of transfer protocols. The \emph{securityMethod} is specified by standardID.  If the service supports the requested type, it may base the construction of the endpoint URL for data transfer from this information.  (Services may encounter situations when the URL for data transfer will depend on the authentication type the client wished to use.)
+When a client is requesting a transfer from the service, the authentication type (securityMethod) may be supplied along side the list of transfer protocols. The \emph{securityMethod} is specified by standardID.  If the service supports the requested type, it may base the construction of the endpoint URL for data transfer from this information.  (Services may encounter situations when the URL for data transfer will depend on the authentication type the client wishes to use.)
 
 For backwards compatibility support, services SHALL include the securityMethod element in the transfer response if and only if a securityMethod was provided by the client in the protocol.
 
@@ -1216,7 +1220,7 @@ These are the most probable access policies:
     \item No authorization is required, but clients must authenticate an identity (for logging purposes) in each request to the space
     \item Clients may not create or change nodes (i.e. the contents of the space are fixed by the implementation or set by some interface other than VOSpace), but any client can read any node without authentication
     \item Nodes are considered to be owned by the user who created them. Only the owner can operate on a node
-    \item Node authorization is similar to that of Linux file system permission handling.
+    \item Node authorization is similar to that of Linux file system permission handling with ownership and group membership.
 \end{itemize}
 
 No operations to modify the access policy (e.g. to set permissions on an individual node) are included in this standard. Later versions may add such operations.
@@ -1233,7 +1237,7 @@ A VOSpace 2.1 service SHALL be a RESTful service with the operations listed in t
     \item The URL http://(rest-endpoint)/nodes denotes the URL of the top node in the VOSpace. The URL http://(rest-endpoint)/nodes/(path) denotes a specific node within the VOSpace.
     \item When representing a Fault, the exact specified fault name SHALL be used. If this is followed by some details, the fault SHALL be separated from the subsequent characters by whitespace.
     \item If the service is able to detect an internal system failure (associated with an HTTP 500 status code) then it should indicate this as described below if possible.
-    \item When clients POST or PUT XML documents (such as transfer documents), the Content-Type should be set to either \emph{text/xml} or \emph{application/x-www-form-urlencoded}
+    \item When clients POST or PUT XML documents (such as transfer documents), the Content-Type should be set to \emph{text/xml}
 \end{itemize}
 
 \subsection{Service metadata}
@@ -1279,19 +1283,10 @@ Request:
 \end{lstlisting}
 Response:
 \begin{lstlisting}
-* About to connect() to server.example.com port 80 (#0)
-*   Trying 192.168.0.0... connected
-* Connected to server.example.com (192.168.0.0) port 80 (#0)
 > GET /vospace/protocols HTTP/1.1
-> User-Agent: curl/7.19.7 (universal-apple-darwin10.0) libcurl/7.19.7 OpenSSL/0.9.8y zlib/1.2.3
-> Host: server.example.com
-> Accept: */*
 >
 < HTTP/1.1 200 OK
-< Date: Fri, 22 May 2015 21:22:30 GMT
 < Content-Type: text/xml
-< Connection: close
-< Transfer-Encoding: chunked
 <
 <vos:protocols xmlns="http://www.ivoa.net/xml/VOSpace/v2.1" xmlns:xs="http://www.w3.org/2001/XMLSchema-instance">
   <vos:accepts>
@@ -1303,7 +1298,6 @@ Response:
     <vos:protocol uri="ivo://ivoa.net/vospace/core#httpput"/>
   </vos:provides>
 </vos:protocols>
-* Closing connection #0
 \end{lstlisting}
 
 \subsubsection{getViews}
@@ -1345,21 +1339,10 @@ Request:
 \end{lstlisting}
 Response:
 \begin{lstlisting}
-* About to connect() to server.example.com port 80 (#0)
-*   Trying 192.168.0.0... connected
-* Connected to server.example.com (192.168.0.0) port 80 (#0)
 > GET /vospace/views HTTP/1.1
-> User-Agent: curl/7.19.7 (universal-apple-darwin10.0) libcurl/7.19.7 OpenSSL/0.9.8y zlib/1.2.3
-> Host: server.example.com
-> Accept: */*
 >
 < HTTP/1.1 200 OK
-< Date: Fri, 22 May 2015 21:29:50 GMT
-< Accept-Ranges: bytes
-< Vary: Accept-Charset,Accept-Encoding,Accept-Language,Accept
 < Content-Type: text/xml
-< Connection: close
-< Transfer-Encoding: chunked
 <
 <vos:views xmlns="http://www.ivoa.net/xml/VOSpace/v2.1" xmlns:xs="http://www.w3.org/2001/XMLSchema-instance">
   <vos:accepts>
@@ -1369,7 +1352,6 @@ Response:
     <vos:view uri="ivo://ivoa.net/vospace/core#defaultview"/>
   </vos:provides>
 </vos:views>
-* Closing connection #0
 \end{lstlisting}
 
 \subsubsection{getProperties}
@@ -1403,21 +1385,10 @@ Request:
 \end{lstlisting}
 Response:
 \begin{lstlisting}
-* About to connect() to server.example.com port 80 (#0)
-*   Trying 192.168.0.0... connected
-* Connected to server.example.com (192.168.0.0) port 80 (#0)
 > GET /vospace/properties HTTP/1.1
-> User-Agent: curl/7.19.7 (universal-apple-darwin10.0) libcurl/7.19.7 OpenSSL/0.9.8y zlib/1.2.3
-> Host: server.example.com
-> Accept: */*
 >
 < HTTP/1.1 200 OK
-< Date: Fri, 22 May 2015 21:29:50 GMT
-< Accept-Ranges: bytes
-< Vary: Accept-Charset,Accept-Encoding,Accept-Language,Accept
 < Content-Type: text/xml
-< Connection: close
-< Transfer-Encoding: chunked
 <
 <vos:properties xmlns="http://www.ivoa.net/xml/VOSpace/v2.1" xmlns:xs="http://www.w3.org/2001/XMLSchema-instance">
   <vos:accepts>
@@ -1436,7 +1407,6 @@ Response:
     <vos:property uri="ivo://ivoa.net/vospace/core#description"/>
   </vos:contains>
 </vos:properties>
-* Closing connection #0
 \end{lstlisting}
 
 \subsection{Creating and manipulating data nodes}
@@ -1530,25 +1500,11 @@ Request:
 \end{lstlisting}
 Response:
 \begin{lstlisting}
-* About to connect() to server.example.com port 80 (#0)
-*   Trying 192.168.0.0... connected
-* Connected to server.example.com (192.168.0.0) port 80 (#0)
 > PUT /vospace/nodes/mydata1 HTTP/1.1
-> User-Agent: curl/7.19.7 (universal-apple-darwin10.0) libcurl/7.19.7 OpenSSL/0.9.8y zlib/1.2.3
-> Host: server.example.com
-> Accept: */*
-> Content-Length: 364
 > Content-Type: text/xml
 >
 < HTTP/1.1 200 OK
-< Date: Fri, 22 May 2015 23:06:32 GMT
-< Cache-Control: private
-< Expires: Wed, 31 Dec 1969 16:00:00 PST
-< Accept-Ranges: bytes
-< Vary: Accept-Charset,Accept-Encoding,Accept-Language,Accept
 < Content-Type: text/xml
-< Content-Length: 589
-< Connection: close
 <
 <vos:node xmlns:xi="http://www.w3.org/2001/XMLSchema-instance"
       xmlns="http://www.ivoa.net/xml/VOSpace/v2.1"
@@ -1644,25 +1600,13 @@ Request:
 \end{lstlisting}
 Response:
 \begin{lstlisting}
-* About to connect() to server.example.com port 80 (#0)
-*   Trying 192.168.0.0... connected
-* Connected to server.example.com (192.168.0.0) port 80 (#0)
 > POST /vospace/transfers HTTP/1.1
-> User-Agent: curl/7.19.7 (universal-apple-darwin10.0) libcurl/7.19.7 OpenSSL/0.9.8y zlib/1.2.3
-> Host: server.example.com
-> Accept: */*
-> Content-Length: 261
 > Content-Type: text/xml
 >
 < HTTP/1.1 303 See Other
-< Date: Fri, 22 May 2015 23:44:04 GMT
-< Accept-Ranges: bytes
 < Location: http://server.example.com/vospace/transfers/glmldqf591feljub
-< Content-Length: 0
-< Connection: close
 < Content-Type: text/plain
 <
-* Closing connection #0
 \end{lstlisting}
 Job information can be seen by following the redirect to:
 \begin{lstlisting}
@@ -1670,23 +1614,10 @@ Job information can be seen by following the redirect to:
 \end{lstlisting}
 Response:
 \begin{lstlisting}
-* About to connect() to server.example.com port 80 (#0)
-*   Trying 192.168.0.0... connected
-* Connected to server.example.com (192.168.0.0) port 80 (#0)
 > GET /vospace/transfers/glmldqf591feljub HTTP/1.1
-> User-Agent: curl/7.19.7 (universal-apple-darwin10.0) libcurl/7.19.7 OpenSSL/0.9.8y zlib/1.2.3
-> Host: server.example.com
-> Accept: */*
 >
 < HTTP/1.1 200 OK
-< Date: Fri, 22 May 2015 23:47:26 GMT
-< Cache-Control: private
-< Expires: Wed, 31 Dec 1969 16:00:00 PST
-< Accept-Ranges: bytes
-< Vary: Accept-Charset,Accept-Encoding,Accept-Language,Accept
 < Content-Type: text/xml
-< Connection: close
-< Transfer-Encoding: chunked
 <
 <?xml version="1.0" encoding="UTF-8"?>
 <uws:job xmlns:uws="http://www.ivoa.net/xml/UWS/v1.0" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -1715,25 +1646,13 @@ Now start the UWS job:
 \end{lstlisting}
 Response:
 \begin{lstlisting}
- About to connect() to server.example.com port 80 (#0)
-*   Trying 192.168.0.0... connected
-* Connected to server.example.com (192.168.0.0) port 80 (#0)
 > POST /vospace/transfers/glmldqf591feljub/phase HTTP/1.1
-> User-Agent: curl/7.19.7 (universal-apple-darwin10.0) libcurl/7.19.7 OpenSSL/0.9.8y zlib/1.2.3
-> Host: server.example.com
-> Accept: */*
-> Content-Length: 9
-> Content-Type: application/x-www-form-urlencoded
+> Content-Type: text/xml
 >
 < HTTP/1.1 303 See Other
-< Date: Sun, 24 May 2015 16:51:37 GMT
-< Accept-Ranges: bytes
 < Location: http://server.example.com/vospace/transfers/glmldqf591feljub
-< Content-Length: 0
-< Connection: close
 < Content-Type: text/plain
 <
-* Closing connection #0
 \end{lstlisting}
 Follow the redirect to see the phase.  The job will be either RUNNING, COMPLETED or ERROR.
 \begin{lstlisting}
@@ -1741,25 +1660,11 @@ Follow the redirect to see the phase.  The job will be either RUNNING, COMPLETED
 \end{lstlisting}
 Response:
 \begin{lstlisting}
-* About to connect() to server.example.com port 80 (#0)
-*   Trying 192.168.0.0... connected
-* Connected to server.example.com (192.168.0.0) port 80 (#0)
 > GET /vospace/transfers/glmldqf591feljub/phase HTTP/1.1
-> User-Agent: curl/7.19.7 (universal-apple-darwin10.0) libcurl/7.19.7 OpenSSL/0.9.8y zlib/1.2.3
-> Host: server.example.com
-> Accept: */*
 >
 < HTTP/1.1 200 OK
-< Date: Sun, 24 May 2015 16:51:45 GMT
-< Cache-Control: private
-< Expires: Wed, 31 Dec 1969 16:00:00 PST
-< Accept-Ranges: bytes
-< Vary: Accept-Charset,Accept-Encoding,Accept-Language,Accept
 < Content-Type: text/plain;charset=UTF-8
-< Content-Length: 5
-< Connection: close
 <
-* Closing connection #0
 COMPLETED
 \end{lstlisting}
 If the job is in phase RUNNING, the phase can be polled intermittently until it is COMPLETED or ERROR.
@@ -1837,22 +1742,11 @@ Request:
 \end{lstlisting}
 Response:
 \begin{lstlisting}
-* About to connect() to server.example.com port 80 (#0)
-*   Trying 192.168.0.0... connected
-* Connected to server.example.com (192.168.0.0) port 80 (#0)
 > POST /vospace/transfers HTTP/1.1
-> User-Agent: curl/7.19.7 (universal-apple-darwin10.0) libcurl/7.19.7 OpenSSL/0.9.8y zlib/1.2.3
-> Host: server.example.com
-> Accept: */*
-> Content-Length: 261
 > Content-Type: text/xml
 >
 < HTTP/1.1 303 See Other
-< Date: Fri, 22 May 2015 23:44:04 GMT
-< Accept-Ranges: bytes
 < Location: http://server.example.com/vospace/transfers/usil5s8mdbgjwzvq
-< Content-Length: 0
-< Connection: close
 < Content-Type: text/plain
 <
 * Closing connection #0
@@ -1863,23 +1757,10 @@ Job information can be seen by following the redirect to:
 \end{lstlisting}
 Response:
 \begin{lstlisting}
-* About to connect() to server.example.com port 80 (#0)
-*   Trying 192.168.0.0... connected
-* Connected to server.example.com (192.168.0.0) port 80 (#0)
 > GET /vospace/transfers/usil5s8mdbgjwzvq HTTP/1.1
-> User-Agent: curl/7.19.7 (universal-apple-darwin10.0) libcurl/7.19.7 OpenSSL/0.9.8y zlib/1.2.3
-> Host: server.example.com
-> Accept: */*
 >
 < HTTP/1.1 200 OK
-< Date: Fri, 22 May 2015 23:47:26 GMT
-< Cache-Control: private
-< Expires: Wed, 31 Dec 1969 16:00:00 PST
-< Accept-Ranges: bytes
-< Vary: Accept-Charset,Accept-Encoding,Accept-Language,Accept
 < Content-Type: text/xml
-< Connection: close
-< Transfer-Encoding: chunked
 <
 <?xml version="1.0" encoding="UTF-8"?>
 <uws:job xmlns:uws="http://www.ivoa.net/xml/UWS/v1.0" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -1910,25 +1791,13 @@ Now start the UWS job:
 \end{lstlisting}
 Response:
 \begin{lstlisting}
- About to connect() to server.example.com port 80 (#0)
-*   Trying 192.168.0.0... connected
-* Connected to server.example.com (192.168.0.0) port 80 (#0)
 > POST /vospace/transfers/usil5s8mdbgjwzvq/phase HTTP/1.1
-> User-Agent: curl/7.19.7 (universal-apple-darwin10.0) libcurl/7.19.7 OpenSSL/0.9.8y zlib/1.2.3
-> Host: server.example.com
-> Accept: */*
-> Content-Length: 9
-> Content-Type: application/x-www-form-urlencoded
+> Content-Type: text/xml
 >
 < HTTP/1.1 303 See Other
-< Date: Sun, 24 May 2015 16:51:37 GMT
-< Accept-Ranges: bytes
 < Location: http://server.example.com/vospace/transfers/usil5s8mdbgjwzvq
-< Content-Length: 0
-< Connection: close
 < Content-Type: text/plain
 <
-* Closing connection #0
 \end{lstlisting}
 Follow the redirect to see the phase.  The job will be either RUNNING, COMPLETED or ERROR.
 \begin{lstlisting}
@@ -1936,25 +1805,11 @@ Follow the redirect to see the phase.  The job will be either RUNNING, COMPLETED
 \end{lstlisting}
 Response:
 \begin{lstlisting}
-* About to connect() to server.example.com port 80 (#0)
-*   Trying 192.168.0.0... connected
-* Connected to server.example.com (192.168.0.0) port 80 (#0)
 > GET /vospace/transfers/usil5s8mdbgjwzvq/phase HTTP/1.1
-> User-Agent: curl/7.19.7 (universal-apple-darwin10.0) libcurl/7.19.7 OpenSSL/0.9.8y zlib/1.2.3
-> Host: server.example.com
-> Accept: */*
 >
 < HTTP/1.1 200 OK
-< Date: Sun, 24 May 2015 16:51:45 GMT
-< Cache-Control: private
-< Expires: Wed, 31 Dec 1969 16:00:00 PST
-< Accept-Ranges: bytes
-< Vary: Accept-Charset,Accept-Encoding,Accept-Language,Accept
 < Content-Type: text/plain;charset=UTF-8
-< Content-Length: 5
-< Connection: close
 <
-* Closing connection #0
 COMPLETED
 \end{lstlisting}
 If the job is in phase RUNNING, the phase can be polled intermittently until it is COMPLETED or ERROR.
@@ -2004,25 +1859,11 @@ Request:
 \end{lstlisting}
 Response:
 \begin{lstlisting}
-* About to connect() to example.server.com port 80 (#0)
-*   Trying 192.168.0.0... connected
-* Connected to example.server.com (192.168.0.0) port 80 (#0)
 > DELETE /vospace/nodes/mydata1 HTTP/1.1
-> User-Agent: curl/7.19.7 (universal-apple-darwin10.0) libcurl/7.19.7 OpenSSL/0.9.8y zlib/1.2.3
-> Host: server.example.com
-> Accept: */*
 >
 < HTTP/1.1 200 OK
-< Date: Sun, 24 May 2015 22:10:57 GMT
-< Cache-Control: private
-< Expires: Wed, 31 Dec 1969 16:00:00 PST
-< Accept-Ranges: bytes
-< Vary: Accept-Charset,Accept-Encoding,Accept-Language,Accept
-< Content-Length: 0
-< Connection: close
 < Content-Type: text/plain
 <
-* Closing connection #0
 \end{lstlisting}
 
 \subsection{Accessing metadata}
@@ -2085,23 +1926,10 @@ Request:
 \end{lstlisting}
 Response:
 \begin{lstlisting}
-* About to connect() to server.example.com port 80 (#0)
-*   Trying 192.168.0.0... connected
-* Connected to server.example.com (192.168.0.0) port 80 (#0)
 > GET /vospace/nodes/mydir?detail=min&uri=vos://example.com!vospace/mydir/file3401 HTTP/1.1
-> User-Agent: curl/7.19.7 (universal-apple-darwin10.0) libcurl/7.19.7 OpenSSL/0.9.8y zlib/1.2.3
-> Host: server.example.com
-> Accept: */*
 >
 < HTTP/1.1 200 OK
-< Date: Sun, 24 May 2015 22:18:15 GMT
-< Cache-Control: private
-< Expires: Wed, 31 Dec 1969 16:00:00 PST
-< Accept-Ranges: bytes
-< Vary: Accept-Charset,Accept-Encoding,Accept-Language,Accept
 < Content-Type: text/xml
-< Content-Length: 1205
-< Connection: close
 <
 <?xml version="1.0" encoding="UTF-8"?>
 <vos:node xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1" xmlns:xs="http://www.w3.org/2001/XMLSchema-instance" uri="vos://example.com!vospace/mydir" xs:type="vos:ContainerNode">
@@ -2120,7 +1948,6 @@ Response:
     <vos:node uri="vos://example.com!vospace/mydir/file3406" xs:type="vos:DataNode"/>
     <vos:node uri="vos://example.com!vospace/mydir/file3532" xs:type="vos:DataNode"/>
   </vos:nodes>
-* Closing connection #0
 \end{lstlisting}
 
 \subsubsection{setNode}
@@ -2179,24 +2006,12 @@ Request:
 > curl -v -X POST -d @setNode.xml -H "Content-type: text/xml" "http://server.example.com/vospace/nodes/mydata1"
 \end{lstlisting}
 Response:
-\begin{lstlisting}
-* About to connect() to server.example.com port 80 (#0)
-*   Trying 192.168.0.0... connected
-* Connected to server.example.com (192.168.0.0) port 80 (#0)
+\begin{lstlisting}0)
 > POST /vospace/nodes/mydata1 HTTP/1.1
-> User-Agent: curl/7.19.7 (universal-apple-darwin10.0) libcurl/7.19.7 OpenSSL/0.9.8y zlib/1.2.3
-> Host: server.example.com
-> Accept: */*
 > Content-type: text/xml
-> Content-Length: 399
 >
 < HTTP/1.1 200 OK
-< Date: Sun, 24 May 2015 23:02:10 GMT
-< Accept-Ranges: bytes
-< Vary: Accept-Charset,Accept-Encoding,Accept-Language,Accept
 < Content-Type: text/xml
-< Content-Length: 1138
-< Connection: close
 <
 <?xml version="1.0" encoding="UTF-8"?>
 <vos:node xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1" xmlns:xs="http://www.w3.org/2001/XMLSchema-instance" uri="vos://cadc.nrc.ca!vospace/mydata1" xs:type="vos:DataNode" busy="false">
@@ -2211,174 +2026,138 @@ Response:
   </vos:accepts>
   <vos:provides />
 </vos:node>
-* Closing connection #0
 \end{lstlisting}
 
-\subsubsection{findNodes}
-\label{subsubsec:findnodes}
-Find nodes whose properties match the specified values.
-
-This operation is OPTIONAL.
-
-\paragraph{Request}
-A HTTP POST of a Job representation of a Search (see section 3.7) to http://rest-endpoint/searches
-A null value of the "matches" parameter implies a full listing of the space.
-
-\paragraph{Response}
-The initial response is a HTTP 303 status code with the Location header keyword assigned to the created job.
-
-The search results representation can be retrieved directly from the link reported in the Results List, available from the results endpoint - http://rest-endpoint/searches/(jobid)/results -, the standard UWS location under the results endpoint - http://rest-endpoint/searches/(jobid)/results/searchDetails - (which may well just be a redirect to the former link), or as part of the full Job representation from http://rest-endpoint/searches/(jobid). The result element in the Results List SHALL have an id of "searchDetails":
-
-\begin{lstlisting}
-<uws:job>
-...
-  <uws:results>
-   <uws:result id="searchDetails" xlink:href="http://rest-endpoint/searches/(jobid)/results/listing1"/>
-  </uws:results>
-...
-</uws:job>
-\end{lstlisting}
-
-\paragraph{Faults}
-For all faults, the service shall set the PHASE to ``ERROR'' in the Job representation. The <errorSummary> element in the Job representation shall be set to the appropriate value for the fault type and the appropriate fault representation (see section 5.5) provided at the error URI: http://rest-endpoint/transfers/(jobid)/error.
-
-\vspace{3mm}
-\begin{tabular}{ p{5cm} l p{4cm} }
-\textbf{Fault description} & \textbf{errorSummary} & \textbf{Fault representation} \\
-\hline
-Operation not supported & Operation Not Supported & OperationNotSupported \\
-\hline
-Operation fails & Internal Fault & InternalFault \\
-\hline
-User does not have permissions to perform the operation	 & Permission Denied & PermissionDenied \\
-\hline
-A particular property is specified and does not exist in the space & Property Not Found & PropertyNotFound \\
-\hline
-\end{tabular}
-\vspace{3mm}
-
-\paragraph{Example}
-
-\begin{lstlisting}
-TO BE COMPLETED
-TODO: Add vos:search type to VOSpace-2.1.XSD
-\end{lstlisting}
-
-Find VOSpace nodes
-\\[5px]
-\noindent
-The Job to be submitted (searchJob.xml) is:
-\begin{lstlisting}
-<vos:search xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1">
-  <vos:detail>properties</vos:detail>
-  <vos:matches>ivo://ivoa.net/vospace/core#description='galax'</vos:matches>
-<vos:search>
-\end{lstlisting}
-Request:
-\begin{lstlisting}
-> curl -v -X POST -d @searchJob.xml -H "Content-type: text/xml" "http://localhost:8000/searches"
-\end{lstlisting}
-Response:
-\begin{lstlisting}
-* Connected to localhost (127.0.0.1) port 8000 (#0)
-> POST /searches HTTP/1.1
-> User-Agent: curl/7.19.4 (universal-apple-darwin10.0) libcurl/7.19.4 OpenSSL/0.9.8l zlib/1.2.3
-> Host: localhost:8000
-> Accept: */*
-> Content-Length: 684
-> Content-Type: application/x-www-form-urlencoded
-> 
-< HTTP/1.1 303 See Other
-< Content-Length: 172
-< Server: CherryPy/3.1.2
-< Location: http://localhost:8080/searches/8c5b0f78cd5a44af8694f10da1b92060
-< Allow: DELETE, GET, HEAD, POST, PUT
-< Date: Fri, 12 Mar 2010 19:50:12 GMT
-< Content-Type: text/html
-< 
-* Connection #0 to host localhost left intact
-* Closing connection #0
-\end{lstlisting}
-This resource can be found at:
-\begin{lstlisting}
-http://localhost:8080/searches/8c5b0f78cd5a44af8694f10da1b92060
-\end{lstlisting}
-The status of the job can now be polled at the job location:
-\begin{lstlisting}
-> curl -v "http://localhost:8000/searches/8c6e7bc53ee848638cda35817e47da65"
-\end{lstlisting}
-Response:
-\begin{lstlisting}
-* Connected to localhost (127.0.0.1) port 8000 (#0)
-> GET /searches/8c6e7bc53ee848638cda35817e47da65 HTTP/1.1
-> User-Agent: curl/7.19.4 (universal-apple-darwin10.0) libcurl/7.19.4 OpenSSL/0.9.8l zlib/1.2.3
-> Host: localhost:8000
-> Accept: */*
-> 
-< HTTP/1.1 200 OK
-< Date: Fri, 12 Mar 2010 19:51:24 GMT
-< Content-Length: 891
-< Content-Type: text/html
-< Allow: DELETE, GET, HEAD, POST, PUT
-< Server: CherryPy/3.1.2
-< 
-<uws:job xmlns:uws="http://www.ivoa.net/xml/UWS/v1.0" xmlns:xlink="http://www.w3.org/1999/xlink"
-  xmlns:xs="http://www.w3.org/2001/XMLSchema-instance" xs:schemaLocation="http://www.ivoa.net/xml/UWS/v1.0 UWS.xsd ">
-  <uws:jobId>8c6e7bc53ee848638cda35817e47da65<
-  <uws:ownerId xs:nil="true"/>
-  <uws:phase>COMPLETED</uws:phase>
-  <uws:startTime>2010-03-12T19:50:56.552278</uws:startTime>
-  <uws:endTime>2010-03-12T19:50:56.562416</uws:endTime>
-  <uws:executionDuration>0</uws:executionDuration>
-  <uws:destruction xs:nil="true"/>
-  <uws:jobInfo>
-    <vos:search>
-      <vos:detail>properties</vos:detail>
-      <vos:matches>ivo://ivoa.net/vospace/core#description='galax'</vos:matches>
-    <vos:search>
-  <uws:jobInfo>
-  <uws:results>
-    <uws:result id="searchDetails" xlink:href="http://localhost:8000/searches/d55814f88d974c21afe5ad50e4e875c8/results/listing1"/>
-  </uws:results>
-</uws:job>
-* Connection #0 to host localhost left intact
-* Closing connection #0
-\end{lstlisting}
-Once the Job has completed, the result can be obtained from the URL reported in the result element:
-\begin{lstlisting}
-> curl -v "http://localhost:8000/searches/d55814f88d974c21afe5ad50e4e875c8/results/listing1"
-\end{lstlisting}
-Response:
-\begin{lstlisting}
-* Connected to localhost (127.0.0.1) port 8000 (#0)
-> GET /searches/d55814f88d974c21afe5ad50e4e875c8/results/listing1 HTTP/1.1
-> User-Agent: curl/7.19.4 (universal-apple-darwin10.0) libcurl/7.19.4 OpenSSL/0.9.8l zlib/1.2.3
-> Host: localhost:8000
-> Accept: */*
-> 
-< HTTP/1.1 200 OK
-< Date: Fri, 12 Mar 2010 20:29:25 GMT
-< Content-Length: 586
-< Content-Type: text/html
-< Allow: DELETE, GET, HEAD, POST, PUT
-< Server: CherryPy/3.1.2
-< 
-<nodes xmlns="http://www.ivoa.net/xml/VOSpace/v2.1"
-xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-  <node uri="vos://nvo.caltech!vospace/mydir/img1" xs:type="vos:UnstructuredDataNode">
-    <properties>
-      <property uri="ivo://ivoa.net/vospace/core#description">This is an R-band image of the galaxy NGC 3276</property>
-    </properties>
-  </node>
-  <node uri="vos://nvo.caltech!vospace/mydir/img5" xs:type="vos:StructuredDataNode">
-    <properties>
-      <property uri="ivo://ivoa.net/vospace/core#description">This is a Chandra mosaic of the Fornax cluster of galaxies</property>
-    </properties>
-  </node>
-</nodes>
-* Connection #0 to host localhost left intact
-* Closing connection #0
-\end{lstlisting}
+% \subsubsection{findNodes}
+% \label{subsubsec:findnodes}
+% Find nodes whose properties match the specified values.
+% 
+% This operation is OPTIONAL.
+% 
+% \paragraph{Request}
+% A HTTP POST of a Job representation of a Search (see section 3.7) to http://rest-endpoint/searches
+% A null value of the "matches" parameter implies a full listing of the space.
+% 
+% \paragraph{Response}
+% The initial response is a HTTP 303 status code with the Location header keyword assigned to the created job.
+% 
+% The search results representation can be retrieved directly from the link reported in the Results List, available from the results endpoint - http://rest-endpoint/searches/(jobid)/results -, the standard UWS location under the results endpoint - http://rest-endpoint/searches/(jobid)/results/searchDetails - (which may well just be a redirect to the former link), or as part of the full Job representation from http://rest-endpoint/searches/(jobid). The result element in the Results List SHALL have an id of "searchDetails":
+% 
+% \begin{lstlisting}
+% <uws:job>
+% ...
+%   <uws:results>
+%    <uws:result id="searchDetails" xlink:href="http://rest-endpoint/searches/(jobid)/results/listing1"/>
+%   </uws:results>
+% ...
+% </uws:job>
+% \end{lstlisting}
+% 
+% \paragraph{Faults}
+% For all faults, the service shall set the PHASE to ``ERROR'' in the Job representation. The <errorSummary> element in the Job representation shall be set to the appropriate value for the fault type and the appropriate fault representation (see section 5.5) provided at the error URI: http://rest-endpoint/transfers/(jobid)/error.
+% 
+% \vspace{3mm}
+% \begin{tabular}{ p{5cm} l p{4cm} }
+% \textbf{Fault description} & \textbf{errorSummary} & \textbf{Fault representation} \\
+% \hline
+% Operation not supported & Operation Not Supported & OperationNotSupported \\
+% \hline
+% Operation fails & Internal Fault & InternalFault \\
+% \hline
+% User does not have permissions to perform the operation	 & Permission Denied & PermissionDenied \\
+% \hline
+% A particular property is specified and does not exist in the space & Property Not Found & PropertyNotFound \\
+% \hline
+% \end{tabular}
+% \vspace{3mm}
+% 
+% \paragraph{Example}
+% 
+% 
+% Find VOSpace nodes
+% \\[5px]
+% \noindent
+% The Job to be submitted (searchJob.xml) is:
+% \begin{lstlisting}
+% <vos:search xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1">
+%   <vos:detail>properties</vos:detail>
+%   <vos:matches>ivo://ivoa.net/vospace/core#description='galax'</vos:matches>
+% <vos:search>
+% \end{lstlisting}
+% Request:
+% \begin{lstlisting}
+% > curl -v -X POST -d @searchJob.xml -H "Content-type: text/xml" "http://localhost:8000/searches"
+% \end{lstlisting}
+% Response:
+% \begin{lstlisting}
+% > POST /searches HTTP/1.1
+% > Content-Type: text/xml
+% > 
+% < HTTP/1.1 303 See Other
+% < Location: http://localhost:8080/searches/8c5b0f78cd5a44af8694f10da1b92060
+% < Content-Type: text/html
+% < 
+% \end{lstlisting}
+% This resource can be found at:
+% \begin{lstlisting}
+% http://localhost:8080/searches/8c5b0f78cd5a44af8694f10da1b92060
+% \end{lstlisting}
+% The status of the job can now be polled at the job location:
+% \begin{lstlisting}
+% > curl -v "http://localhost:8000/searches/8c6e7bc53ee848638cda35817e47da65"
+% \end{lstlisting}
+% Response:
+% \begin{lstlisting}
+% > GET /searches/8c6e7bc53ee848638cda35817e47da65 HTTP/1.1
+% > 
+% < HTTP/1.1 200 OK
+% < Content-Type: text/xml
+% < 
+% <uws:job xmlns:uws="http://www.ivoa.net/xml/UWS/v1.0" xmlns:xlink="http://www.w3.org/1999/xlink"
+%   xmlns:xs="http://www.w3.org/2001/XMLSchema-instance" xs:schemaLocation="http://www.ivoa.net/xml/UWS/v1.0 UWS.xsd ">
+%   <uws:jobId>8c6e7bc53ee848638cda35817e47da65<
+%   <uws:ownerId xs:nil="true"/>
+%   <uws:phase>COMPLETED</uws:phase>
+%   <uws:startTime>2010-03-12T19:50:56.552278</uws:startTime>
+%   <uws:endTime>2010-03-12T19:50:56.562416</uws:endTime>
+%   <uws:executionDuration>0</uws:executionDuration>
+%   <uws:destruction xs:nil="true"/>
+%   <uws:jobInfo>
+%     <vos:search>
+%       <vos:detail>properties</vos:detail>
+%       <vos:matches>ivo://ivoa.net/vospace/core#description='galax'</vos:matches>
+%     <vos:search>
+%   <uws:jobInfo>
+%   <uws:results>
+%     <uws:result id="searchDetails" xlink:href="http://localhost:8000/searches/d55814f88d974c21afe5ad50e4e875c8/results/listing1"/>
+%   </uws:results>
+% </uws:job>
+% \end{lstlisting}
+% Once the Job has completed, the result can be obtained from the URL reported in the result element:
+% \begin{lstlisting}
+% > curl -v "http://localhost:8000/searches/d55814f88d974c21afe5ad50e4e875c8/results/listing1"
+% \end{lstlisting}
+% Response:
+% \begin{lstlisting}
+% > GET /searches/d55814f88d974c21afe5ad50e4e875c8/results/listing1 HTTP/1.1
+% > 
+% < HTTP/1.1 200 OK
+% < Content-Type: text/html
+% < 
+% <nodes xmlns="http://www.ivoa.net/xml/VOSpace/v2.1"
+% xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+%   <node uri="vos://nvo.caltech!vospace/mydir/img1" xs:type="vos:UnstructuredDataNode">
+%     <properties>
+%       <property uri="ivo://ivoa.net/vospace/core#description">This is an R-band image of the galaxy NGC 3276</property>
+%     </properties>
+%   </node>
+%   <node uri="vos://nvo.caltech!vospace/mydir/img5" xs:type="vos:StructuredDataNode">
+%     <properties>
+%       <property uri="ivo://ivoa.net/vospace/core#description">This is a Chandra mosaic of the Fornax cluster of galaxies</property>
+%     </properties>
+%   </node>
+% </nodes>
+% \end{lstlisting}
 
 \subsection{Transferring data}
 \label{subsec:transferringdata}
@@ -2446,7 +2225,7 @@ A pushToVoSpace transfer may be initiated with an HTTP POST of a Job representat
 
 A pushToVoSpace transfer may be initiated with an HTTP POST of a Job representation of the transfer to http://rest-endpoint/synctrans. The service SHALL respond with a redirect to the transfer details of the job.  (See Example 2)
 
-A pushToVoSpace transfer may be initiated with an HTTP POST or GET to http://rest-endpoint/synctrans with the following URL query parameters:
+A pushToVoSpace transfer may be initiated with an HTTP POST or GET to http://rest-endpoint/synctrans with the following required URL query parameters:
 \begin{itemize}
     \item \emph{TARGET}: The value is the URI of the target node
         \begin{itemize}
@@ -2458,6 +2237,19 @@ A pushToVoSpace transfer may be initiated with an HTTP POST or GET to http://res
            \item Example: ivo://ivoa.net/vospace/core\#httpput
         \end{itemize}
 \end{itemize}
+
+The following optional parameters may also be included:
+\begin{itemize}
+    \item \emph{VIEW}: The standard URI of the view to use
+        \begin{itemize}
+           \item Example:  ivo://ivoa.net/vospace/core\#fits
+        \end{itemize}
+    \item \emph{SECURITYMETHOD}: The standard URI of the security method to use
+        \begin{itemize}
+           \item Example:  ivo://ivoa.net/sso\#tls-with-certificate
+        \end{itemize}
+\end{itemize}
+
 The service SHALL respond with the job containing the transfer results in the response body.  (See Example 3)
 
 \paragraph{Response}
@@ -2481,6 +2273,8 @@ For synchronous job postings:
     \item A HTTP 303 status code with the Location header keyword assigned to the endpoint: http://rest-endpoint/transfers/(jobid)/results/transferDetails.
 \end{itemize}
 The HTTP 303 redirect points to a transfer representation with the required transfer details and endpoints.
+
+For parameter based transfers, the transfer representation with the required transfer details and endpoints is returned directly in the response--no redirect is issued.
 
 \paragraph{Faults}
 For all faults using the UWS mode, the service shall set the PHASE to "ERROR" in the Job representation. The <errorSummary> element in the Job representation shall be set to the appropriate value for the fault type and the appropriate fault representation (see section 5.5) provided at the error URI: http://rest-endpoint/transfers/(jobid)/error.
@@ -2528,25 +2322,13 @@ Request:
 \end{lstlisting}
 Response:
 \begin{lstlisting}
-* About to connect() to server.example.com port 80 (#0)
-*   Trying 132.246.217.44... connected
-* Connected to server.example.com (132.246.217.44) port 80 (#0)
 > POST /vospace/transfers HTTP/1.1
-> User-Agent: curl/7.19.7 (universal-apple-darwin10.0) libcurl/7.19.7 OpenSSL/0.9.8y zlib/1.2.3
-> Host: server.example.com
-> Accept: */*
 > Content-type: text/xml
-> Content-Length: 311
 >
 < HTTP/1.1 303 See Other
-< Date: Mon, 25 May 2015 23:06:45 GMT
-< Accept-Ranges: bytes
 < Location: http://server.example.com/vospace/transfers/zkqzpftmufdi8luh
-< Content-Length: 0
-< Connection: close
 < Content-Type: text/plain
 <
-* Closing connection #0
 \end{lstlisting}
 The PENDING job can be seen by following the redirect to:
 \begin{lstlisting}
@@ -2554,23 +2336,10 @@ The PENDING job can be seen by following the redirect to:
 \end{lstlisting}
 Response:
 \begin{lstlisting}
-* About to connect() to server.example.com port 80 (#0)
-*   Trying 132.246.217.44... connected
-* Connected to server.example.com (132.246.217.44) port 80 (#0)
 > GET /vospace/transfers/zkqzpftmufdi8luh HTTP/1.1
-> User-Agent: curl/7.19.7 (universal-apple-darwin10.0) libcurl/7.19.7 OpenSSL/0.9.8y zlib/1.2.3
-> Host: server.example.com
-> Accept: */*
 >
 < HTTP/1.1 200 OK
-< Date: Mon, 25 May 2015 23:12:24 GMT
-< Cache-Control: private
-< Expires: Wed, 31 Dec 1969 16:00:00 PST
-< Accept-Ranges: bytes
-< Vary: Accept-Charset,Accept-Encoding,Accept-Language,Accept
 < Content-Type: text/xml
-< Connection: close
-< Transfer-Encoding: chunked
 <
 <?xml version="1.0" encoding="UTF-8"?>
 <uws:job xmlns:uws="http://www.ivoa.net/xml/UWS/v1.0" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -2592,7 +2361,6 @@ Response:
     </vos:transfer>
   </uws:jobInfo>
 </uws:job>
-* Closing connection #0
 \end{lstlisting}
 The job can now be started by posting PHASE=RUN:
 \begin{lstlisting}
@@ -2600,25 +2368,13 @@ curl -v -X POST -d "PHASE=RUN" http://server.example.com/vospace/transfers/zkqzp
 \end{lstlisting}
 Response:
 \begin{lstlisting}
-* About to connect() to server.example.com port 80 (#0)
-*   Trying 132.246.217.44... connected
-* Connected to server.example.com (132.246.217.44) port 80 (#0)
 > POST /vospace/transfers/zkqzpftmufdi8luh/phase HTTP/1.1
-> User-Agent: curl/7.19.7 (universal-apple-darwin10.0) libcurl/7.19.7 OpenSSL/0.9.8y zlib/1.2.3
-> Host: server.example.com
-> Accept: */*
-> Content-Length: 9
-> Content-Type: application/x-www-form-urlencoded
+> Content-Type: text/xml
 >
 < HTTP/1.1 303 See Other
-< Date: Mon, 25 May 2015 23:17:41 GMT
-< Accept-Ranges: bytes
 < Location: http://server.examle.com/vospace/transfers/zkqzpftmufdi8luh
-< Content-Length: 0
-< Connection: close
 < Content-Type: text/plain
 <
-* Closing connection #0
 \end{lstlisting}
 The EXECUTING job can be seen by following the redirect to:
 \begin{lstlisting}
@@ -2626,23 +2382,10 @@ http://server.examle.com/vospace/transfers/zkqzpftmufdi8luh
 \end{lstlisting}
 Response:
 \begin{lstlisting}
-* About to connect() to server.example.com port 80 (#0)
-*   Trying 132.246.217.44... connected
-* Connected to server.example.com (132.246.217.44) port 80 (#0)
 > GET /vospace/transfers/zkqzpftmufdi8luh HTTP/1.1
-> User-Agent: curl/7.19.7 (universal-apple-darwin10.0) libcurl/7.19.7 OpenSSL/0.9.8y zlib/1.2.3
-> Host: server.example.com
-> Accept: */*
 >
 < HTTP/1.1 200 OK
-< Date: Mon, 25 May 2015 23:17:46 GMT
-< Cache-Control: private
-< Expires: Wed, 31 Dec 1969 16:00:00 PST
-< Accept-Ranges: bytes
-< Vary: Accept-Charset,Accept-Encoding,Accept-Language,Accept
 < Content-Type: text/xml
-< Connection: close
-< Transfer-Encoding: chunked
 <
 <?xml version="1.0" encoding="UTF-8"?>
 <uws:job xmlns:uws="http://www.ivoa.net/xml/UWS/v1.0" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -2667,7 +2410,6 @@ Response:
     </vos:transfer>
   </uws:jobInfo>
 </uws:job>
-* Closing connection #0
 \end{lstlisting}
 The details of the transfer negotiation can be see by following the \emph{transferDetails} result:
 \begin{lstlisting}
@@ -2675,21 +2417,10 @@ The details of the transfer negotiation can be see by following the \emph{transf
 \end{lstlisting}
 Response:
 \begin{lstlisting}
-* About to connect() to server.example.com port 80 (#0)
-*   Trying 132.246.217.44... connected
-* Connected to server.example.com (132.246.217.44) port 80 (#0)
 > GET /vospace/transfers/zkqzpftmufdi8luh/results/transferDetails HTTP/1.1
-> User-Agent: curl/7.19.7 (universal-apple-darwin10.0) libcurl/7.19.7 OpenSSL/0.9.8y zlib/1.2.3
-> Host: server.example.com
-> Accept: */*
 >
 < HTTP/1.1 200 OK
-< Date: Mon, 25 May 2015 23:26:48 GMT
-< Cache-Control: private
-< Expires: Wed, 31 Dec 1969 16:00:00 PST
-< Content-Type: text/xml;charset=ISO-8859-1
-< Connection: close
-< Transfer-Encoding: chunked
+< Content-Type: text/xml;charset=UTF-8
 <
 <?xml version="1.0" encoding="UTF-8"?>
 <vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1">
@@ -2702,7 +2433,6 @@ Response:
     <vos:endpoint>http://storage2.example.com/mydata1</vos:endpoint>
   </vos:protocol>
 </vos:transfer>
-* Closing connection #0
 \end{lstlisting}
 The FITS file can now be pushed over HTTP PUT to one of the endpoints listed in the transfer details.
 \begin{lstlisting}
@@ -2710,24 +2440,13 @@ The FITS file can now be pushed over HTTP PUT to one of the endpoints listed in 
 \end{lstlisting}
 Response:
 \begin{lstlisting}
-* About to connect() to storage1.example.com port 80 (#0)
-*   Trying 132.246.217.45... connected
-* Connected to storage1.example.com (132.246.217.45) port 80 (#0)
 > PUT /trans/mydata1 HTTP/1.1
-> User-Agent: curl/7.19.7 (universal-apple-darwin10.0) libcurl/7.19.7 OpenSSL/0.9.8y zlib/1.2.3
-> Host: storage1.example.com
-> Accept: */*
-> Content-Length: 2341
-> Expect: 100-continue
+> Content-Type: text/xml
 >
 < HTTP/1.1 100 Continue
 < HTTP/1.1 200 OK
-< Date: Mon, 25 May 2015 23:33:17 GMT
-< Content-Length: 0
-< Connection: close
 < Content-Type: text/plain
 <
-* Closing connection #0
 \end{lstlisting}
 On successful file transfer completion the job will be COMPLETED:
 \begin{lstlisting}
@@ -2735,25 +2454,11 @@ curl -v http://server.examle.com/vospace/transfers/zkqzpftmufdi8luh/phase
 \end{lstlisting}
 Response:
 \begin{lstlisting}
-* About to connect() to server.example.com port 80 (#0)
-*   Trying 192.168.0.0... connected
-* Connected to server.example.com (192.168.0.0) port 80 (#0)
 > GET /vospace/transfers/zkqzpftmufdi8luh/phase HTTP/1.1
-> User-Agent: curl/7.19.7 (universal-apple-darwin10.0) libcurl/7.19.7 OpenSSL/0.9.8y zlib/1.2.3
-> Host: server.example.com
-> Accept: */*
 >
 < HTTP/1.1 200 OK
-< Date: Mon, 25 May 2015 23:37:38 GMT
-< Cache-Control: private
-< Expires: Wed, 31 Dec 1969 16:00:00 PST
-< Accept-Ranges: bytes
-< Vary: Accept-Charset,Accept-Encoding,Accept-Language,Accept
 < Content-Type: text/plain;charset=UTF-8
-< Content-Length: 9
-< Connection: close
 <
-* Closing connection #0
 COMPLETED
 \end{lstlisting}
 
@@ -2776,25 +2481,13 @@ Request:
 \end{lstlisting}
 Response:
 \begin{lstlisting}
-* About to connect() to server.example.com port 80 (#0)
-*   Trying 132.246.217.44... connected
-* Connected to server.example.com (132.246.217.44) port 80 (#0)
 > POST /vospace/synctrans HTTP/1.1
-> User-Agent: curl/7.19.7 (universal-apple-darwin10.0) libcurl/7.19.7 OpenSSL/0.9.8y zlib/1.2.3
-> Host: server.example.com
-> Accept: */*
-> Content-Length: 9
-> Content-Type: application/x-www-form-urlencoded
+> Content-Type: text/xml
 >
 < HTTP/1.1 303 See Other
-< Date: Mon, 25 May 2015 23:17:41 GMT
-< Accept-Ranges: bytes
 < Location: http://server.example.com/vospace/transfers/zkqzpftmufdi8luh/results/transferDetails
-< Content-Length: 0
-< Connection: close
 < Content-Type: text/plain
 <
-* Closing connection #0
 \end{lstlisting}
 The negotiated transfer details can be seen by following the redirect to:
 \begin{lstlisting}
@@ -2806,21 +2499,10 @@ Request:
 \end{lstlisting}
 Response:
 \begin{lstlisting}
-* About to connect() to server.example.com port 80 (#0)
-*   Trying 132.246.217.44... connected
-* Connected to server.example.com (132.246.217.44) port 80 (#0)
 > GET /vospace/transfers/zkqzpftmufdi8luh/results/transferDetails HTTP/1.1
-> User-Agent: curl/7.19.7 (universal-apple-darwin10.0) libcurl/7.19.7 OpenSSL/0.9.8y zlib/1.2.3
-> Host: server.example.com
-> Accept: */*
 >
 < HTTP/1.1 200 OK
-< Date: Mon, 25 May 2015 23:26:48 GMT
-< Cache-Control: private
-< Expires: Wed, 31 Dec 1969 16:00:00 PST
-< Content-Type: text/xml;charset=ISO-8859-1
-< Connection: close
-< Transfer-Encoding: chunked
+< Content-Type: text/xml;UTF-8
 <
 <?xml version="1.0" encoding="UTF-8"?>
 <vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1">
@@ -2833,7 +2515,6 @@ Response:
     <vos:endpoint>http://storage2.example.com/mydata1</vos:endpoint>
   </vos:protocol>
 </vos:transfer>
-* Closing connection #0
 \end{lstlisting}
 
 \paragraph{Example 3}
@@ -2861,25 +2542,13 @@ Request:
 \end{lstlisting}
 Response:
 \begin{lstlisting}
-* About to connect() to server.example.com port 80 (#0)
-*   Trying 132.246.217.44... connected
-* Connected to server.example.com (132.246.217.44) port 80 (#0)
 > POST /vospace/synctrans HTTP/1.1
-> User-Agent: curl/7.19.7 (universal-apple-darwin10.0) libcurl/7.19.7 OpenSSL/0.9.8y zlib/1.2.3
-> Host: server.example.com
-> Accept: */*
-> Content-Length: 9
-> Content-Type: application/x-www-form-urlencoded
+> Content-Type: text/xml
 >
 < HTTP/1.1 303 See Other
-< Date: Mon, 25 May 2015 23:17:41 GMT
-< Accept-Ranges: bytes
 < Location: http://server.example.com/vospace/transfers/zkqzpftmufdi8luh/results/transferDetails
-< Content-Length: 0
-< Connection: close
 < Content-Type: text/plain
 <
-* Closing connection #0
 \end{lstlisting}
 The negotiated transfer details can be seen by following the redirect to:
 \begin{lstlisting}
@@ -2891,21 +2560,10 @@ Request:
 \end{lstlisting}
 Response:
 \begin{lstlisting}
-* About to connect() to server.example.com port 80 (#0)
-*   Trying 132.246.217.44... connected
-* Connected to server.example.com (132.246.217.44) port 80 (#0)
 > GET /vospace/transfers/zkqzpftmufdi8luh/results/transferDetails HTTP/1.1
-> User-Agent: curl/7.19.7 (universal-apple-darwin10.0) libcurl/7.19.7 OpenSSL/0.9.8y zlib/1.2.3
-> Host: server.example.com
-> Accept: */*
 >
 < HTTP/1.1 200 OK
-< Date: Mon, 25 May 2015 23:26:48 GMT
-< Cache-Control: private
-< Expires: Wed, 31 Dec 1969 16:00:00 PST
-< Content-Type: text/xml;charset=ISO-8859-1
-< Connection: close
-< Transfer-Encoding: chunked
+< Content-Type: text/xml;charset=UTF-8
 <
 <?xml version="1.0" encoding="UTF-8"?>
 <vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1">
@@ -2916,7 +2574,6 @@ Response:
     <vos:securityMethod uri="ivo://ivoa.net/sso#tls-with-certificate"/>
   </vos:protocol>
 </vos:transfer>
-* Closing connection #0
 \end{lstlisting}
 The service has replied with a single HTTPS endpoint that support TLS with client certificates.
 
@@ -2932,21 +2589,10 @@ curl -v -X POST "http://server.example.com/vospace/synctrans?TARGET=vos://exampl
 \\
 Response:
 \begin{lstlisting}
-* About to connect() to server.example.com port 80 (#0)
-*   Trying 192.168.0.0... connected
-* Connected to server.example.com (192.168.0.0) port 80 (#0)
 > POST /vospace/synctrans?TARGET=vos://example.com~vospace/mydata1&DIRECTION=pushToVoSpace&PROTOCOL=ivo://ivoa.net/vospace/core\%23httpput HTTP/1.1
-> User-Agent: curl/7.19.7 (universal-apple-darwin10.0) libcurl/7.19.7 OpenSSL/0.9.8y zlib/1.2.3
-> Host: server.example.com
-> Accept: */*
 >
 < HTTP/1.1 200 OK
-< Date: Mon, 25 May 2015 23:26:48 GMT
-< Cache-Control: private
-< Expires: Wed, 31 Dec 1969 16:00:00 PST
-< Content-Type: text/xml;charset=ISO-8859-1
-< Connection: close
-< Transfer-Encoding: chunked
+< Content-Type: text/xml;charset=UTF-8
 <
 <?xml version="1.0" encoding="UTF-8"?>
 <vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1">
@@ -2959,7 +2605,6 @@ Response:
     <vos:endpoint>http://storage2.example.com/mydata1</vos:endpoint>
   </vos:protocol>
 </vos:transfer>
-* Closing connection #0
 \end{lstlisting}
 
 \subsubsection{pullToVoSpace}
@@ -3020,7 +2665,7 @@ If the Job request contains more than one protocol parameter, then the service M
 \paragraph{Example}
 pullToVoSpace
 \\[5px]
-\\noindent
+\noindent
 \begin{lstlisting}
 TO BE COMPLETED
 \end{lstlisting}
@@ -3055,6 +2700,21 @@ A pullFromVoSpace transfer may be initiated with an HTTP POST or GET to http://r
            \item Example: ivo://ivoa.net/vospace/core\#httpget
         \end{itemize}
 \end{itemize}
+
+The following optional parameters may also be included:
+\begin{itemize}
+    \item \emph{VIEW}: The standard URI of the view to use
+        \begin{itemize}
+           \item Example:  ivo://ivoa.net/vospace/core\#cutoutview
+        \end{itemize}
+    \item \emph{SECURITYMETHOD}: The standard URI of the security method to use
+        \begin{itemize}
+           \item Example:  ivo://ivoa.net/sso\#tls-with-certificate
+        \end{itemize}
+    \item \emph{REQUEST=redirect}: If supplied, the service will issue an immediate redirect to the preferred endpoint matching the transfer request.     
+\end{itemize}
+
+
 The service SHALL respond with the job containing the transfer results in the response body.  (See Example 3)
 If the parameter key value REQUEST=redirect is included with the other transfer parameters, the service SHALL respond with an immediate redirect to the preferred protocol endpoint for data download.  (See Example 4)
 
@@ -3140,22 +2800,11 @@ Request:
 \end{lstlisting}
 Response:
 \begin{lstlisting}
-* About to connect() to server.example.com port 80 (#0)
-*   Trying 132.246.217.44... connected
-* Connected to server.example.com (132.246.217.44) port 80 (#0)
 > POST /vospace/transfers HTTP/1.1
-> User-Agent: curl/7.19.7 (universal-apple-darwin10.0) libcurl/7.19.7 OpenSSL/0.9.8y zlib/1.2.3
-> Host: server.example.com
-> Accept: */*
 > Content-type: text/xml
-> Content-Length: 311
 >
 < HTTP/1.1 303 See Other
-< Date: Mon, 25 May 2015 23:06:45 GMT
-< Accept-Ranges: bytes
 < Location: http://server.example.com/vospace/transfers/m4ipu36gairz0dnl
-< Content-Length: 0
-< Connection: close
 < Content-Type: text/plain
 <
 * Closing connection #0
@@ -3166,23 +2815,10 @@ The PENDING job can be seen by following the redirect to:
 \end{lstlisting}
 Response:
 \begin{lstlisting}
-* About to connect() to server.example.com port 80 (#0)
-*   Trying 132.246.217.44... connected
-* Connected to server.example.com (132.246.217.44) port 80 (#0)
 > GET /vospace/transfers/m4ipu36gairz0dnl HTTP/1.1
-> User-Agent: curl/7.19.7 (universal-apple-darwin10.0) libcurl/7.19.7 OpenSSL/0.9.8y zlib/1.2.3
-> Host: server.example.com
-> Accept: */*
 >
 < HTTP/1.1 200 OK
-< Date: Mon, 25 May 2015 23:12:24 GMT
-< Cache-Control: private
-< Expires: Wed, 31 Dec 1969 16:00:00 PST
-< Accept-Ranges: bytes
-< Vary: Accept-Charset,Accept-Encoding,Accept-Language,Accept
 < Content-Type: text/xml
-< Connection: close
-< Transfer-Encoding: chunked
 <
 <?xml version="1.0" encoding="UTF-8"?>
 <uws:job xmlns:uws="http://www.ivoa.net/xml/UWS/v1.0" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -3203,7 +2839,6 @@ Response:
     </vos:transfer>
   </uws:jobInfo>
 </uws:job>
-* Closing connection #0
 \end{lstlisting}
 The job can now be started by posting PHASE=RUN:
 \begin{lstlisting}
@@ -3211,25 +2846,13 @@ curl -v -X POST -d "PHASE=RUN" http://server.example.com/vospace/transfers/m4ipu
 \end{lstlisting}
 Response:
 \begin{lstlisting}
-* About to connect() to server.example.com port 80 (#0)
-*   Trying 132.246.217.44... connected
-* Connected to server.example.com (132.246.217.44) port 80 (#0)
 > POST /vospace/transfers/m4ipu36gairz0dnl/phase HTTP/1.1
-> User-Agent: curl/7.19.7 (universal-apple-darwin10.0) libcurl/7.19.7 OpenSSL/0.9.8y zlib/1.2.3
-> Host: server.example.com
-> Accept: */*
-> Content-Length: 9
-> Content-Type: application/x-www-form-urlencoded
+> Content-Type: text/xml
 >
 < HTTP/1.1 303 See Other
-< Date: Mon, 25 May 2015 23:17:41 GMT
-< Accept-Ranges: bytes
 < Location: http://server.examle.com/vospace/transfers/m4ipu36gairz0dnl
-< Content-Length: 0
-< Connection: close
 < Content-Type: text/plain
 <
-* Closing connection #0
 \end{lstlisting}
 The EXECUTING job can be seen by following the redirect to:
 \begin{lstlisting}
@@ -3237,23 +2860,10 @@ http://server.examle.com/vospace/transfers/m4ipu36gairz0dnl
 \end{lstlisting}
 Response:
 \begin{lstlisting}
-* About to connect() to server.example.com port 80 (#0)
-*   Trying 132.246.217.44... connected
-* Connected to server.example.com (132.246.217.44) port 80 (#0)
 > GET /vospace/transfers/m4ipu36gairz0dnl HTTP/1.1
-> User-Agent: curl/7.19.7 (universal-apple-darwin10.0) libcurl/7.19.7 OpenSSL/0.9.8y zlib/1.2.3
-> Host: server.example.com
-> Accept: */*
 >
 < HTTP/1.1 200 OK
-< Date: Mon, 25 May 2015 23:17:46 GMT
-< Cache-Control: private
-< Expires: Wed, 31 Dec 1969 16:00:00 PST
-< Accept-Ranges: bytes
-< Vary: Accept-Charset,Accept-Encoding,Accept-Language,Accept
 < Content-Type: text/xml
-< Connection: close
-< Transfer-Encoding: chunked
 <
 <?xml version="1.0" encoding="UTF-8"?>
 <uws:job xmlns:uws="http://www.ivoa.net/xml/UWS/v1.0" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -3277,7 +2887,6 @@ Response:
     </vos:transfer>
   </uws:jobInfo>
 </uws:job>
-* Closing connection #0
 \end{lstlisting}
 The details of the transfer negotiation can be see by following the \emph{transferDetails} result:
 \begin{lstlisting}
@@ -3285,21 +2894,10 @@ The details of the transfer negotiation can be see by following the \emph{transf
 \end{lstlisting}
 Response:
 \begin{lstlisting}
-* About to connect() to server.example.com port 80 (#0)
-*   Trying 132.246.217.44... connected
-* Connected to server.example.com (132.246.217.44) port 80 (#0)
 > GET /vospace/transfers/m4ipu36gairz0dnl/results/transferDetails HTTP/1.1
-> User-Agent: curl/7.19.7 (universal-apple-darwin10.0) libcurl/7.19.7 OpenSSL/0.9.8y zlib/1.2.3
-> Host: server.example.com
-> Accept: */*
 >
 < HTTP/1.1 200 OK
-< Date: Mon, 25 May 2015 23:26:48 GMT
-< Cache-Control: private
-< Expires: Wed, 31 Dec 1969 16:00:00 PST
-< Content-Type: text/xml;charset=ISO-8859-1
-< Connection: close
-< Transfer-Encoding: chunked
+< Content-Type: text/xml;charset=UTF-8
 <
 <?xml version="1.0" encoding="UTF-8"?>
 <vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1">
@@ -3312,7 +2910,6 @@ Response:
     <vos:endpoint>http://storage2.example.com/mydata1</vos:endpoint>
   </vos:protocol>
 </vos:transfer>
-* Closing connection #0
 \end{lstlisting}
 The file can now be retrieved over HTTP GET from one of the endpoints listed in the transfer details.
 \begin{lstlisting}
@@ -3320,27 +2917,12 @@ The file can now be retrieved over HTTP GET from one of the endpoints listed in 
 \end{lstlisting}
 Response:
 \begin{lstlisting}
-* About to connect() to storage1.example.com port 80 (#0)
-*   Trying 192.168.0.0... connected
-* Connected to storage1.example.com (192.168.0.0) port 80 (#0)
 > GET /mydata1 HTTP/1.1
-> User-Agent: curl/7.19.7 (universal-apple-darwin10.0) libcurl/7.19.7 OpenSSL/0.9.8y zlib/1.2.3
-> Host: storage1.example.com
-> Accept: */*
 >
-  \% Total  \% Received \% Xferd  Average Speed   Time    Time     Time  Current
-                                 Dload  Upload   Total   Spent    Left  Speed
-  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0< HTTP/1.1 401 Unauthorized
-< Date: Fri, 29 May 2015 18:33:29 GMT
-< Content-MD5:
-< Content-Disposition:
-< Content-Encoding:
+< HTTP/1.1 200 OK
 < Content-Type: text/plain;charset=UTF-8
-< Content-Length: 12
-< Connection: close
 <
-{ [data not shown]
-  0    12    0    12    0     0   1717      0 --:--:-- --:--:-- --:--:--  6000* Closing connection #0
+[data not shown]
 \end{lstlisting}
 On successful file transfer completion the job will be COMPLETED:
 \begin{lstlisting}
@@ -3348,25 +2930,11 @@ curl -v http://server.examle.com/vospace/transfers/m4ipu36gairz0dnl/phase
 \end{lstlisting}
 Response:
 \begin{lstlisting}
-* About to connect() to server.example.com port 80 (#0)
-*   Trying 192.168.0.0... connected
-* Connected to server.example.com (192.168.0.0) port 80 (#0)
 > GET /vospace/transfers/m4ipu36gairz0dnl/phase HTTP/1.1
-> User-Agent: curl/7.19.7 (universal-apple-darwin10.0) libcurl/7.19.7 OpenSSL/0.9.8y zlib/1.2.3
-> Host: server.example.com
-> Accept: */*
 >
 < HTTP/1.1 200 OK
-< Date: Mon, 25 May 2015 23:37:38 GMT
-< Cache-Control: private
-< Expires: Wed, 31 Dec 1969 16:00:00 PST
-< Accept-Ranges: bytes
-< Vary: Accept-Charset,Accept-Encoding,Accept-Language,Accept
 < Content-Type: text/plain;charset=UTF-8
-< Content-Length: 9
-< Connection: close
 <
-* Closing connection #0
 COMPLETED
 \end{lstlisting}
 \paragraph{Example 2}
@@ -3387,25 +2955,13 @@ Request:
 \end{lstlisting}
 Response:
 \begin{lstlisting}
-* About to connect() to server.example.com port 80 (#0)
-*   Trying 132.246.217.44... connected
-* Connected to server.example.com (132.246.217.44) port 80 (#0)
 > POST /vospace/synctrans HTTP/1.1
-> User-Agent: curl/7.19.7 (universal-apple-darwin10.0) libcurl/7.19.7 OpenSSL/0.9.8y zlib/1.2.3
-> Host: server.example.com
-> Accept: */*
-> Content-Length: 9
-> Content-Type: application/x-www-form-urlencoded
+> Content-Type: text/xml
 >
 < HTTP/1.1 303 See Other
-< Date: Mon, 25 May 2015 23:17:41 GMT
-< Accept-Ranges: bytes
 < Location: http://server.example.com/vospace/transfers/m4ipu36gairz0dnl/results/transferDetails
-< Content-Length: 0
-< Connection: close
 < Content-Type: text/plain
 <
-* Closing connection #0
 \end{lstlisting}
 The negotiated transfer details can be seen by following the redirect to:
 \begin{lstlisting}
@@ -3417,21 +2973,10 @@ Request:
 \end{lstlisting}
 Response:
 \begin{lstlisting}
-* About to connect() to server.example.com port 80 (#0)
-*   Trying 132.246.217.44... connected
-* Connected to server.example.com (132.246.217.44) port 80 (#0)
 > GET /vospace/transfers/m4ipu36gairz0dnl/results/transferDetails HTTP/1.1
-> User-Agent: curl/7.19.7 (universal-apple-darwin10.0) libcurl/7.19.7 OpenSSL/0.9.8y zlib/1.2.3
-> Host: server.example.com
-> Accept: */*
 >
 < HTTP/1.1 200 OK
-< Date: Mon, 25 May 2015 23:26:48 GMT
-< Cache-Control: private
-< Expires: Wed, 31 Dec 1969 16:00:00 PST
-< Content-Type: text/xml;charset=ISO-8859-1
-< Connection: close
-< Transfer-Encoding: chunked
+< Content-Type: text/xml;charset=UTF-8
 <
 <?xml version="1.0" encoding="UTF-8"?>
 <vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1">
@@ -3444,7 +2989,6 @@ Response:
     <vos:endpoint>http://storage2.example.com/mydata1</vos:endpoint>
   </vos:protocol>
 </vos:transfer>
-* Closing connection #0
 \end{lstlisting}
 The file can be retrieved with an HTTP GET to one of the endpoints:
 \begin{lstlisting}
@@ -3452,27 +2996,12 @@ curl -v -o mydata1 http://storage1.example.com/mydata1
 \end{lstlisting}
 Response:
 \begin{lstlisting}
-* About to connect() to storage1.example.com port 80 (#0)
-*   Trying 192.168.0.0... connected
-* Connected to storage1.example.com (192.168.0.0) port 80 (#0)
 > GET /mydata1 HTTP/1.1
-> User-Agent: curl/7.19.7 (universal-apple-darwin10.0) libcurl/7.19.7 OpenSSL/0.9.8y zlib/1.2.3
-> Host: storage1.example.com
-> Accept: */*
 >
-  \% Total  \% Received \% Xferd  Average Speed   Time    Time     Time  Current
-                                 Dload  Upload   Total   Spent    Left  Speed
-  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0< HTTP/1.1 401 Unauthorized
-< Date: Fri, 29 May 2015 18:33:29 GMT
-< Content-MD5:
-< Content-Disposition:
-< Content-Encoding:
+< HTTP/1.1 200 OK
 < Content-Type: text/plain;charset=UTF-8
-< Content-Length: 12
-< Connection: close
 <
-{ [data not shown]
-  0    12    0    12    0     0   
+ [data not shown]
 \end{lstlisting}
 
 \paragraph{Example 3}
@@ -3499,25 +3028,13 @@ Request:
 \end{lstlisting}
 Response:
 \begin{lstlisting}
-* About to connect() to server.example.com port 80 (#0)
-*   Trying 132.246.217.44... connected
-* Connected to server.example.com (132.246.217.44) port 80 (#0)
 > POST /vospace/synctrans HTTP/1.1
-> User-Agent: curl/7.19.7 (universal-apple-darwin10.0) libcurl/7.19.7 OpenSSL/0.9.8y zlib/1.2.3
-> Host: server.example.com
-> Accept: */*
-> Content-Length: 9
-> Content-Type: application/x-www-form-urlencoded
+> Content-Type: text/xml
 >
 < HTTP/1.1 303 See Other
-< Date: Mon, 25 May 2015 23:17:41 GMT
-< Accept-Ranges: bytes
 < Location: http://server.example.com/vospace/transfers/zkqzpftmufdi8luh/results/transferDetails
-< Content-Length: 0
-< Connection: close
 < Content-Type: text/plain
 <
-* Closing connection #0
 \end{lstlisting}
 The negotiated transfer details can be seen by following the redirect to:
 \begin{lstlisting}
@@ -3529,21 +3046,10 @@ Request:
 \end{lstlisting}
 Response:
 \begin{lstlisting}
-* About to connect() to server.example.com port 80 (#0)
-*   Trying 132.246.217.44... connected
-* Connected to server.example.com (132.246.217.44) port 80 (#0)
 > GET /vospace/transfers/zkqzpftmufdi8luh/results/transferDetails HTTP/1.1
-> User-Agent: curl/7.19.7 (universal-apple-darwin10.0) libcurl/7.19.7 OpenSSL/0.9.8y zlib/1.2.3
-> Host: server.example.com
-> Accept: */*
 >
 < HTTP/1.1 200 OK
-< Date: Mon, 25 May 2015 23:26:48 GMT
-< Cache-Control: private
-< Expires: Wed, 31 Dec 1969 16:00:00 PST
-< Content-Type: text/xml;charset=ISO-8859-1
-< Connection: close
-< Transfer-Encoding: chunked
+< Content-Type: text/xml;charset=UTF-8
 <
 <?xml version="1.0" encoding="UTF-8"?>
 <vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1">
@@ -3554,7 +3060,6 @@ Response:
     <vos:securityMethod uri="ivo://ivoa.net/sso#tls-with-certificate"/>
   </vos:protocol>
 </vos:transfer>
-* Closing connection #0
 \end{lstlisting}
 The service has replied with a single HTTPS endpoint that support TLS with client certificates.\\
 The file can be retrieved with an HTTPS GET to the endpoint:
@@ -3563,27 +3068,12 @@ curl -v -o mydata1 -E mycert.pem https://storage1.example.com/mydata1
 \end{lstlisting}
 Response:
 \begin{lstlisting}
-* About to connect() to storage1.example.com port 443 (#0)
-*   Trying 192.168.0.0... connected
-* Connected to storage1.example.com (192.168.0.0) port 443 (#0)
 > GET /mydata1 HTTP/1.1
-> User-Agent: curl/7.19.7 (universal-apple-darwin10.0) libcurl/7.19.7 OpenSSL/0.9.8y zlib/1.2.3
-> Host: storage1.example.com
-> Accept: */*
 >
-  \% Total  \% Received \% Xferd  Average Speed   Time    Time     Time  Current
-                                 Dload  Upload   Total   Spent    Left  Speed
-  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0< HTTP/1.1 401 Unauthorized
-< Date: Fri, 29 May 2015 18:33:29 GMT
-< Content-MD5:
-< Content-Disposition:
-< Content-Encoding:
+< HTTP/1.1 200 OK
 < Content-Type: text/plain;charset=UTF-8
-< Content-Length: 12
-< Connection: close
 <
-{ [data not shown]
-  0    12    0    12    0     0   
+ [data not shown]
 \end{lstlisting}
 
 \paragraph{Example 4}
@@ -3598,21 +3088,10 @@ curl -v -X POST "http://server.example.com/vospace/synctrans?TARGET=vos://exampl
 \\
 Response:
 \begin{lstlisting}
-* About to connect() to server.example.com port 80 (#0)
-*   Trying 192.168.0.0... connected
-* Connected to server.example.com (192.168.0.0) port 80 (#0)
 > POST /vospace/synctrans?TARGET=vos://example.com~vospace/mydata1&DIRECTION=pullFromVoSpace&PROTOCOL=ivo://ivoa.net/vospace/core\%23httpget HTTP/1.1
-> User-Agent: curl/7.19.7 (universal-apple-darwin10.0) libcurl/7.19.7 OpenSSL/0.9.8y zlib/1.2.3
-> Host: server.example.com
-> Accept: */*
 >
 < HTTP/1.1 200 OK
-< Date: Mon, 25 May 2015 23:26:48 GMT
-< Cache-Control: private
-< Expires: Wed, 31 Dec 1969 16:00:00 PST
-< Content-Type: text/xml;charset=ISO-8859-1
-< Connection: close
-< Transfer-Encoding: chunked
+< Content-Type: text/xml;charset=UTF-8
 <
 <?xml version="1.0" encoding="UTF-8"?>
 <vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1">
@@ -3625,7 +3104,6 @@ Response:
     <vos:endpoint>http://storage2.example.com/mydata1</vos:endpoint>
   </vos:protocol>
 </vos:transfer>
-* Closing connection #0
 \end{lstlisting}
 The file can be retrieved with an HTTP GET to one of the endpoints:
 \begin{lstlisting}
@@ -3633,27 +3111,12 @@ curl -v -o mydata1 http://storage1.example.com/mydata1
 \end{lstlisting}
 Response:
 \begin{lstlisting}
-* About to connect() to storage1.example.com port 80 (#0)
-*   Trying 192.168.0.0... connected
-* Connected to storage1.example.com (192.168.0.0) port 80 (#0)
 > GET /mydata1 HTTP/1.1
-> User-Agent: curl/7.19.7 (universal-apple-darwin10.0) libcurl/7.19.7 OpenSSL/0.9.8y zlib/1.2.3
-> Host: storage1.example.com
-> Accept: */*
 >
-  \% Total  \% Received \% Xferd  Average Speed   Time    Time     Time  Current
-                                 Dload  Upload   Total   Spent    Left  Speed
-  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0< HTTP/1.1 401 Unauthorized
-< Date: Fri, 29 May 2015 18:33:29 GMT
-< Content-MD5:
-< Content-Disposition:
-< Content-Encoding:
+< HTTP/1.1 200 OK
 < Content-Type: text/plain;charset=UTF-8
-< Content-Length: 12
-< Connection: close
 <
-{ [data not shown]
-  0    12    0    12    0     0   
+ [data not shown]
  \end{lstlisting}
 
 \paragraph{Example 5}
@@ -3668,24 +3131,12 @@ curl -v -X POST "http://server.example.com/vospace/synctrans?TARGET=vos://exampl
 \\
 Response:
 \begin{lstlisting}
-* About to connect() to server.example.com port 80 (#0)
-*   Trying 192.168.0.0... connected
-* Connected to server.example.com (192.168.0.0) port 80 (#0)
 > POST /vospace/synctrans?TARGET=vos://example.com~vospace/mydata1&DIRECTION=pullFromVoSpace&PROTOCOL=ivo://ivoa.net/vospace/core\%23httpget&REQUEST=redirect HTTP/1.1
-> User-Agent: curl/7.19.7 (universal-apple-darwin10.0) libcurl/7.19.7 OpenSSL/0.9.8y zlib/1.2.3
-> Host: server.example.com
-> Accept: */*
->
+<
 < HTTP/1.1 303 See Other
-< Date: Fri, 29 May 2015 18:33:13 GMT
-< Cache-Control: private
-< Expires: Wed, 31 Dec 1969 16:00:00 PST
 < Location: http://storage1.example.com/mydata1
-< Content-Length: 0
-< Connection: close
 < Content-Type: text/plain
 <
-* Closing connection #0
 \end{lstlisting}
 The file can be retrieved by following the redirect:
 \begin{lstlisting}
@@ -3693,27 +3144,12 @@ curl -v -o mydata1 http://storage1.example.com/mydata1
 \end{lstlisting}
 Response:
 \begin{lstlisting}
-* About to connect() to storage1.example.com port 80 (#0)
-*   Trying 192.168.0.0... connected
-* Connected to storage1.example.com (192.168.0.0) port 80 (#0)
 > GET /mydata1 HTTP/1.1
-> User-Agent: curl/7.19.7 (universal-apple-darwin10.0) libcurl/7.19.7 OpenSSL/0.9.8y zlib/1.2.3
-> Host: storage1.example.com
-> Accept: */*
 >
-  \% Total  \% Received \% Xferd  Average Speed   Time    Time     Time  Current
-                                 Dload  Upload   Total   Spent    Left  Speed
-  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0< HTTP/1.1 401 Unauthorized
-< Date: Fri, 29 May 2015 18:33:29 GMT
-< Content-MD5:
-< Content-Disposition:
-< Content-Encoding:
+< HTTP/1.1 200 OK
 < Content-Type: text/plain;charset=UTF-8
-< Content-Length: 12
-< Connection: close
 <
-{ [data not shown]
-  0    12    0    12    0     0   1717      0 --:--:-- --:--:-- --:--:--  6000* Closing connection #0
+ [data not shown]
 \end{lstlisting}
 
 \paragraph{Example 6}
@@ -3729,24 +3165,12 @@ Since the expected response is a redirect, the initial protocol on the post is H
 \\
 Response:
 \begin{lstlisting}
-* About to connect() to server.example.com port 443 (#0)
-*   Trying 192.168.0.0... connected
-* Connected to server.example.com (192.168.0.0) port 443 (#0)
 > POST /vospace/synctrans?TARGET=vos://example.com~vospace/mydata1&DIRECTION=pullFromVoSpace&PROTOCOL=ivo://ivoa.net/vospace/core\%23httpget&REQUEST=redirect&SECURITYMETHOD=ivo://ivoa.net/sso%23tls-with-certificate HTTP/1.1
-> User-Agent: curl/7.19.7 (universal-apple-darwin10.0) libcurl/7.19.7 OpenSSL/0.9.8y zlib/1.2.3
-> Host: server.example.com
-> Accept: */*
 >
 < HTTP/1.1 303 See Other
-< Date: Fri, 29 May 2015 18:33:13 GMT
-< Cache-Control: private
-< Expires: Wed, 31 Dec 1969 16:00:00 PST
 < Location: https://storage1.example.com/mydata1
-< Content-Length: 0
-< Connection: close
 < Content-Type: text/plain
 <
-* Closing connection #0
 \end{lstlisting}
 The file can be retrieved by following the redirect:
 \begin{lstlisting}
@@ -3754,27 +3178,12 @@ curl -v -o mydata1 -E mycert.pem https://storage1.example.com/mydata1
 \end{lstlisting}
 Response:
 \begin{lstlisting}
-* About to connect() to storage1.example.com port 443 (#0)
-*   Trying 192.168.0.0... connected
-* Connected to storage1.example.com (192.168.0.0) port 443 (#0)
 > GET /mydata1 HTTP/1.1
-> User-Agent: curl/7.19.7 (universal-apple-darwin10.0) libcurl/7.19.7 OpenSSL/0.9.8y zlib/1.2.3
-> Host: storage1.example.com
-> Accept: */*
 >
-  \% Total  \% Received \% Xferd  Average Speed   Time    Time     Time  Current
-                                 Dload  Upload   Total   Spent    Left  Speed
-  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0< HTTP/1.1 401 Unauthorized
-< Date: Fri, 29 May 2015 18:33:29 GMT
-< Content-MD5:
-< Content-Disposition:
-< Content-Encoding:
+< HTTP/1.1 200 OK
 < Content-Type: text/plain;charset=UTF-8
-< Content-Length: 12
-< Connection: close
 <
-{ [data not shown]
-  0    12    0    12    0     0   1717      0 --:--:-- --:--:-- --:--:--  6000* Closing connection #0
+ [data not shown]
 \end{lstlisting}
 
 \subsubsection{pushFromVoSpace}
@@ -3827,7 +3236,7 @@ If the Job request contains more than one protocol parameter then the service MA
 \paragraph{Example}
 pushFromVoSpace
 \\[5px]
-\\noindent
+\noindent
 \begin{lstlisting}
 TO BE COMPLETED
 \end{lstlisting}
@@ -3875,11 +3284,11 @@ The fault details must contain the full details of the LinkNode.
 \paragraph{From version 2.1-20150601:}
 \begin{itemize}
     \item Added REQUEST=redirect for further optimized pullFromVoSpace
-    \item Added missing search element to XSD (TBD)
-    \item Changed pullToVoSpace, pushFromVoSpace to be client orchestrated. (? TBD)
+    \item Commented-out search and find nodes until use cases and implementations are presented
+    \item Changed pullToVoSpace, pushFromVoSpace to be client orchestrated.
     \item Removed asynchronous pushToVoSpace and pullToVoSpace (? TBD)
     \item Changed Transfer in XSD to accept parameters.
-    \item Redid all webservice operation examples
+    \item Recreated and expanded all webservice operation examples
     \item Changed XSD element authType to SecurityMethod to match IVOA standard.
     \item Fixed text inconsistencies
     \item Ported source to ivoatex format
@@ -3898,7 +3307,7 @@ The requests and responses of a VOSpace 2.0 service shall adhere to the followin
 
 \section{Compliance matrix}
 \label{sec:compliance matrix}
-This table summarizes the mandatory behaviour required of a fully compliant VOSpace 2.0 service, i.e. those operations denoted as SHALL and MUST occurring. Note that for faults the general condition is specified but specific details should be checked in the relevant sections. Those associated with optional features are marked with an asterisk in the appropriate section reference - if the service implements an optional feature then it must show this mandatory behaviour.
+This table summarizes the mandatory behaviour required of a fully compliant VOSpace 2.1 service, i.e. those operations denoted as SHALL and MUST occurring. Note that for faults the general condition is specified but specific details should be checked in the relevant sections. Those associated with optional features are marked with an asterisk in the appropriate section reference - if the service implements an optional feature then it must show this mandatory behaviour.
 
 \hskip-2.0cm\begin{tabular}{ | p {1cm} | p {11cm} | p {4cm} | }
 \hline
@@ -3943,44 +3352,44 @@ xx & Standard properties are represented by the specified URIs & ~\ref{subsubsec
 32 & A data transfer is complete once a specified protocol is successful & ~\ref{subsubsec:service-initiated transfers}, ~\ref{subsubsec:client-initiated transfers} \\ \hline
 33 & A data transfer has failed if none of the specified protocols has been successful & ~\ref{subsubsec:service-initiated transfers}, ~\ref{subsubsec:client-initiated transfers} \\ \hline
 34 & A server updates the status flag in the UWS Job representation as appropriate & ~\ref{subsubsec:service-initiated transfers}, ~\ref{subsubsec:client-initiated transfers} \\ \hline
-35 & A Search UWS Job representation has elements: uri, limit, detail, matches and node & ~\ref{subsec:searches}* \\ \hline
-36 & A Search results representation has elements: nodes & ~\ref{subsec:searches}* \\ \hline
-37 & A VOSpace service has the REST bindings: properties, views, protocols, searches, nodes, and transfers & ~\ref{subsec:rest bindings} \\ \hline
-38 & Access policies on a VOSpace service are declared in the registered metadata for the service & ~\ref{sec:access control} \\ \hline
-39 & VOSpace authentication employs IVOA SSO supported methods & ~\ref{sec:access control} \\ \hline
-40 & A VOSpace service supports the operations: getProtocols, getViews, getProperties, createNode, deleteNode, moveNode, copyNode, getNode, setNode, pullFromVoSpace. The following are optional operations: findNodes, pushToVoSpace, pullToVoSpace, pushFromVoSpace & ~\ref{subsubsec:getprotocols}, ~\ref{subsubsec:getviews}, ~\ref{subsubsec:getproperties}, ~\ref{subsubsec:createnode}, ~\ref{subsubsec:movenode}, ~\ref{subsubsec:copynode}, ~\ref{subsubsec:deletenode}, ~\ref{subsubsec:getnode}, ~\ref{subsubsec:setnode}, ~\ref{subsubsec:findnodes}*, ~\ref{subsubsec:pushtovospace}*, ~\ref{subsubsec:pushtovospace}*, ~\ref{subsubsec:pullfromvospace}, ~\ref{subsubsec:pushfromvospace}* \\ \hline
-41 & accepts and provides specify entities that the service supports & ~\ref{subsubsec:getprotocols}, ~\ref{subsubsec:getviews}, ~\ref{subsubsec:getproperties} \\ \hline
-42 & An autogenerated URI is specified as a result in the Results List & ~\ref{subsubsec:createnode}*, ~\ref{subsubsec:movenode}*, ~\ref{subsubsec:copynode}*, ~\ref{subsubsec:pushtovospace}* \\ \hline
-43 & Any data written to the reserved URI .null is discarded & ~\ref{subsec:rest bindings} \\ \hline
-44 & accepts is filled in based on service capabilities & ~\ref{subsubsec:createnode} \\ \hline
-45 & If a container is deleted then so are its children & ~\ref{subsubsec:deletenode} \\ \hline
-46 & If a container is listed, only direct children are listed & ~\ref{subsubsec:getnode} \\ \hline
-47 & Results are drawn from the same ordered sequence in any ordering imposed by the server & ~\ref{subsubsec:getnode} \\ \hline
-48 & Regex expressions comply with POSIX conventions & ~\ref{subsec:searches} \\ \hline
-49 & Moving a container moves its children as well & ~\ref{subsubsec:movenode} \\ \hline
+% 35 & A Search UWS Job representation has elements: uri, limit, detail, matches and node & ~\ref{subsec:searches}* \\ \hline
+% 36 & A Search results representation has elements: nodes & ~\ref{subsec:searches}* \\ \hline
+35 & A VOSpace service has the REST bindings: properties, views, protocols, nodes, and transfers & ~\ref{subsec:rest bindings} \\ \hline
+36 & Access policies on a VOSpace service are declared in the registered metadata for the service & ~\ref{sec:access control} \\ \hline
+37 & VOSpace authentication employs IVOA SSO supported methods & ~\ref{sec:access control} \\ \hline
+38 & A VOSpace service supports the operations: getProtocols, getViews, getProperties, createNode, deleteNode, moveNode, copyNode, getNode, setNode, pullFromVoSpace. The following are optional operations: pushToVoSpace, pullToVoSpace, pushFromVoSpace & ~\ref{subsubsec:getprotocols}, ~\ref{subsubsec:getviews}, ~\ref{subsubsec:getproperties}, ~\ref{subsubsec:createnode}, ~\ref{subsubsec:movenode}, ~\ref{subsubsec:copynode}, ~\ref{subsubsec:deletenode}, ~\ref{subsubsec:getnode}, ~\ref{subsubsec:setnode}, ~\ref{subsubsec:pushtovospace}*, ~\ref{subsubsec:pushtovospace}*, ~\ref{subsubsec:pullfromvospace}, ~\ref{subsubsec:pushfromvospace}* \\ \hline
+39 & accepts and provides specify entities that the service supports & ~\ref{subsubsec:getprotocols}, ~\ref{subsubsec:getviews}, ~\ref{subsubsec:getproperties} \\ \hline
+40 & An autogenerated URI is specified as a result in the Results List & ~\ref{subsubsec:createnode}*, ~\ref{subsubsec:movenode}*, ~\ref{subsubsec:copynode}*, ~\ref{subsubsec:pushtovospace}* \\ \hline
+41 & Any data written to the reserved URI .null is discarded & ~\ref{subsec:rest bindings} \\ \hline
+42 & accepts is filled in based on service capabilities & ~\ref{subsubsec:createnode} \\ \hline
+43 & If a container is deleted then so are its children & ~\ref{subsubsec:deletenode} \\ \hline
+44 & If a container is listed, only direct children are listed & ~\ref{subsubsec:getnode} \\ \hline
+45 & Results are drawn from the same ordered sequence in any ordering imposed by the server & ~\ref{subsubsec:getnode} \\ \hline
+46 & Regex expressions comply with POSIX conventions & ~\ref{subsec:searches} \\ \hline
+47 & Moving a container moves its children as well & ~\ref{subsubsec:movenode} \\ \hline
 \end{tabular}
 
 \hskip-2.0cm\begin{tabular}{ | p {1cm} | p {11cm} | p {4cm} | }
 \hline
 \textbf{Item} & \textbf{Description} & \textbf{Occurs in section(s)} \\ \hline
-50 & Importing data into an existing container puts the new data within the container & ~\ref{subsubsec:pushtovospace} \\ \hline
-51 & Node types are not changed when a node is moved or copied & ~\ref{subsubsec:movenode}, ~\ref{subsubsec:copynode} \\ \hline
-52 & Copying a container copies its children as well & ~\ref{subsubsec:copynode} \\ \hline
-53 & Importing data into an existing node overwrites any preexisting data (unless it is a container) & ~\ref{subsubsec:pushtovospace}*, ~\ref{subsubsec:pulltovospace}* \\ \hline
-54 & A HTTP 200 status code is returned if the operation completes successfully & ~\ref{subsubsec:getprotocols}, ~\ref{subsubsec:getviews}, ~\ref{subsubsec:getproperties}, ~\ref{subsubsec:createnode}, ~\ref{subsubsec:deletenode}, ~\ref{subsubsec:getnode}, ~\ref{subsubsec:setnode} \\ \hline
-55 & A HTTP 303 status code is returned if the operation completes successfully & ~\ref{subsubsec:movenode}, ~\ref{subsubsec:copynode}, ~\ref{subsubsec:findnodes}*, ~\ref{subsubsec:pushtovospace}*, ~\ref{subsubsec:pulltovospace}*, ~\ref{subsubsec:pullfromvospace}, ~\ref{subsubsec:pushfromvospace}* \\ \hline
-56 & A HTTP 500 status code with an InternalFault fault in the body is thrown if the operation fails & ~\ref{subsubsec:getprotocols}, ~\ref{subsubsec:getviews}, ~\ref{subsubsec:getproperties}, ~\ref{subsubsec:createnode}, ~\ref{subsubsec:deletenode}, ~\ref{subsubsec:getnode}, ~\ref{subsubsec:setnode}, ~\ref{subsubsec:pullfromvospace} \\ \hline
-57 & A HTTP 400 status code with an InvalidArgument fault in the body is thrown if a specified value is invalid & ~\ref{subsubsec:setnode} \\ \hline
-58 & A HTTP 400 status code with an InvalidURI fault in the body is thrown if the specified URI is invalid & ~\ref{subsubsec:createnode} \\ \hline
-59 & A HTTP 400 status code with a TypeNotSupported fault in the body is thrown if the specified type is not supported & ~\ref{subsubsec:createnode} \\ \hline
-60 & A HTTP 403 status code with a PermissionDenied fault in the body is thrown if the user does not have permission to perform the operation & ~\ref{subsubsec:createnode}, ~\ref{subsubsec:deletenode}, ~\ref{subsubsec:getnode}, ~\ref{subsubsec:setnode}, ~\ref{subsubsec:pullfromvospace} \\ \hline
-61 & A HTTP 404 status code with a NodeNotFound fault in the body is thrown if... & ~\ref{subsubsec:movenode}, ~\ref{subsubsec:getnode}, ~\ref{subsubsec:copynode}, ~\ref{subsubsec:pullfromvospace} \\ \hline
-62 & A HTTP 409 status code with a DuplicateFault fault in the body is thrown if the specified node already exists & ~\ref{subsubsec:createnode} \\ \hline
-63 & A HTTP 404 status code with a ContainerNotFound fault in the body is thrown if a container is not found & ~\ref{subsubsec:createnode}, ~\ref{subsubsec:deletenode} \\ \hline
-64 & A HTTP 400 status code with a LinkFound fault in the body is thrown if a LinkNode is found & ~\ref{subsubsec:createnode}, ~\ref{subsubsec:deletenode} \\ \hline
-65 & The PHASE in the UWS Job representation is set to "ERROR" in case of a fault occurring & ~\ref{subsubsec:movenode}, ~\ref{subsubsec:findnodes}*, ~\ref{subsubsec:pushtovospace}*, ~\ref{subsubsec:pulltovospace}*, ~\ref{subsubsec:pullfromvospace}, ~\ref{subsubsec:pushfromvospace}* \\ \hline
-66 & The errorSummary element in the UWS Job representation is set to the appropriate value for the type of fault occurring & ~\ref{subsubsec:movenode}, ~\ref{subsubsec:findnodes}*, ~\ref{subsubsec:pushtovospace}*, ~\ref{subsubsec:pulltovospace}*, ~\ref{subsubsec:pullfromvospace}, ~\ref{subsubsec:pushfromvospace}* \\ \hline
-67 & The appropriate fault representation is provided at the error URI for the job & ~\ref{subsubsec:movenode}, ~\ref{subsubsec:findnodes}*, ~\ref{subsubsec:pushtovospace}*, ~\ref{subsubsec:pulltovospace}*, ~\ref{subsubsec:pullfromvospace}, ~\ref{subsubsec:pushfromvospace}* \\ \hline
+48 & Importing data into an existing container puts the new data within the container & ~\ref{subsubsec:pushtovospace} \\ \hline
+49 & Node types are not changed when a node is moved or copied & ~\ref{subsubsec:movenode}, ~\ref{subsubsec:copynode} \\ \hline
+50 & Copying a container copies its children as well & ~\ref{subsubsec:copynode} \\ \hline
+51 & Importing data into an existing node overwrites any preexisting data (unless it is a container) & ~\ref{subsubsec:pushtovospace}*, ~\ref{subsubsec:pulltovospace}* \\ \hline
+52 & A HTTP 200 status code is returned if the operation completes successfully & ~\ref{subsubsec:getprotocols}, ~\ref{subsubsec:getviews}, ~\ref{subsubsec:getproperties}, ~\ref{subsubsec:createnode}, ~\ref{subsubsec:deletenode}, ~\ref{subsubsec:getnode}, ~\ref{subsubsec:setnode} \\ \hline
+53 & A HTTP 303 status code is returned if the operation completes successfully & ~\ref{subsubsec:movenode}, ~\ref{subsubsec:copynode}, ~\ref{subsubsec:findnodes}*, ~\ref{subsubsec:pushtovospace}*, ~\ref{subsubsec:pulltovospace}*, ~\ref{subsubsec:pullfromvospace}, ~\ref{subsubsec:pushfromvospace}* \\ \hline
+54 & A HTTP 500 status code with an InternalFault fault in the body is thrown if the operation fails & ~\ref{subsubsec:getprotocols}, ~\ref{subsubsec:getviews}, ~\ref{subsubsec:getproperties}, ~\ref{subsubsec:createnode}, ~\ref{subsubsec:deletenode}, ~\ref{subsubsec:getnode}, ~\ref{subsubsec:setnode}, ~\ref{subsubsec:pullfromvospace} \\ \hline
+55 & A HTTP 400 status code with an InvalidArgument fault in the body is thrown if a specified value is invalid & ~\ref{subsubsec:setnode} \\ \hline
+56 & A HTTP 400 status code with an InvalidURI fault in the body is thrown if the specified URI is invalid & ~\ref{subsubsec:createnode} \\ \hline
+57 & A HTTP 400 status code with a TypeNotSupported fault in the body is thrown if the specified type is not supported & ~\ref{subsubsec:createnode} \\ \hline
+58 & A HTTP 403 status code with a PermissionDenied fault in the body is thrown if the user does not have permission to perform the operation & ~\ref{subsubsec:createnode}, ~\ref{subsubsec:deletenode}, ~\ref{subsubsec:getnode}, ~\ref{subsubsec:setnode}, ~\ref{subsubsec:pullfromvospace} \\ \hline
+59 & A HTTP 404 status code with a NodeNotFound fault in the body is thrown if... & ~\ref{subsubsec:movenode}, ~\ref{subsubsec:getnode}, ~\ref{subsubsec:copynode}, ~\ref{subsubsec:pullfromvospace} \\ \hline
+60 & A HTTP 409 status code with a DuplicateFault fault in the body is thrown if the specified node already exists & ~\ref{subsubsec:createnode} \\ \hline
+61 & A HTTP 404 status code with a ContainerNotFound fault in the body is thrown if a container is not found & ~\ref{subsubsec:createnode}, ~\ref{subsubsec:deletenode} \\ \hline
+62 & A HTTP 400 status code with a LinkFound fault in the body is thrown if a LinkNode is found & ~\ref{subsubsec:createnode}, ~\ref{subsubsec:deletenode} \\ \hline
+63 & The PHASE in the UWS Job representation is set to "ERROR" in case of a fault occurring & ~\ref{subsubsec:movenode}, ~\ref{subsubsec:findnodes}*, ~\ref{subsubsec:pushtovospace}*, ~\ref{subsubsec:pulltovospace}*, ~\ref{subsubsec:pullfromvospace}, ~\ref{subsubsec:pushfromvospace}* \\ \hline
+64 & The errorSummary element in the UWS Job representation is set to the appropriate value for the type of fault occurring & ~\ref{subsubsec:movenode}, ~\ref{subsubsec:findnodes}*, ~\ref{subsubsec:pushtovospace}*, ~\ref{subsubsec:pulltovospace}*, ~\ref{subsubsec:pullfromvospace}, ~\ref{subsubsec:pushfromvospace}* \\ \hline
+65 & The appropriate fault representation is provided at the error URI for the job & ~\ref{subsubsec:movenode}, ~\ref{subsubsec:findnodes}*, ~\ref{subsubsec:pushtovospace}*, ~\ref{subsubsec:pulltovospace}*, ~\ref{subsubsec:pullfromvospace}, ~\ref{subsubsec:pushfromvospace}* \\ \hline
 \end{tabular}
 
 \section{Standard properties}
