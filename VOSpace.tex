@@ -2666,8 +2666,113 @@ If the Job request contains more than one protocol parameter, then the service M
 pullToVoSpace
 \\[5px]
 \noindent
+The Job to be submitted (pullToVoSpace.xml):
 \begin{lstlisting}
-TO BE COMPLETED
+<vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1">
+  <vos:target>vos://example.com!vospace/mydata1</vos:target>
+  <vos:direction>pullToVoSpace</vos:direction>
+  <vos:protocol uri="ivo://ivoa.net/vospace/core#httpput">
+    <vos:endpoint>http://anotherserver.example.com/here/is/the/data</vos:endpoint>
+  </vos:protocol>
+</vos:transfer>
+\end{lstlisting}
+Request:
+\begin{lstlisting}
+> curl -v -X POST -d @pullToVoSpace.xml -H "Content-type: text/xml" "http://server.example.com/vospace/transfers"
+\end{lstlisting}
+Response:
+\begin{lstlisting}
+> POST /vospace/transfers HTTP/1.1
+> Content-type: text/xml
+>
+< HTTP/1.1 303 See Other
+< Location: http://server.example.com/vospace/transfers/m4ipu36gairz0dnl
+< Content-Type: text/plain
+<
+* Closing connection #0
+\end{lstlisting}
+The PENDING job can be seen by following the redirect to:
+\begin{lstlisting}
+> curl -v http://server.example.com/vospace/transfers/m4ipu36gairz0dnl
+\end{lstlisting}
+Response:
+\begin{lstlisting}
+> GET /vospace/transfers/m4ipu36gairz0dnl HTTP/1.1
+>
+< HTTP/1.1 200 OK
+< Content-Type: text/xml
+<
+<?xml version="1.0" encoding="UTF-8"?>
+<uws:job xmlns:uws="http://www.ivoa.net/xml/UWS/v1.0" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <uws:jobId>m4ipu36gairz0dnl</uws:jobId>
+  <uws:phase>PENDING</uws:phase>
+  <uws:quote>2015-05-26T11:06:45.713</uws:quote>
+  <uws:startTime xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xs:nil="true" />
+  <uws:endTime xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xs:nil="true" />
+  <uws:executionDuration>43200</uws:executionDuration>
+  <uws:destruction>2015-06-01T23:06:45.713</uws:destruction>
+  <uws:parameters />
+  <uws:results />
+  <uws:jobInfo>
+    <vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1">
+      <vos:target>vos://example.com!vospace/mydata1</vos:target>
+      <vos:direction>pullToVoSpace</vos:direction>
+      <vos:protocol uri="ivo://ivoa.net/vospace/core#httpput">
+        <vos:endpoint>http://anotherserver.example.com/here/is/the/data</vos:endpoint>
+      </vos:protocol>
+    </vos:transfer>
+  </uws:jobInfo>
+</uws:job>
+\end{lstlisting}
+The job can now be started by posting PHASE=RUN:
+\begin{lstlisting}
+curl -v -X POST -d "PHASE=RUN" http://server.example.com/vospace/transfers/m4ipu36gairz0dnl/phase
+\end{lstlisting}
+Response:
+\begin{lstlisting}
+> POST /vospace/transfers/m4ipu36gairz0dnl/phase HTTP/1.1
+> Content-Type: text/xml
+>
+< HTTP/1.1 303 See Other
+< Location: http://server.examle.com/vospace/transfers/m4ipu36gairz0dnl
+< Content-Type: text/plain
+<
+\end{lstlisting}
+The EXECUTING job can be seen by following the redirect to:
+\begin{lstlisting}
+http://server.examle.com/vospace/transfers/m4ipu36gairz0dnl
+\end{lstlisting}
+Response:
+\begin{lstlisting}
+> GET /vospace/transfers/m4ipu36gairz0dnl HTTP/1.1
+>
+< HTTP/1.1 200 OK
+< Content-Type: text/xml
+<
+<?xml version="1.0" encoding="UTF-8"?>
+<uws:job xmlns:uws="http://www.ivoa.net/xml/UWS/v1.0" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <uws:jobId>m4ipu36gairz0dnl</uws:jobId>
+  <uws:phase>EXECUTING</uws:phase>
+  <uws:quote>2015-05-26T11:06:45.713</uws:quote>
+  <uws:startTime>2015-05-25T23:17:41.217</uws:startTime>
+  <uws:endTime xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xs:nil="true" />
+  <uws:executionDuration>43200</uws:executionDuration>
+  <uws:destruction>2015-06-01T23:06:45.713</uws:destruction>
+  <uws:parameters />
+  <uws:results>
+    <uws:result id="transferDetails" xlink:href="http://server.example.com/vospace/transfers/m4ipu36gairz0dnl/results/transferDetails" />
+    <uws:result id="dataNode" xlink:href="vos://example.com!vospace/mydata1" />
+  </uws:results>
+  <uws:jobInfo>
+    <vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1">
+      <vos:target>vos://example.com!vospace/mydata1</vos:target>
+      <vos:direction>pullFromVoSpace</vos:direction>
+      <vos:protocol uri="ivo://ivoa.net/vospace/core#httpput">
+        <vos:endpoint>http://anotherserver.example.com/here/is/the/data</vos:endpoint>
+      </vos:protocol>
+    </vos:transfer>
+  </uws:jobInfo>
+</uws:job>
 \end{lstlisting}
 
 \subsubsection{pullFromVoSpace}
@@ -3237,8 +3342,122 @@ If the Job request contains more than one protocol parameter then the service MA
 pushFromVoSpace
 \\[5px]
 \noindent
+The Job to be submitted (pushFromVoSpace.xml):
 \begin{lstlisting}
-TO BE COMPLETED
+<vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1">
+  <vos:target>vos://example.com!vospace/mydata1</vos:target>
+  <vos:direction>pushFromVoSpace</vos:direction>
+  <vos:protocol uri="ivo://ivoa.net/vospace/core#httpput">
+    <vos:endpoint>http://anotherserver1.example.com/put/the/data/here</vos:endpoint>
+  </vos:protocol>
+  <vos:protocol uri="ivo://ivoa.net/vospace/core#httpput">
+    <vos:endpoint>http://anotherserver2.example.com/put/the/data/here</vos:endpoint>
+  </vos:protocol>
+</vos:transfer>
+\end{lstlisting}
+Request:
+\begin{lstlisting}
+> curl -v -X POST -d @pushFromVoSpace.xml -H "Content-type: text/xml" "http://server.example.com/vospace/transfers"
+\end{lstlisting}
+Response:
+\begin{lstlisting}
+> POST /vospace/transfers HTTP/1.1
+> Content-type: text/xml
+>
+< HTTP/1.1 303 See Other
+< Location: http://server.example.com/vospace/transfers/m4ipu36gairz0dnl
+< Content-Type: text/plain
+<
+* Closing connection #0
+\end{lstlisting}
+The PENDING job can be seen by following the redirect to:
+\begin{lstlisting}
+> curl -v http://server.example.com/vospace/transfers/m4ipu36gairz0dnl
+\end{lstlisting}
+Response:
+\begin{lstlisting}
+> GET /vospace/transfers/m4ipu36gairz0dnl HTTP/1.1
+>
+< HTTP/1.1 200 OK
+< Content-Type: text/xml
+<
+<?xml version="1.0" encoding="UTF-8"?>
+<uws:job xmlns:uws="http://www.ivoa.net/xml/UWS/v1.0" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <uws:jobId>m4ipu36gairz0dnl</uws:jobId>
+  <uws:phase>PENDING</uws:phase>
+  <uws:quote>2015-05-26T11:06:45.713</uws:quote>
+  <uws:startTime xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xs:nil="true" />
+  <uws:endTime xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xs:nil="true" />
+  <uws:executionDuration>43200</uws:executionDuration>
+  <uws:destruction>2015-06-01T23:06:45.713</uws:destruction>
+  <uws:parameters />
+  <uws:results />
+  <uws:jobInfo>
+    <vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1">
+      <vos:target>vos://example.com!vospace/mydata1</vos:target>
+      <vos:direction>pushFromVoSpace</vos:direction>
+      <vos:protocol uri="ivo://ivoa.net/vospace/core#httpput">
+        <vos:endpoint>http://anotherserver1.example.com/put/the/data/here</vos:endpoint>
+      </vos:protocol>
+      <vos:protocol uri="ivo://ivoa.net/vospace/core#httpput">
+        <vos:endpoint>http://anotherserver2.example.com/put/the/data/here</vos:endpoint>
+      </vos:protocol>
+    </vos:transfer>
+  </uws:jobInfo>
+</uws:job>
+\end{lstlisting}
+The job can now be started by posting PHASE=RUN:
+\begin{lstlisting}
+curl -v -X POST -d "PHASE=RUN" http://server.example.com/vospace/transfers/m4ipu36gairz0dnl/phase
+\end{lstlisting}
+Response:
+\begin{lstlisting}
+> POST /vospace/transfers/m4ipu36gairz0dnl/phase HTTP/1.1
+> Content-Type: text/xml
+>
+< HTTP/1.1 303 See Other
+< Location: http://server.examle.com/vospace/transfers/m4ipu36gairz0dnl
+< Content-Type: text/plain
+<
+\end{lstlisting}
+The EXECUTING job can be seen by following the redirect to:
+\begin{lstlisting}
+http://server.examle.com/vospace/transfers/m4ipu36gairz0dnl
+\end{lstlisting}
+Response:
+\begin{lstlisting}
+> GET /vospace/transfers/m4ipu36gairz0dnl HTTP/1.1
+>
+< HTTP/1.1 200 OK
+< Content-Type: text/xml
+<
+<?xml version="1.0" encoding="UTF-8"?>
+<uws:job xmlns:uws="http://www.ivoa.net/xml/UWS/v1.0" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <uws:jobId>m4ipu36gairz0dnl</uws:jobId>
+  <uws:phase>EXECUTING</uws:phase>
+  <uws:quote>2015-05-26T11:06:45.713</uws:quote>
+  <uws:startTime>2015-05-25T23:17:41.217</uws:startTime>
+  <uws:endTime xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xs:nil="true" />
+  <uws:executionDuration>43200</uws:executionDuration>
+  <uws:destruction>2015-06-01T23:06:45.713</uws:destruction>
+  <uws:parameters />
+  <uws:results>
+    <uws:result id="transferDetails" xlink:href="http://server.example.com/vospace/transfers/m4ipu36gairz0dnl/results/transferDetails" />
+    <uws:result id="dataNode" xlink:href="vos://example.com!vospace/mydata1" />
+  </uws:results>
+  <uws:jobInfo>
+    <vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1">
+      <vos:target>vos://example.com!vospace/mydata1</vos:target>
+      <vos:direction>pushFromVoSpace</vos:direction>
+      <vos:protocol uri="ivo://ivoa.net/vospace/core#httpput">
+        <vos:endpoint>http://anotherserver1.example.com/put/the/data/here</vos:endpoint>
+      </vos:protocol>
+      <vos:protocol uri="ivo://ivoa.net/vospace/core#httpput">
+        <vos:endpoint>http://anotherserver2.example.com/put/the/data/here</vos:endpoint>
+      </vos:protocol>
+    </vos:transfer>
+  </uws:jobInfo>
+</uws:job>
 \end{lstlisting}
 
 \subsection{Fault arguments}
