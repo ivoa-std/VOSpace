@@ -2258,6 +2258,10 @@ The service SHALL select which of the requested Protocols it is willing to provi
 
 The transfer result SHOULD not include any Protocols or security methods that it is unable to support.
 
+During the byte transfer for the pushToVoSpace operation, the service SHOULD set the busy flag of the Node to true.
+
+If the busy flag of the Node is already set to true, the service SHOULD respond with a NodeBusy fault.
+
 The transfer results representation can be retrieved directly from the link reported in the Results List, available either from the results endpoint - http://rest-endpoint/transfers/(jobid)/results - or as part of the full Job representation for the completed transfer available from http://rest-endpoint/transfers/(jobid). The result element in the Results List SHALL have an id of "transferDetails":
 \begin{lstlisting}
 <uws:job>
@@ -2296,6 +2300,8 @@ Service supports none of the requested Protocols & Protocol Not Supported &Proto
 A View parameter is invalid & Invalid Argument & InvalidArgument \\
 \hline
 A Protocol parameter is invalid & Invalid Argument & InvalidArgument \\
+\hline
+The busy flag of the Node is true & Node Busy & NodeBusy \\
 \hline
 \end{tabular}
 \vspace{3mm}
@@ -2631,6 +2637,10 @@ If there is no Node at the target URI, then the service SHALL create a new Node 
 \paragraph{Response}
 The initial response is a HTTP 303 status code with the Location header keyword assigned to the created job.
 
+During the byte transfer for the pullToVoSpace operation, the service SHOULD set the busy flag of the Node to true.
+
+If the busy flag of the Node is already set to true, the service SHOULD respond with a NodeBusy fault.
+
 \paragraph{Faults}\
 For all faults, the service shall set the PHASE to "ERROR" in the Job representation. The <errorSummary> element in the Job representation shall be set to the appropriate value for the fault type and the appropriate fault representation (see section 5.5) provided at the error URI: http://rest-endpoint/transfers/(jobid)/error.
 
@@ -2655,6 +2665,8 @@ A View parameter is invalid & Invalid Argument & InvalidArgument \\
 A Protocol parameter is invalid & Invalid Argument & InvalidArgument \\
 \hline
 Data format does not match the requested View & Invalid Data & InvalidData \\
+\hline
+The busy flag of the Node is true & Node Busy & NodeBusy \\
 \hline
 \end{tabular}
 \vspace{3mm}
@@ -2766,7 +2778,7 @@ Response:
   <uws:jobInfo>
     <vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1">
       <vos:target>vos://example.com!vospace/mydata1</vos:target>
-      <vos:direction>pullFromVoSpace</vos:direction>
+      <vos:direction>pullToVoSpace</vos:direction>
       <vos:protocol uri="ivo://ivoa.net/vospace/core#httpput">
         <vos:endpoint>http://anotherserver.example.com/here/is/the/data</vos:endpoint>
       </vos:protocol>
@@ -2819,7 +2831,6 @@ The following optional parameters may also be included:
     \item \emph{REQUEST=redirect}: If supplied, the service will issue an immediate redirect to the preferred endpoint matching the transfer request.     
 \end{itemize}
 
-
 The service SHALL respond with the job containing the transfer results in the response body.  (See Example 3)
 If the parameter key value REQUEST=redirect is included with the other transfer parameters, the service SHALL respond with an immediate redirect to the preferred protocol endpoint for data download.  (See Example 4)
 
@@ -2836,6 +2847,8 @@ The initial response for the UWS mode is a HTTP 303 status code with the Locatio
 The service SHALL select which of the requested Protocols it is willing to provide and fill in the operational details for each one in the transfer result representation - this SHOULD normally include specifying the source URL of the transfer protocol endpoint.
 
 The service response SHOULD not include any Protocols that it is unable to support.
+
+If the busy flag of the Node is set to true, the service MAY respond with a NodeBusy fault.
 
 The transfer results representation can be retrieved directly from the link reported in the Results List, available either from the results endpoint - http://rest-endpoint/transfers/(jobid)/results - or as part of the full Job representation for the completed transfer available from http://rest-endpoint/transfers/(jobid). In the latter case, the result element in the Results List SHALL have an id of "transferDetails":
 \begin{lstlisting}
@@ -2876,6 +2889,8 @@ Destination URI is invalid & Invalid URI & InvalidURI \\
 A View parameter is invalid & Invalid Argument & InvalidArgument \\
 \hline
 A Protocol parameter is invalid & Invalid Argument & InvalidArgument \\
+\hline
+The busy flag of the Node is true & Node Busy & NodeBusy \\
 \hline
 \end{tabular}
 \vspace{3mm}
@@ -3306,6 +3321,9 @@ A HTTP POST of a Job representation for the transfer to http://rest-endpoint/tra
 
 \paragraph{Response}
 The initial response is a HTTP 303 status code with the Location header keyword assigned to the created job.
+
+If the busy flag of the target Node is set to true, the service MAY respond with a NodeBusy fault.
+
 5.4.4.3 Faults
 
 \vspace{3mm}
@@ -3331,6 +3349,8 @@ A View parameter is invalid & Invalid Argument & InvalidArgument \\
 A Protocol parameter is invalid & Invalid Argument & InvalidArgument \\
 \hline
 Data transfer does not complete & Transfer Failed & TransferFailed \\
+\hline
+The busy flag of the Node is true & Node Busy & NodeBusy \\
 \hline
 \end{tabular}
 \vspace{3mm}
@@ -3497,6 +3517,9 @@ This is thrown with any error message that the data parser produced.
 \paragraph{LinkFoundFault}
 The fault details must contain the full details of the LinkNode.
 
+\paragraph{NodeBusy}
+This is thrown when a node is not in a state to perform the requested operation.
+
 \section{Changes since last version}
 \label{sec:changes since last version}
 
@@ -3510,6 +3533,7 @@ The fault details must contain the full details of the LinkNode.
     \item Recreated and expanded all webservice operation examples
     \item Changed XSD element authType to SecurityMethod to match IVOA standard.
     \item Fixed text inconsistencies
+    \item Clarified role of the node busy flag
     \item Ported source to ivoatex format
 \end{itemize}
 
