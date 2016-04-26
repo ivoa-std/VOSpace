@@ -931,7 +931,7 @@ A Transfer describes the details of a data transfer to or from a VOSpace.
 
 Transfers can be represented as XML documents.  For example:
 
-\begin{verbatim}
+\begin{lstlisting}
 <vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1">
   <vos:target>vos://example.com!vospace/myspace/myfile</vos:target>
   <vos:direction>pushToVoSpace</vos:direction>
@@ -940,7 +940,7 @@ Transfers can be represented as XML documents.  For example:
   </vos:protocol>
   <vos:protocol uri="ivo://ivoa.net/vospace/core#httpput">    <vos:securityMethod "uri="http://www.w3.org/Protocols/HTTP/1.0/spec/html#BasicAA"/>  </vos:protocol>
 </vos:transfer>
-\end{verbatim}
+\end{lstlisting}
 
 Clients send transfer XML documents to a VOSpace synchronous or asynchronous UWS transfer endpoint.  The VOSpace service SHALL put, in the UWS Job results, a resulting transfer XML document.
 
