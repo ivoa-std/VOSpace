@@ -71,7 +71,7 @@
           <xs:annotation>
             <xs:documentation>
               A flag to indicate if the node content is available.
-              This will be set to false while the data is being imported,
+              This will be set to true while the data is being imported,
               or if the underlying service is busy.
             </xs:documentation>
           </xs:annotation>
