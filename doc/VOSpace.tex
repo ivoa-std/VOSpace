@@ -2161,7 +2161,7 @@ Response:
 
 \subsection{Transferring data}
 \label{subsec:transferringdata}
-Two modes are supported for external data transfers: a simple HTTP GET to retrieve data from a service (pullFromVoSpace) and a more general mechanism which employs a UWS-based approach [UWS] for submitting general data transfer requests (see section \ref{subsec:transfers}). In the latter, four directions are specified in which external data transfers can happen:
+Two modes are supported for external data transfers: a simple HTTP GET to retrieve data from a service (pullFromVoSpace) and a more general mechanism which employs a UWS-based approach \citep{std:UWS} for submitting general data transfer requests (see section \ref{subsec:transfers}). In the latter, four directions are specified in which external data transfers can happen:
 \begin{itemize}
     \item sending data to a service (pushToVoSpace)
     \item importing data into a service (pullToVoSpace)
@@ -2191,6 +2191,12 @@ The status of any transfer can be obtained by polling the phase endpoint for a p
 Once a transfer has completed, any results can be obtained by following the link in the Results List available from the results endpoint for that transfer, i.e. with a HTTP GET to http://rest-endpoint/transfers/(jobid)/results. This pertains particularly to the transfer methods in which data is sent to or read from a service-negotiated URL (pushToVoSpace and pullFromVoSpace).
 
 A transfer can also be aborted at any stage with a HTTP POST of the parameter ``PHASE=ABORT'' to the endpoint: http://rest-endpoint/transfers/(jobid)/phase
+
+The two write operations, pushToVoSpace and pullToVoSpace, should set the busy flag on the Node to true while the operation is in progress.  This would have the consequence that the two read operations, pullFromVoSpace and pushFromVoSpace, may fail on requests to that Node.
+
+It is up to each specific transfer protocol or view to define how they behave when invoked on a busy node.
+
+During the negotiation of a transfer, a Node should only offer transfer protocols that are valid at the point when the negotiation is taking place.
 
 More specific details for each of the four directions are given in the sections following.
 
