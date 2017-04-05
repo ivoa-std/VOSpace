@@ -7,10 +7,10 @@ DOCNAME = VOSpace
 DOCVERSION = 2.1
 
 # Publication date, ISO format; update manually for "releases"
-DOCDATE = 20160420
+DOCDATE = 20170405
 
 # What is it you're writing: NOTE, WD, PR, or REC
-DOCTYPE = WD
+DOCTYPE = PR
 
 # Source files for the TeX document (but the main file must always
 # be called $(DOCNAME).tex

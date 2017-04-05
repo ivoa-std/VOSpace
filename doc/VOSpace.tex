@@ -22,13 +22,15 @@
 \author{Dave Morris}
 \author{Guy Rixon}
 \author{Pat Dowler}
-\author{Andre Schaaff}
+\author{Andr\'e Schaaff}
 \author{Doug Tody}
 \author{Brian Major}
 
 \editor{Matthew Graham}
 \editor{Brian Major}
+\editor{Dave Morris}
 
+\previousversion[http://www.ivoa.net/documents/VOSpace/20160420/index.html]{WD-VOSpace-2.1-20160405}
 \previousversion[http://www.ivoa.net/documents/VOSpace/20150601/index.html]{WD-VOSpace-2.1-20150601}
 \previousversion[http://www.ivoa.net/documents/VOSpace/20140805/index.html]{WD-VOSpace-2.1-20140805}
 \previousversion[http://www.ivoa.net/documents/VOSpace/20130329/index.html]{REC-VOSpace-2.0-20130329}
@@ -203,12 +205,18 @@ Such a URI SHALL have the following parts with the meanings and encoding rules d
   \item (optional) fragment identifier (with the expected semantics noted in URI fragments in IVOA specifications \citep{note:uriforms})
 \end{itemize}
 
-The naming authority for a VOSpace node SHALL be the VOSpace service through which the node was created. The authority part of the URI SHALL be constructed from the IVO registry identifier \citep{std:VOID} for that service by deleting the ivo:// prefix and changing all forward-slash characters(`/') in the resource key to exclamation marks (`!') or tildes (`$\mathtt{\sim}$'). Note that a service SHALL be consistent in its use of separator characters (`!' or `$\mathtt{\sim}$') when referring to its own data but SHALL accept either as valid in URIs in service requests. For the rest of the document, we shall use `!' as the default character.
+The naming authority for a VOSpace node SHALL be the VOSpace service through which the node was created. The authority part of the URI SHALL be constructed from the IVO registry identifier \citep{std:VOID} for that service by deleting the ivo:// prefix and changing all forward-slash characters(`/') in the resource key to exclamation marks (`!') or tildes (`$\mathtt{\sim}$'). Note that a service SHALL be consistent in its use of separator characters (`!' or `$\mathtt{\sim}$') when referring to its own data but SHALL accept either as valid in URIs in service requests.
 
 This is an example of a possible VOSpace identifier.
 
 \begin{verbatim}
 vos://example.com!vospace/myresults/siap-out-1.vot
+\end{verbatim}
+
+And is equivalent to this identifier that uses the tilde character instead of an exclamation mark:
+
+\begin{verbatim}
+vos://example.com~vospace/myresults/siap-out-1.vot
 \end{verbatim}
 
 The URI scheme is \emph{vos}
@@ -851,7 +859,7 @@ If the client can resolve the Protocol identifier into a description, then the c
 
 \subsubsection{Standard protocols}
 \label{subsubsec:standard protocols}
-Protocol URIs and ProtocolDescriptions for the core set of standard transport protocols are registered under a StandardKeyEnumeration resource \citep{std:STDREGEXT} in the IVOA registry with the resource identifier ivo://ivoa.net/vospace/core. The following URIs SHALL be used to represent the standard protocols:
+Protocol URIs and ProtocolDescriptions for the core set of standard protocols are registered under a StandardKeyEnumeration resource \citep{std:STDREGEXT} in the IVOA registry with the resource identifier ivo://ivoa.net/vospace/core. The following URIs SHALL be used to represent the standard transfer protocols:
 
 \begin{itemize}
     \item \begin{verbatim}ivo://ivoa.net/vospace/core#httpget\end{verbatim} SHALL be used as the protocol URI for a HTTP GET transfer
@@ -862,58 +870,34 @@ Protocol URIs and ProtocolDescriptions for the core set of standard transport pr
 
 However, this is not intended to be a closed list, different implementations are free to define and use their own transfer Protocols and authentication types.
 
-\subsubsection{Custom protocols}
-\label{subsubsec:custom protocols}
-There are several use cases where a specific VOSpace implementation may want to define and use a custom VOSpace transfer Protocol, either extending an existing Protocol, or defining a new one.
+\subsubsection{Public share protocol}
+\label{subsubsec:public share protocol}
 
-\paragraph{SRB Gateway}
-One example would be a VOSpace service that was integrated with a SRB (Storage Resource Broker) system. In order to enable the service to use the native SRB transport protocol to transfer data, the service providers would need to register a new ProtocolDescription to represent the SRB transport protocol.
+The public share protocol provides a means of obtaining, through a transfer negotiation, a URL endpoint from a VOSpace service that can be shared with colleagues or published in a paper.  Implementation of this protocol is optional so services MAY provide support for the public share protocol if they wish to generate URLs to data objects that can be shared with anonymous users.
 
-The ProtocolDescription would refer to the technical specification for the SRB transport protocol, and define how it should be used to transfer data to and from the VOSpace service.
+The standard ID for the public share protocol is:
+\begin{verbatim}http://wiki.ivoa.net/twiki/bin/view/IVOA/VOSpacePublicShare\end{verbatim}
 
-Clients that do not understand the SRB transport protocol would not recognize the URI for the SRB Protocol, and would ignore Transfer options offered using this Protocol.
+Note that standard ID serves as both a URL to a document describing the protocol and as the URI identifying the protocol.  Thus, readers can find additional documentation on the public share protocol at the URL of the standard ID.
 
-Clients that were able to understand the SRB transport protocol would recognize the URI for the SRB Protocol, and could use the 'srb://..' endpoint address in a Protocol option to transfer data using the SRB transport protocol.
+The curl command below gives an example of how to obtain a public share URL from VOSpace:
 
-Enabling different groups to define, register and use their own custom Protocols in this way means that support for new transport protocols can be added to VOSpace systems without requiring changes to the core VOSpace specification.
+\begin{verbatim}
+    curl "https://server.example.com/vospace/synctrans
+        ?TARGET=vos://example.com~vospace/mydata1
+        &DIRECTION=pullFromVoSpace
+        &PROTOCOL=http://wiki.ivoa.net/twiki/bin/view/IVOA/VOSpacePublicShare
+\end{verbatim}
 
-In this particular example, it is expected that one group within the IVOA will work with the SRB team at SDSC to define and register the Protocol URI and ProtocolDescription for using the SRB protocol to transfer data to and from VOSpace systems.
+If the VOSpace service supports the public share protocol, the resulting transfer document SHALL include an endpoint URLs for distribution and sharing.  For example:
 
-Other implementations that plan to use the SRB transport protocol in the same way could use the same Protocol URI and ProtocolDescription to describe data transfers using the SRB transport protocol.
+\begin{verbatim}<vos:endpoint>http://public.example.com/001237995/mydata1</vos:endpoint>\end{verbatim}
 
-The two implementations would then be able use the common Protocol URI to negotiate data transfers using the SRB transport protocol.
+The endpoint MUST be anonymously accessible, so the endpoint SHALL NOT contain a securityMethod for authentication.
 
-\paragraph{Local NFS transfers}
+If the VOSpace service does not support the public share protocol, the transfer Job phase SHALL be set to ERROR and the ErrorSummary SHALL be set to "ProtocolNotSupported".
 
-Another example of a custom Protocol use case would to transfer data using the local NFS file system within an institute.
-
-If an institute has one or more VOSpace services co-located with a number of data processing applications, all located within the same local network, then it would be inefficient to use HTTP GET and PUT to transfer the data between the services if they could all access the same local file system.
-
-In this case, the local system administrators could register a custom ProtocolDescription which described how to transfer data using their local NFS file system.
-
-\begin{itemize}
-    \item \begin{verbatim}ivo://my.institute/vospace/protocols#internal-nfs\end{verbatim}
-\end{itemize}
-
-Data transfers using this Protocol would be done using file:// URLs pointing to locations within the local NFS file system:
-
-\begin{itemize}
-    \item \begin{verbatim}file:///net/host/path/file\end{verbatim}
-\end{itemize}
-
-These URLs would only have meaning to services and applications located within the local network, and would not be usable from outside the network.
-
-Services and applications located within the local network would be configured to recognize the custom Protocol URI, and to use local file system operations to move files within the NFS file system.
-
-Services and applications located outside local network would not recognize the custom Protocol URI and so would not attempt to use the internal file URLs to transfer data.
-
-Note that in this example the custom Protocol URI and the associated ProtocolDescription refer to data transfers using file URLs within a specific local NFS file system.
-
-If a different institute wanted to use a similar system to transfer data within their own local network, then they would have to register their own custom Protocol URI and associated ProtocolDescription.
-
-The two different Protocol URIs and ProtocolDescriptions describe how to use the same underlying transport protocol (NFS) in different contexts.
-
-Enabling different groups to define, register and use their own custom Protocols in this way means that systems can be configured to use the best available transport protocols for transferring data, without conflicting with other systems who may be using similar a transport protocol in a different context.
+Use of the public share protocol in transfer negotiations is only valid when the DIRECTION of the transfer request is pullFromVoSpace.	  If a DIRECTION other than pullFromVoSpace is used then the service SHALL set the Job phase to ERROR and set the ErrorSummary to "ProtocolNotSupported".
 
 \subsubsection{Security Methods}
 Each protocol may have an associated securityMethod element that describes the supported authentication method for that protocol.
@@ -938,7 +922,9 @@ Transfers can be represented as XML documents.  For example:
   <vos:protocol uri="ivo://ivoa.net/vospace/core#httpsput">
     <vos:securityMethod uri="ivo://ivoa.net/sso#tls-with-certificate"/>
   </vos:protocol>
-  <vos:protocol uri="ivo://ivoa.net/vospace/core#httpput">    <vos:securityMethod "uri="http://www.w3.org/Protocols/HTTP/1.0/spec/html#BasicAA"/>  </vos:protocol>
+  <vos:protocol uri="ivo://ivoa.net/vospace/core#httpput">
+    <vos:securityMethod "uri="http://www.w3.org/Protocols/HTTP/1.0/spec/html#BasicAA"/>
+  </vos:protocol>
 </vos:transfer>
 \end{lstlisting}
 
@@ -2184,7 +2170,9 @@ A transfer job is created by a HTTP POST of an appropriate Job representation to
 
 This example transfer job is making a request for an TLS endpoint that supports client certificates that is to be used for performing an HTTP PUT of a file.  
 
-The service returns the UWS jobid of the transfer and it can then be initiated with a HTTP POST of the single parameter ``PHASE=RUN'' to the appropriate job endpoint: http://rest-endpoint/transfers/(jobid)/phase. Alternatively the transfer can also be run immediately on creation by adding a ``PHASE=RUN'' to the initial Job representation.
+The service returns a 303 redirect with the Location set to the URL of the UWS jobid of the transfer.  It can then be initiated with a HTTP POST of the single parameter ``PHASE=RUN'' to the appropriate job endpoint: http://rest-endpoint/transfers/(jobid)/phase. Alternatively the transfer can also be run immediately on creation by adding the parameter ``PHASE=RUN'' to the initial Job creation URL.
+
+If the job creation POST is sent the synchronous transfer endpoint instead (http://rest-endpoint/synctrans), then the Job is started immediately.
 
 The status of any transfer can be obtained by polling the phase endpoint for a particular transfer, i.e. a HTTP GET to http://rest-endpoint/transfers/(jobid)/phase.
 
@@ -2273,7 +2261,7 @@ The transfer results representation can be retrieved directly from the link repo
 <uws:job>
 ...
   <uws:results>
-   <uws:result id="transferDetails" xlink:href="http://rest-endpoint/transfers/(jobid)/results/details1"/>
+   <uws:result id="transferDetails" xlink:href="http://rest-endpoint/transfers/(jobid)/results/transferDetails"/>
   </uws:results>
 ...
 </uws:job>
@@ -2861,7 +2849,7 @@ The transfer results representation can be retrieved directly from the link repo
 <uws:job>
 ...
   <uws:results>
-   <uws:result id="transferDetails" xlink:href="http://rest-endpoint/transfers/(jobid)/results/details1"/>
+   <uws:result id="transferDetails" xlink:href="http://rest-endpoint/transfers/(jobid)/results/transferDetails"/>
   </uws:results>
 ...
 < /uws:job>
@@ -3676,6 +3664,18 @@ ivo://ivoa.net/vospace/core\#type & the nature or genre of the resource & string
 
 \section{Changes from Previous Versions}
 \label{sec:changes from previous versions}
+
+\paragraph{From version 2.1-20170405:}
+\begin{itemize}
+    \item Replaced the dated Custom Protocols section with a new Public Share Protocol section
+    \item Added REQUEST=redirect for further optimized pullFromVoSpace
+    \item Removed "search" and "find nodes" until use cases and implementations are presented
+    \item Changed Transfer in XSD to accept parameters.
+    \item Recreated and expanded all webservice operation examples
+    \item Changed XSD element authType to SecurityMethod to match IVOA standard.
+    \item Fixed text inconsistencies
+    \item Clarified role of the node busy flag
+\end{itemize}
 
 \paragraph{From version 2.1-20140805:}
 \begin{itemize}
