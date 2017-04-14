@@ -44,7 +44,7 @@
        
 \begin{document}
 \begin{abstract}
-VOSpace is the IVOA interface to distributed storage. This specification presents the second RESTful version of the interface.  Except for minor additions to the 2.0 specification, it is functionally equivalent to the SOAP-based VOSpace 1.1 specification. Note that 1.x VOSpace clients will not work with this new version of the interface.  VOSpace 2.0 and 2.1 clients will work with 2.1 services.  VOSpace 2.1 clients, however, will not work with VOSpace 2.0 services.
+VOSpace is the IVOA interface to distributed storage. This specification presents the second RESTful version of the interface.  It specifies how VO agents and applications can use network attached data stores to persist and exchange data in a standard way.
 \end{abstract}
 
 \section*{Acknowledgments}
@@ -82,9 +82,14 @@ VOSpace does not define how the data is stored or transferred, only the control 
 
 When we speak of ``a VOSpace'', we mean the arrangement of data accessible through one particular VOSpace service.
 
-Each data object within a VOSpace service is represented as a node and has a description called a representation. A useful analogy to have in mind when reading this document is that a node is equivalent to a file.
+Each data object within a VOSpace service is represented as a node and has a description called a representation. A useful analogy to have in mind when reading this document is that a node is equivalent to a file or a directory.
 
 Nodes in VOSpace have unique identifiers expressed as URIs in the `vos' scheme, as defined below.
+
+\subsection{Previous Versions}
+\label{subsec:previousversions}
+
+This specification presents the second RESTful version of the interface. Except for minor additions to the 2.0 specification, it is functionally equivalent to the SOAP-based VOSpace 1.1 specification. Note that 1.x VOSpace clients will not work with this new version of the interface. VOSpace 2.0 and 2.1 clients will work with 2.1 services. VOSpace 2.1 clients, however, will not work with VOSpace 2.0 services.
 
 VOSpace 2.0 did not introduce any new functionality to that already offered by prior (SOAP-based) versions of the interface (VOSpace 1.1) but defines a RESTful binding for the interface. VOSpace 2.1 introduces minor changes to VOSpace 2.0 mainly addressing access control and operation optimizations.
 
@@ -161,7 +166,7 @@ The IVOA Architecture \citep{note:VOARCH} provides a high-level view of how IVOA
 \label{fig:archdiag}
 \end{figure}
 
-In this architecture, users employ a variety of tools (from the User Layer) to discover and access archives and services of interest (represented in the Resource Layer). VOSpace provides an interface to storage resources containing the results of using these archives and services and also to other storage solutions, e.g., local disks, where users might want to transfer these results for further work. Items in these resources are referenced by a VOSpace identifier which is related to the standard IVOA Resource Identifier (see section 2). This version of VOSpace employs the UWS design pattern \citep{std:UWS} to manage data transfers (see section \ref{subsec:transfers}). VOSpace instances may also employ the IVOA Single-Sign-On standard \citep{std:SSOAUTH} for authentication purposes (see section \ref{sec:access control}) and IVOA Credential Delegation Protocol \citep{std:CDP} to delegate data transfers.
+In this architecture, users employ a variety of tools (from the User Layer) to discover and access archives and services of interest (represented in the Resource Layer). VOSpace provides an interface to storage resources containing the results of using these archives and services and also to other storage solutions, e.g., local disks, where users might want to transfer these results for further work. Items in these resources are referenced by a VOSpace identifier which is related to the standard IVOA Resource Identifier (see section 2). This version of VOSpace employs the UWS design pattern \citep{std:UWS} to manage data transfers (see section \ref{subsec:transfers}). VOSpace instances may also employ the IVOA Single-Sign-On standard \citep{std:SSOAUTH2.0} for authentication purposes (see section \ref{sec:access control}) and IVOA Credential Delegation Protocol \citep{std:CDP} to delegate data transfers.
 
 % Note: add 'search' section to above paragraph when reinstated
 
@@ -235,10 +240,14 @@ All ancestors in the hierarchy SHALL be resolvable as containers (ContainerNodes
 
 A VOSpace identifier is globally unique, and identifies one specific node in a specific VOSpace service.
 
-The standardID for this specification SHALL be:
+A VOSpace 2.1 service in the VO Registry is identified by its standardID.  The standardID for this specification SHALL be:
 \begin{verbatim}
 ivo://ivoa.net/std/VOSpace/v2.1
 \end{verbatim}
+
+\begin{admonition}{Note}
+The tilde (`$\mathtt{\sim}$') character was introduced in version 2.0 as an alternative to the exclamation (`!') character because it does not have to be URL encoded in HTTP requests making it more convenient for use.
+\end{admonition}
 
 \subsection{Identifier resolution}
 \label{subsec:identifier resolution}
@@ -357,6 +366,13 @@ To comply with the standard, a client or service SHALL be able to parse XML repr
 
 Note: This does not require all services to support all of the Node types, just that it can process an XML request containing any of the types. If the service receives a request for a type that it does not support, the service SHOULD return a \emph{TypeNotSupported} fault. The service SHALL NOT throw an XML parser error if it receives a request for a type that it does not support.
 
+The following Nodes, appearing as part of a node-path, are reserved:
+
+\begin{itemize}
+    \item .auto indicates that the service should auto-generate an endpoint URI to replace this placeholder (Note: that this is an OPTIONAL feature of a service)
+    \item .null indicates an endpoint that discards all data written to it and provides no data when read from, i.e. a bit bucket
+\end{itemize}
+
 \subsection{Properties}
 \label{subsec:properties}
 \emph{Properties} are simple string-based metadata properties associated with a node.
@@ -388,7 +404,7 @@ Every new type of \emph{Property} SHALL require a unique URI to identify the \em
 The rules for the \emph{Property} identifiers are similar to the rules for namespace URIs in XML schema. The only restriction is that it SHALL be a valid (unique) URI.
 
 \begin{itemize}
-    \item An XML schema namespace identifier can be just a simple URN, e.g. urn:my-namespace
+    \item An XML schema namespace identifier can be just a simple URN \citep{std:RFC2141}, e.g. urn:my-namespace
     \item Within the IVOA, the convention for namespace identifiers is to use a HTTP URL pointing to the namespace schema or a resource describing it
 \end{itemize}
 
@@ -438,8 +454,6 @@ A PropertyDescription MAY have the following OPTIONAL members:
 
 The information in a Property description can be used to generate a UI for displaying and modifying the different types of Properties.
 
-Note that at the time of writing, the schema for registering PropertyDescriptions in the IVO registry has not been finalized.
-
 \paragraph{UI Display name}
 If a client is unable to resolve a Property identifier into a description, then it may just display the identifier as a text string:
 
@@ -467,8 +481,6 @@ In the current version of the specification the rules for editing Properties are
 \end{itemize}
 
 Future versions of the VOSpace specification may extend the PropertyDescription to include more specific machine readable validation rules for a Property type.
-
-Note that at the time of writing, the schema for registering validation rules in PropertyDescriptions has not been finalized.
 
 \subsubsection{Standard properties}
 \label{subsubsec:standard properties}
@@ -561,8 +573,6 @@ A CapabilityDescription SHOULD describe the third-party interface and how it sho
     \item \emph{Description}: a text block describing the third-party interface and how it should be used in this context.
 \end{itemize}
 
-Note that at the time of writing, the schema for registering CapabilityDescriptions in the IVO registry has not been finalized.
-
 \subsubsection{UI display name}
 \label{subsubsection:ui display ame}
 If a client is unable to resolve a Capability identifier into a description then it may just display the identifier as a text string:
@@ -617,7 +627,7 @@ A View representation SHALL have the following members:
 
 \begin{itemize}
     \item \emph{uri}: an optional boolean flag to indicate that the View preserves the original bit pattern of the data
-    \item \emph{original}: a set of name-value pairs that can be used to specify additional arguments for the View
+    \item \emph{param}: a set of name-value pairs that can be used to specify additional arguments for the View
 \end{itemize}
 
 \subsubsection{Example view use cases}
@@ -906,6 +916,8 @@ For transfer requests, the securityMethod indicates that the client is capable o
 
 The Protocol list in transfer responses represent the protocol and securityMethod combinations that are supported by the server.  The server must only list supported combinations.  The server may choose to consult the protocol and securityMethod combinations in the transfer request to generate the ordered list of protocols.
 
+Please refer to the IVOA Single-Sign-On Profile: Authentication Mechanisms for more information: \citep{std:SSOAUTH2.0}
+
 \subsection{Transfers}
 \label{subsec:transfers}
 A Transfer describes the details of a data transfer to or from a VOSpace.
@@ -1147,38 +1159,47 @@ If none of the Protocol options succeed, then the transfer SHALL be considered t
 \label{subsec:rest bindings}
 In a REST (Representational State Transfer) binding of VOSpace, each of the objects defined below is available as a web resource with its own URI.
 
+The syntax of the standard IDs for the REST bindings has changed in VOSpace 2.1 to be in accordance with the IVOA Recommendation IVOA Identifiers 2.0 \citep{std:VOID}.  Specifically, the question mark (?) symbol is to be used in place of the hash (\#) symbol for listing the particular resource.  Secondly, the resource is now versioned to align with the version of the standard, rather than having the version in the standardID of the specification.
+
+Since only the /synctrans binding has changed in version 2.1, it is the only binding with a separate 2.1 resource identifier version.
+
+The following table lists the resourceIDs for the REST bindings for VOSpace implementations prior to version 2.1.
+
 \vspace{3mm}
 \begin{tabular}{ l p{4cm} }
     \hline
-    /properties & the properties employed in the space \\
+    ivo://ivoa.net/std/VOSpace/v2.0\#/properties & the properties employed in the space \\
     \hline
-    /views & the views employed in the space \\
+    ivo://ivoa.net/std/VOSpace/v2.0\#/views & the views employed in the space \\
     \hline
-    /protocols & the protocols employed in the space \\
+    ivo://ivoa.net/std/VOSpace/v2.0\#/protocols & the protocols employed in the space \\
 %     \hline
 %     /searches & the searches of the space \\
     \hline
-    /nodes/(node-path) & a Node under the nodes of the space \\
+    ivo://ivoa.net/std/VOSpace/v2.0\#/nodes/(node-path) & a Node under the nodes of the space \\
     \hline
-    /transfers & asynchronous transfers for the space \\
+    ivo://ivoa.net/std/VOSpace/v2.0\#/transfers & asynchronous transfers for the space \\
     \hline
-    /synctrans & synchronous transfers for the space \\
+    ivo://ivoa.net/std/VOSpace/v2.0\#/synctrans & synchronous transfers for the space \\
     \hline
-    /transfers/(job-id)/results/transferDetails & the resulting transfer details \\
+    ivo://ivoa.net/std/VOSpace/v2.0\#/transfers/(job-id)/results/transferDetails & the resulting transfer details \\
     \hline
 \end{tabular}
 \vspace{3mm}
 
+In version 2.1, the following resourceID has been introduced:
+
+\vspace{3mm}
+    \begin{verbatim}ivo://ivoa.net/std/VOSpace?synctrans-2.1\end{verbatim}
+\vspace{3mm}
+
+The standard ID of a VOSpace prior to version 2.1 is:
+
+ivo://ivoa.net/std/VOSpace/v2.1
+
+In 2.1, there isn't a standardID for a VOSpace service, only the individual resources within.
+
 These names are part of the VOSpace 2.1 standard.
-
-The following Nodes, appearing as part of a node-path, are reserved:
-
-\begin{itemize}
-    \item .auto indicates that the service should auto-generate an endpoint URI to replace this placeholder (Note: that this is an OPTIONAL feature of a service)
-    \item .null indicates an endpoint that discards all data written to it and provides no data when read from, i.e. a bit bucket
-\end{itemize}
-
-The standardID for the service is: ivo://ivoa.net/std/VOSpace/v2.1. Available resources will then just be ivo://ivoa.net/std/VOSpace/v2.1\#<resourceName>, e.g., ivo://ivoa.net/std/VOSpace/v2.1\#nodes.
 
 \section{Access Control}
 \label{sec:access control}
@@ -3514,23 +3535,6 @@ The fault details must contain the full details of the LinkNode.
 \paragraph{NodeBusy}
 This is thrown when a node is not in a state to perform the requested operation.
 
-\section{Changes since last version}
-\label{sec:changes since last version}
-
-\paragraph{From version 2.1-20150601:}
-\begin{itemize}
-    \item Added REQUEST=redirect for further optimized pullFromVoSpace
-    \item Commented-out search and find nodes until use cases and implementations are presented
-    \item Changed pullToVoSpace, pushFromVoSpace to be client orchestrated.
-    \item Removed asynchronous pushToVoSpace and pullToVoSpace (? TBD)
-    \item Changed Transfer in XSD to accept parameters.
-    \item Recreated and expanded all webservice operation examples
-    \item Changed XSD element authType to SecurityMethod to match IVOA standard.
-    \item Fixed text inconsistencies
-    \item Clarified role of the node busy flag
-    \item Ported source to ivoatex format
-\end{itemize}
-
 \appendix
 
 \section{Machine readable definitions}
@@ -3538,7 +3542,7 @@ This is thrown when a node is not in a state to perform the requested operation.
 \subsection{Message schema}
 \label{subsec:message schema}
 XML Schema
-The requests and responses of a VOSpace 2.0 service shall adhere to the following XML Schema:
+The requests and responses of a VOSpace 2.1 service shall adhere to the following XML Schema:
 
 \lstinputlisting{VOSpace-2.1.xsd}
 
@@ -3668,13 +3672,20 @@ ivo://ivoa.net/vospace/core\#type & the nature or genre of the resource & string
 \paragraph{From version 2.1-20170405:}
 \begin{itemize}
     \item Replaced the dated Custom Protocols section with a new Public Share Protocol section
+    \item Updates from working group feedback
+\end{itemize}
+
+\paragraph{From version 2.1-20150601:}
+\begin{itemize}
     \item Added REQUEST=redirect for further optimized pullFromVoSpace
     \item Removed "search" and "find nodes" until use cases and implementations are presented
+    \item Changed pullToVoSpace, pushFromVoSpace to be client orchestrated.
     \item Changed Transfer in XSD to accept parameters.
     \item Recreated and expanded all webservice operation examples
     \item Changed XSD element authType to SecurityMethod to match IVOA standard.
     \item Fixed text inconsistencies
     \item Clarified role of the node busy flag
+    \item Ported source to ivoatex format
 \end{itemize}
 
 \paragraph{From version 2.1-20140805:}
