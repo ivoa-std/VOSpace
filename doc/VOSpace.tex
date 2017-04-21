@@ -295,6 +295,8 @@ Each data object within a VOSpace SHALL be represented as a node that is identif
 
 There are different types of nodes and the type of a VOSpace node determines how the VOSpace service stores and interprets the node data.
 
+In an XML representation of a Node, the type is specified by the \emph{xs:type} attribute on the node.  For example, \emph{xs:type="vos:ContainerNode"}.
+
 The types are arranged in a hierarchy (see Figure ~\ref{fig:nodehierarchy}), with more detailed types inheriting the structure of more generic types.
 
 \begin{figure}
@@ -1155,51 +1157,40 @@ If none of the Protocol options succeed, then the transfer SHALL be considered t
 %     \item \emph{nodes}: A list containing zero or more Nodes of appropriate detail identifying the target URIs meeting the search criteria
 % \end{itemize}
 
-\subsection{REST bindings}
-\label{subsec:rest bindings}
+\section{REST bindings}
+\label{sec:rest bindings}
 In a REST (Representational State Transfer) binding of VOSpace, each of the objects defined below is available as a web resource with its own URI.
+
+The standard ID of a VOSpace is:
+
+\begin{verbatim}ivo://ivoa.net/std/VOSpace/v2.0\end{verbatim}
 
 The syntax of the standard IDs for the REST bindings has changed in VOSpace 2.1 to be in accordance with the IVOA Recommendation IVOA Identifiers 2.0 \citep{std:VOID}.  Specifically, the question mark (?) symbol is to be used in place of the hash (\#) symbol for listing the particular resource.  Secondly, the resource is now versioned to align with the version of the standard, rather than having the version in the standardID of the specification.
 
 Since only the /synctrans binding has changed in version 2.1, it is the only binding with a separate 2.1 resource identifier version.
 
-The following table lists the resourceIDs for the REST bindings for VOSpace implementations prior to version 2.1.
+The following is a list of the resourceIDs for the REST bindings for VOSpace 2.x implementations:
 
-\vspace{3mm}
-\begin{tabular}{ l p{4cm} }
-    \hline
-    ivo://ivoa.net/std/VOSpace/v2.0\#/properties & the properties employed in the space \\
-    \hline
-    ivo://ivoa.net/std/VOSpace/v2.0\#/views & the views employed in the space \\
-    \hline
-    ivo://ivoa.net/std/VOSpace/v2.0\#/protocols & the protocols employed in the space \\
-%     \hline
-%     /searches & the searches of the space \\
-    \hline
-    ivo://ivoa.net/std/VOSpace/v2.0\#/nodes/(node-path) & a Node under the nodes of the space \\
-    \hline
-    ivo://ivoa.net/std/VOSpace/v2.0\#/transfers & asynchronous transfers for the space \\
-    \hline
-    ivo://ivoa.net/std/VOSpace/v2.0\#/synctrans & synchronous transfers for the space \\
-    \hline
-    ivo://ivoa.net/std/VOSpace/v2.0\#/transfers/(job-id)/results/transferDetails & the resulting transfer details \\
-    \hline
-\end{tabular}
-\vspace{3mm}
+\begin{itemize}
+    \item \begin{verbatim}ivo://ivoa.net/std/VOSpace/v2.0#/properties\end{verbatim} The properties employed in the space.
+    \item \begin{verbatim}ivo://ivoa.net/std/VOSpace/v2.0#/views\end{verbatim} The protocols employed in the space.
+    \item \begin{verbatim}ivo://ivoa.net/std/VOSpace/v2.0#/protocols\end{verbatim} The views employed in the space.
+    \item \begin{verbatim}ivo://ivoa.net/std/VOSpace/v2.0#/nodes\end{verbatim} A Node under the nodes of the space.
+    \item \begin{verbatim}ivo://ivoa.net/std/VOSpace/v2.0#/transfers\end{verbatim} Asynchronous transfers for the space.
+    \item \begin{verbatim}ivo://ivoa.net/std/VOSpace/v2.0#/transfers/(job-id)/results/transferDetails\end{verbatim} The resulting transfer details.
+\end{itemize}
 
-In version 2.1, the following resourceID has been introduced:
+In version 2.0, the following is the resourceID for synchronous transfers in the space:
 
-\vspace{3mm}
-    \begin{verbatim}ivo://ivoa.net/std/VOSpace?synctrans-2.1\end{verbatim}
-\vspace{3mm}
+\begin{itemize}
+    \item \begin{verbatim}ivo://ivoa.net/std/VOSpace/v2.0#/synctrans\end{verbatim}
+\end{itemize}
 
-The standard ID of a VOSpace prior to version 2.1 is:
+In version 2.1, the following resourceID has been introduced for the 2.1 version of synchronous transfers:
 
-ivo://ivoa.net/std/VOSpace/v2.1
-
-In 2.1, there isn't a standardID for a VOSpace service, only the individual resources within.
-
-These names are part of the VOSpace 2.1 standard.
+\begin{itemize}
+    \item \begin{verbatim}ivo://ivoa.net/std/VOSpace?synctrans-2.1\end{verbatim}
+\end{itemize}
 
 \section{Access Control}
 \label{sec:access control}
@@ -2170,10 +2161,10 @@ Response:
 \label{subsec:transferringdata}
 Two modes are supported for external data transfers: a simple HTTP GET to retrieve data from a service (pullFromVoSpace) and a more general mechanism which employs a UWS-based approach \citep{std:UWS} for submitting general data transfer requests (see section \ref{subsec:transfers}). In the latter, four directions are specified in which external data transfers can happen:
 \begin{itemize}
-    \item sending data to a service (pushToVoSpace)
-    \item importing data into a service (pullToVoSpace)
-    \item reading data from a service (pullFromVoSpace)
-    \item sending data from a service (pushFromVoSpace)
+    \item \begin{verbatim}pushToVoSpace\end{verbatim} For sending data to a service (upload from a client to a VOSpace)
+    \item \begin{verbatim}pullFromVoSpace\end{verbatim} For reading data from a service (download from a VOSpace to a client)
+    \item \begin{verbatim}pullToVoSpace\end{verbatim} For importing data into a service (download from one VOSpace to another VOSpace)
+    \item \begin{verbatim}pushFromVoSpace\end{verbatim} For sending data from a service (upload from one VOSpace to another VOSpace)
 \end{itemize}
 
 A transfer job is created by a HTTP POST of an appropriate Job representation to the transfers endpoint of the service: http://rest-endpoint/transfers.  The following example shows a transfer document for a pushToVoSpace operation:
