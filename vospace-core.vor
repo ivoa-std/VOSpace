@@ -1,0 +1,169 @@
+<ri:Resource 
+	xsi:type="vstd:Standard" 
+	created="2017-06-07T09:30:00" 
+	updated="2017-06-07T09:30:00" 
+	status="active"
+	xmlns:vr="http://www.ivoa.net/xml/VOResource/v1.0" 
+	xmlns:vstd="http://www.ivoa.net/xml/StandardsRegExt/v1.0" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:ri="http://www.ivoa.net/xml/RegistryInterface/v1.0"
+	xsi:schemaLocation="http://www.ivoa.net/xml/VOResource/v1.0
+		http://www.ivoa.net/xml/VOResource/v1.0
+	http://www.ivoa.net/xml/StandardsRegExt/v1.0
+		http://www.ivoa.net/xml/StandardsRegExt/v1.0
+	http://www.ivoa.net/xml/VOResource/v1.0
+		http://www.ivoa.net/xml/VOResource/v1.0">
+
+  <title>VOSpace Core Vocabulary</title>
+  <shortName>VOSCORE</shortName>
+  <identifier>ivo://ivoa.net/vospace/core</identifier> 
+  <curation>
+    <publisher>IVOA</publisher>
+
+    <creator>
+      <name>Graham, M.</name>
+    </creator>
+    <creator>
+      <name>Morris, D.</name>
+    </creator>
+    <creator>
+      <name>Rixon, G.</name>
+    </creator>
+    <creator>
+      <name>Dowler, P.</name>
+    </creator>
+    <creator>
+      <name>Schaaff, A.</name>
+    </creator>
+    <creator>
+      <name>Tody, D.</name>
+    </creator>
+    <creator>
+      <name>Major, B.</name>
+    </creator>
+
+    <date role="update">UPDATEME to standards publication date</date>
+    <version>2.1</version>
+    <contact>
+      <name>Grid and Web Services WG</name>
+      <email>grid@ivoa.net</email>
+    </contact>
+  </curation>
+  <content>
+    <subject>Virtual observatory</subject>
+    <subject>Data storage</subject>
+    <subject>Data retrieval</subject>
+
+    <description>
+	    VOSpace is the IVOA interface to distributed storage, described
+	    in the standard ivo://ivoa.net/std/vospace.
+
+	    The standard defines several terms.  Their URIs were defined before
+	    StandardsRegExt was finalised and therefore do not live in the
+	    main VOSpace standards record.  To still make them resolvable, this
+	    record was created as a stop-gap.
+    </description>
+    <referenceURL>http://ivoa.net/documents/VOSpace/</referenceURL>
+    <type>Other</type>
+  	<contentLevel>Research</contentLevel>
+  </content>
+
+  <endorsedVersion status="n/a">2.1</endorsedVersion>
+
+	<key>
+		<name>description</name>
+		<description>FIXME
+		</description>
+	</key>
+
+	<key>
+		<name>httpget</name>
+		<description>FIXME
+		</description>
+	</key>
+
+	<key>
+		<name>httpput</name>
+		<description>FIXME
+		</description>
+	</key>
+
+	<key>
+		<name>httpsget</name>
+		<description>FIXME
+		</description>
+	</key>
+
+	<key>
+		<name>httpsput</name>
+		<description>FIXME
+		</description>
+	</key>
+
+	<key>
+		<name>anyview</name>
+		<description>FIXME
+		</description>
+	</key>
+
+	<key>
+		<name>defaultview</name>
+		<description>FIXME
+		</description>
+	</key>
+
+	<key>
+		<name>title</name>
+		<description>FIXME
+		</description>
+	</key>
+
+	<key>
+		<name>creator</name>
+		<description>FIXME
+		</description>
+	</key>
+
+	<key>
+		<name>availableSpace</name>
+		<description>FIXME
+		</description>
+	</key>
+
+	<key>
+		<name>date</name>
+		<description>FIXME
+		</description>
+	</key>
+
+	<key>
+		<name>length</name>
+		<description>FIXME
+		</description>
+	</key>
+
+	<key>
+		<name>MD5</name>
+		<description>FIXME
+		</description>
+	</key>
+
+	<key>
+		<name>fits</name>
+		<description>FIXME
+		</description>
+	</key>
+
+	<key>
+		<name>mimetype</name>
+		<description>FIXME
+		</description>
+	</key>
+
+	<key>
+		<name>votable</name>
+		<description>FIXME
+		</description>
+	</key>
+
+</ri:Resource>
