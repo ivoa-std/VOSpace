@@ -70,100 +70,148 @@
 
   <endorsedVersion status="n/a">2.1</endorsedVersion>
 
-	<key>
-		<name>description</name>
-		<description>FIXME
-		</description>
-	</key>
+  <key>
+    <name>availableSpace</name>
+    <description> the amount of space available within a container </description>
+  </key>
+  <key>
+    <name>btime</name>
+    <description> the initial creation time </description>
+  </key>
+  <key>
+    <name>contributor</name>
+    <description> an entity responsible for making contributions to this resource </description>
+  </key>
+  <key>
+    <name>coverage</name>
+    <description> a spatial or temporal topic of the resource, the spatial applicability of the resource, or the jurisdiction under which the resource is relevant </description>
+  </key>
+  <key>
+    <name>creator</name>
+    <description> an entity primarily responsible for making the resource </description>
+  </key>
+  <key>
+    <name>ctime</name>
+    <description> the status change (aka metadata modification) time </description>
+  </key>
+  <key>
+    <name>date</name>
+    <description> a point or period of time associated with an event in the lifecycle of the resource </description>
+  </key>
+  <key>
+    <name>description</name>
+    <description> an account of the resource </description>
+  </key>
+  <key>
+    <name>format</name>
+    <description> the file format, physical medium or dimensions of the resource </description>
+  </key>
+  <key>
+    <name>groupread</name>
+    <description> the list of groups which can only read this resource </description>
+  </key>
+  <key>
+    <name>groupwrite</name>
+    <description> the list of groups which can read and write to this resource </description>
+  </key>
+  <key>
+    <name>identifier</name>
+    <description> an unambiguous reference to the resource within a given context </description>
+  </key>
+  <key>
+    <name>language</name>
+    <description> a language of the resource </description>
+  </key>
+  <key>
+    <name>length</name>
+    <description> the length or size of a resource </description>
+  </key>
+  <key>
+    <name>mtime</name>
+    <description> the data modification time </description>
+  </key>
+  <key>
+    <name>publicread</name>
+    <description> whether this resource is world readable </description>
+  </key>
+  <key>
+    <name>publisher</name>
+    <description> an entity responsible for making the resource available </description>
+  </key>
+  <key>
+    <name>quota</name>
+    <description> the value of a system quota on the resource </description>
+  </key>
+  <key>
+    <name>relation</name>
+    <description> a related resource </description>
+  </key>
+  <key>
+    <name>rights</name>
+    <description> information about rights held in and over the resource </description>
+  </key>
+  <key>
+    <name>source</name>
+    <description> a related resource from which the described resource is derived </description>
+  </key>
+  <key>
+    <name>subject</name>
+    <description> the topic of the resource </description>
+  </key>
+  <key>
+    <name>title</name>
+    <description> a name given to the resource </description>
+  </key>
+  <key>
+    <name>type</name>
+    <description> the nature or genre of the resource </description>
+  </key>
 
-	<key>
-		<name>httpget</name>
-		<description>FIXME
-		</description>
-	</key>
+  <key>
+    <name>vospace-1.0</name>
+    <description>SHALL be used as the capability URI for a VOSpace 1.0 service</description>
+  </key>
+  <key>
+    <name>vospace-1.1</name>
+    <description>SHALL be used as the capability URI for a VOSpace 1.1 service</description>
+  </key>
+  <key>
+    <name>vospace-2.0</name>
+    <description>SHALL be used as the capability URI for a VOSpace 2.0 service</description>
+  </key>
+  <key>
+    <name>vospace-2.1</name>
+    <description>SHALL be used as the capability URI for a VOSpace 2.1 service</description>
+  </key>
 
-	<key>
-		<name>httpput</name>
-		<description>FIXME
-		</description>
-	</key>
+  <key>
+    <name>anyview</name>
+    <description>SHALL be used as the view URI to indicate that a service will accept any view for an import operation</description>
+  </key>
+  <key>
+    <name>binaryview</name>
+    <description>SHALL be used as the view URI to import or export data as a binary file</description>
+  </key>
+  <key>
+    <name>defaultview</name>
+    <description>SHALL be used by a client to indicate that the service should choose the most appropriate view for a data export</description>
+  </key>
 
-	<key>
-		<name>httpsget</name>
-		<description>FIXME
-		</description>
-	</key>
-
-	<key>
-		<name>httpsput</name>
-		<description>FIXME
-		</description>
-	</key>
-
-	<key>
-		<name>anyview</name>
-		<description>FIXME
-		</description>
-	</key>
-
-	<key>
-		<name>defaultview</name>
-		<description>FIXME
-		</description>
-	</key>
-
-	<key>
-		<name>title</name>
-		<description>FIXME
-		</description>
-	</key>
-
-	<key>
-		<name>creator</name>
-		<description>FIXME
-		</description>
-	</key>
-
-	<key>
-		<name>availableSpace</name>
-		<description>FIXME
-		</description>
-	</key>
-
-	<key>
-		<name>date</name>
-		<description>FIXME
-		</description>
-	</key>
-
-	<key>
-		<name>length</name>
-		<description>FIXME
-		</description>
-	</key>
-
-	<key>
-		<name>MD5</name>
-		<description>FIXME
-		</description>
-	</key>
-
-	<key>
-		<name>fits</name>
-		<description>FIXME
-		</description>
-	</key>
-
-	<key>
-		<name>mimetype</name>
-		<description>FIXME
-		</description>
-	</key>
-
-	<key>
-		<name>votable</name>
-		<description>FIXME
-		</description>
-	</key>
+  <key>
+    <name>httpget</name>
+    <description>SHALL be used as the protocol URI for a HTTP GET transfer</description>
+  </key>
+  <key>
+    <name>httpput</name>
+    <description>SHALL be used as the protocol URI for a HTTP PUT transfer</description>
+  </key>
+  <key>
+    <name>httpsget</name>
+    <description>SHALL be used as the protocol URI for a HTTP GET transfer over a Secure Socket Layer (SSL)</description>
+  </key>
+  <key>
+    <name>httpsput</name>
+    <description>SHALL be used as the protocol URI for a HTTP PUT transfer over a Secure Socket Layer (SSL)</description>
+  </key>
 
 </ri:Resource>
