@@ -1,18 +1,18 @@
 <ri:Resource 
-	xsi:type="vstd:Standard" 
-	created="2017-06-07T09:30:00" 
-	updated="2017-06-07T09:30:00" 
-	status="active"
-	xmlns:vr="http://www.ivoa.net/xml/VOResource/v1.0" 
-	xmlns:vstd="http://www.ivoa.net/xml/StandardsRegExt/v1.0" 
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-	xmlns:ri="http://www.ivoa.net/xml/RegistryInterface/v1.0"
-	xsi:schemaLocation="http://www.ivoa.net/xml/VOResource/v1.0
-		http://www.ivoa.net/xml/VOResource/v1.0
-	http://www.ivoa.net/xml/StandardsRegExt/v1.0
-		http://www.ivoa.net/xml/StandardsRegExt/v1.0
-	http://www.ivoa.net/xml/VOResource/v1.0
-		http://www.ivoa.net/xml/VOResource/v1.0">
+  xsi:type="vstd:Standard" 
+  created="2017-06-07T09:30:00" 
+  updated="2017-06-07T09:30:00" 
+  status="active"
+  xmlns:vr="http://www.ivoa.net/xml/VOResource/v1.0" 
+  xmlns:vstd="http://www.ivoa.net/xml/StandardsRegExt/v1.0" 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+  xmlns:ri="http://www.ivoa.net/xml/RegistryInterface/v1.0"
+  xsi:schemaLocation="http://www.ivoa.net/xml/VOResource/v1.0
+    http://www.ivoa.net/xml/VOResource/v1.0
+  http://www.ivoa.net/xml/StandardsRegExt/v1.0
+    http://www.ivoa.net/xml/StandardsRegExt/v1.0
+  http://www.ivoa.net/xml/VOResource/v1.0
+    http://www.ivoa.net/xml/VOResource/v1.0">
 
   <title>VOSpace Core Vocabulary</title>
   <shortName>VOSCORE</shortName>
@@ -55,17 +55,23 @@
     <subject>Data retrieval</subject>
 
     <description>
-	    VOSpace is the IVOA interface to distributed storage, described
-	    in the standard ivo://ivoa.net/std/vospace.
+      VOSpace is the IVOA interface to distributed storage, described
+      in the standard ivo://ivoa.net/std/vospace.
 
-	    The standard defines several terms.  Their URIs were defined before
-	    StandardsRegExt was finalised and therefore do not live in the
-	    main VOSpace standards record.  To still make them resolvable, this
-	    record was created as a stop-gap.
+      The standard defines several terms.  Their URIs were defined before
+      StandardsRegExt was finalised and therefore do not live in the
+      main VOSpace standards record.  To still make them resolvable, this
+      record was created as a stop-gap.
     </description>
     <referenceURL>http://ivoa.net/documents/VOSpace/</referenceURL>
     <type>Other</type>
-  	<contentLevel>Research</contentLevel>
+    <contentLevel>Research</contentLevel>
+    <relationship>
+      <relationshipType>isSupplementedTo</relationshipType>
+      <relatedResource ivo-id="ivo://ivoa.net/std/vospace"
+        >The VOSpace standard</relatedResource>
+    </relationship>
+
   </content>
 
   <endorsedVersion status="n/a">2.1</endorsedVersion>
@@ -165,23 +171,6 @@
   <key>
     <name>type</name>
     <description> the nature or genre of the resource </description>
-  </key>
-
-  <key>
-    <name>vospace-1.0</name>
-    <description>SHALL be used as the capability URI for a VOSpace 1.0 service</description>
-  </key>
-  <key>
-    <name>vospace-1.1</name>
-    <description>SHALL be used as the capability URI for a VOSpace 1.1 service</description>
-  </key>
-  <key>
-    <name>vospace-2.0</name>
-    <description>SHALL be used as the capability URI for a VOSpace 2.0 service</description>
-  </key>
-  <key>
-    <name>vospace-2.1</name>
-    <description>SHALL be used as the capability URI for a VOSpace 2.1 service</description>
   </key>
 
   <key>

@@ -1,7 +1,7 @@
 <ri:Resource 
   xsi:type="vstd:Standard" 
-  created="2017-06-07T09:00:00" 
-  updated="2017-06-07T09:00:00" 
+  created="2017-06-09T16:30:00" 
+  updated="2017-06-09T16:30:00" 
   status="active"
   xmlns:vr="http://www.ivoa.net/xml/VOResource/v1.0" 
   xmlns:vstd="http://www.ivoa.net/xml/StandardsRegExt/v1.0" 
@@ -14,9 +14,9 @@
   http://www.ivoa.net/xml/VOResource/v1.0
     http://www.ivoa.net/xml/VOResource/v1.0">
 
-  <title>VOSpace</title>
-  <shortName>VOSpace</shortName>
-  <identifier>ivo://ivoa.net/std/vospace</identifier> 
+  <title>VOSpace 2.0 Legacy Terms</title>
+  <shortName>VOSLEGACY</shortName>
+  <identifier>ivo://ivoa.net/vospace/v2.0</identifier> 
   <curation>
     <publisher>IVOA</publisher>
 
@@ -43,7 +43,7 @@
     </creator>
 
     <date role="update">UPDATEME to standards publication date</date>
-    <version>2.1</version>
+    <version>2.0</version>
     <contact>
       <name>Grid and Web Services WG</name>
       <email>grid@ivoa.net</email>
@@ -55,41 +55,48 @@
     <subject>Data retrieval</subject>
 
     <description>
-      VOSpace is the IVOA interface to distributed storage. This specification
-      presents the second RESTful version of the interface. It specifies how VO
-      agents and applications can use network attached data stores to persist
-      and exchange data in a standard way.
+      VOSpace is the IVOA interface to distributed storage, described
+      in the standard ivo://ivoa.net/std/vospace.
+
+      Version 2.0 of the standard defined several capability identifiers
+      referencing this record (sect. 4).  It exists to make these resolvable.
+      New terms should be allocated in the main record.
     </description>
     <referenceURL>http://ivoa.net/documents/VOSpace/</referenceURL>
     <type>Other</type>
     <contentLevel>Research</contentLevel>
-
     <relationship>
-      <relationshipType>isSupplementedBy</relationshipType>
-      <relatedResource ivo-id="ivo://ivoa.net/std/vospace/v2.0"
-        >Legacy capability identifiers</relatedResource>
+      <relationshipType>isSupplementedTo</relationshipType>
+      <relatedResource ivo-id="ivo://ivoa.net/std/vospace"
+        >The VOSpace standard</relatedResource>
     </relationship>
-    <relationship>
-      <relationshipType>isSupplementedBy</relationshipType>
-      <relatedResource ivo-id="ivo://ivoa.net/vospace/core"
-        >VOSpace core vocabulary in StandardsRegExt form</relatedResource>
-    </relationship>
+  </content>
 
-  </content> 	
-
-
-  <endorsedVersion status="rec">2.1</endorsedVersion>
-
-  <!-- UPDATEME if you have schema updates -->
-  <schema namespace="http://www.ivoa.net/xml/VOSpace/v2.1">
-    <location>http://ivoa.net/xml/VOSpace/VOSpace-v2.1.xsd</location>
-    <description>A schema constraining VOSpace messages.</description>
-  </schema>
+  <endorsedVersion status="n/a">2.0</endorsedVersion>
 
   <key>
-    <name>synctrans-2.1</name>
-    <description>A VOSpace endpoint for synchronous transfersl.
-    </description>
+    <name>/properties</name>
+    <description>The properties employed in the space.</description>
+  </key>
+  <key>
+    <name>/views</name>
+    <description>The protocols employed in the space.</description>
+  </key>
+  <key>
+    <name>/protocols</name>
+    <description>The views employed in the space.</description>
+  </key>
+  <key>
+    <name>/nodes</name>
+    <description>A Node under the nodes of the space.</description>
+  </key>
+  <key>
+    <name>/transfers</name>
+    <description>Asynchronous transfers for the space.</description>
+  </key>
+  <key>
+    <name>/synctrans</name>
+    <description>An endpoint for 2.0 synchronous transfers.  Do not implement this in new code, use ivo://ivoa.net/std/vospace#synctrans-2.1 instead.</description>
   </key>
 
 </ri:Resource>
