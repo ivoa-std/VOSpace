@@ -14,6 +14,8 @@
     frame=none
 }
 
+\hyphenation{Con-tai-ner-Node}
+
 \title{VOSpace}
 
 \ivoagroup{Grid and Web Services Working Group}
@@ -97,7 +99,7 @@ VOSpace 2.0 did not introduce any new functionality to that already offered by p
 \label{subsec:typical use of a vospace service}
 A typical use case for VOSpace is uploading a local data file to a remote VOSpace service. This is a two-stage process: creating a description of the data file (representation) in the VOSpace including any metadata (its properties) that they want to associate with it (e.g., MIME type), and defining the transfer operation that will actually see the data file bytes uploaded to the VOSpace service.
 
-Let's consider the first step: the user provides a XML description of the data file which they HTTP PUT to the appropriate VOSpace URI - this will be the HTTP identifier for the data file in the VOSpace, e.g. http://server.example.com/vospace/nodes/mytable1. The description will resemble this:
+Let's consider the first step: the user provides a XML description of the data file which they HTTP PUT to the appropriate VOSpace URI -- this will be the HTTP identifier for the data file in the VOSpace, e.g., http://server.example.com/vospace/nodes/mytable1. The description will resemble this:
 
 \begin{lstlisting}
 <vos:node xmlns="http://www.ivoa.net/xml/VOSpace/v2.1"
@@ -120,7 +122,7 @@ Note that the node path is specified in two places on this request, and that the
 
 The service will reply with an amended version of the representation containing service-specific details in addition to the information supplied by the user. These will include data formats that the service can handle for the type of node created in the VOSpace, third-party interfaces (capabilities) to the data that the service offers, and system metadata.
 
-The user will then describe the data format (the view) they want to use in uploading the file, e.g. VOTable, and the transport protocol (the protocol) that they want to employ to upload the file, e.g. HTTP PUT. This will result in the HTTP POSTing of a XML description of the transfer request to the appropriate VOSpace transfer URL:  http://server.example.com/vospace/synctrans. The description will resemble this:
+The user will then describe the data format (the view) they want to use in uploading the file, e.g., VOTable, and the transport protocol (the protocol) that they want to employ to upload the file, e.g., HTTP PUT. This will result in the HTTP POSTing of a XML description of the transfer request to the appropriate VOSpace transfer URL:  http://server.example.com/vospace/synctrans. The description will resemble this:
 
 \begin{lstlisting}
 <vos:transfer xmlns="http://www.ivoa.net/xml/VOSpace/v2.1">
@@ -131,9 +133,9 @@ The user will then describe the data format (the view) they want to use in uploa
 </vos:transfer>
 \end{lstlisting}
 
-The service will reply with a redirect to a location with an amended version of the transfer representation that contains, for the protocols the service supports, URL endpoints that the user may HTTP PUT the data file to, e.g. http://storage1.example.com/vospace/mytable1.  The user will then use a regular HTTP client to transfer (PUT) the local file to one of the endpoints. This illustrates an important point about VOSpace - it is only concerned with the server-side management of data storage and transfer. A client negotiates the details of a data transfer with a VOSpace service but the actual transfer of bytes across a network is handled by other tools.
+The service will reply with a redirect to a location with an amended version of the transfer representation that contains, for the protocols the service supports, URL endpoints that the user may HTTP PUT the data file to, e.g., http://storage1.example.com/vospace/mytable1.  The user will then use a regular HTTP client to transfer (PUT) the local file to one of the endpoints. This illustrates an important point about VOSpace -- it is only concerned with the server-side management of data storage and transfer. A client negotiates the details of a data transfer with a VOSpace service but the actual transfer of bytes across a network is handled by other tools.
 
-Similarly, when a user wants to retrieve a data file from a VOSpace service, they will specify the data format (view) they want to use in downloading the file (e.g. VOTable), and the transport protocol (the protocol) that they want to employ to download the file (e.g. HTTP GET), and then HTTP POST a XML description of this transfer request to the VOSpace transfer URL (e.g. http://server.example.com/vospace/synctrans). The description will resemble this:
+Similarly, when a user wants to retrieve a data file from a VOSpace service, they will specify the data format (view) they want to use in downloading the file (e.g., VOTable), and the transport protocol (the protocol) that they want to employ to download the file (e.g., HTTP GET), and then HTTP POST a XML description of this transfer request to the VOSpace transfer URL (e.g., http://server.example.com/vospace/synctrans). The description will resemble this:
 
 \begin{lstlisting}
 <vos:transfer xmlns="http://www.ivoa.net/xml/VOSpace/v2.1">
@@ -144,7 +146,7 @@ Similarly, when a user wants to retrieve a data file from a VOSpace service, the
 </vos:transfer>
 \end{lstlisting}
 
-The service will reply with a redirect to a location that contains an amended version of the transfer representation that contains, for the protocols the service supports, the URL endpoints that the user may HTTP GET the data from, e.g. http://storage1.example.com/vospace/myDataNode. The user can then download the data file by pointing an HTTP client (e.g. web browser) at the specified endpoint.
+The service will reply with a redirect to a location that contains an amended version of the transfer representation that contains, for the protocols the service supports, the URL endpoints that the user may HTTP GET the data from, e.g., http://storage1.example.com/vospace/myDataNode. The user can then download the data file by pointing an HTTP client (e.g., web browser) at the specified endpoint.
 
 \subsection{Role within the VO Architecture}
 \label{subsec:role within the vo architecture}
@@ -210,7 +212,7 @@ Such a URI SHALL have the following parts with the meanings and encoding rules d
   \item (optional) fragment identifier (with the expected semantics noted in URI fragments in IVOA specifications \citep{note:uriforms})
 \end{itemize}
 
-The naming authority for a VOSpace node SHALL be the VOSpace service through which the node was created. The authority part of the URI SHALL be constructed from the IVO registry identifier \citep{std:VOID} for that service by deleting the ivo:// prefix and changing all forward-slash characters(`/') in the resource key to exclamation marks (`!') or tildes (`$\mathtt{\sim}$'). Note that a service SHALL be consistent in its use of separator characters (`!' or `$\mathtt{\sim}$') when referring to its own data but SHALL accept either as valid in URIs in service requests.
+The naming authority for a VOSpace node SHALL be the VOSpace service through which the node was created. The authority part of the URI SHALL be constructed from the IVO registry identifier \citep{2016ivoa.spec.0523D} for that service by deleting the ivo:// prefix and changing all forward-slash characters(`/') in the resource key to exclamation marks (`!') or tildes (`$\mathtt{\sim}$'). Note that a service SHALL be consistent in its use of separator characters (`!' or `$\mathtt{\sim}$') when referring to its own data but SHALL accept either as valid in URIs in service requests.
 
 This is an example of a possible VOSpace identifier.
 
@@ -236,7 +238,7 @@ Slashes in the URI path imply a hierarchical arrangement of data: the data objec
 
 Literal space characters are also not allowed in URIs.
 
-All ancestors in the hierarchy SHALL be resolvable as containers (ContainerNodes), all the way up to the root node of the space (this precludes any system of implied hierarchy in the naming scheme for nodes with ancestors that are just logical entities and cannot be reified, e.g. the Amazon S3 system).
+All ancestors in the hierarchy SHALL be resolvable as containers (ContainerNodes), all the way up to the root node of the space (this precludes any system of implied hierarchy in the naming scheme for nodes with ancestors that are just logical entities and cannot be reified, e.g., the Amazon S3 system).
 
 A VOSpace identifier is globally unique, and identifies one specific node in a specific VOSpace service.
 
@@ -302,7 +304,7 @@ The types are arranged in a hierarchy (see Figure ~\ref{fig:nodehierarchy}), wit
 \begin{figure}
 \centering
 \includegraphics[width=0.9\textwidth]{vospace-node-hierarchy.png}
-\caption{Node hierarchy - This shows the inheritance structure for the different types of nodes in VOSpace.}
+\caption{Node hierarchy -- This shows the inheritance structure for the different types of nodes in VOSpace.}
 \label{fig:nodehierarchy}
 \end{figure}
 
@@ -372,7 +374,7 @@ The following Nodes, appearing as part of a node-path, are reserved:
 
 \begin{itemize}
     \item .auto indicates that the service should auto-generate an endpoint URI to replace this placeholder (Note: that this is an OPTIONAL feature of a service)
-    \item .null indicates an endpoint that discards all data written to it and provides no data when read from, i.e. a bit bucket
+    \item .null indicates an endpoint that discards all data written to it and provides no data when read from, i.e., a bit bucket
 \end{itemize}
 
 \subsection{Properties}
@@ -406,14 +408,14 @@ Every new type of \emph{Property} SHALL require a unique URI to identify the \em
 The rules for the \emph{Property} identifiers are similar to the rules for namespace URIs in XML schema. The only restriction is that it SHALL be a valid (unique) URI.
 
 \begin{itemize}
-    \item An XML schema namespace identifier can be just a simple URN \citep{std:RFC2141}, e.g. urn:my-namespace
+    \item An XML schema namespace identifier can be just a simple URN \citep{std:RFC2141}, e.g., urn:my-namespace
     \item Within the IVOA, the convention for namespace identifiers is to use a HTTP URL pointing to the namespace schema or a resource describing it
 \end{itemize}
 
 The current VOSpace schema defines \emph{Property} identifiers as anyURI. The only restriction is that it SHALL be a valid (unique) URI.
 
 \begin{itemize}
-    \item A \emph{Property} URI can be a simple URN, e.g. urn:my-property
+    \item A \emph{Property} URI can be a simple URN, e.g., urn:my-property
 \end{itemize}
 
 This may be sufficient for testing and development on a private system, but it is not scalable for use on a public service.
@@ -435,7 +437,7 @@ Using an IVO registry URI to identify Properties has two main advantages:
 
 \subsubsection{Property descriptions}
 \label{subsubsec:property descriptions}
-If the URI for a particular Property is resolvable, i.e. an IVO registry identifier or a HTTP URL, then it SHOULD point to an XML resource that describes the Property.
+If the URI for a particular Property is resolvable, i.e., an IVO registry identifier or a HTTP URL, then it SHOULD point to an XML resource that describes the Property.
 
 A Property description SHOULD describe the data type and meaning of a Property.
 
@@ -540,14 +542,14 @@ Another example is a DataNode that provides a OpenStack Swift capability so that
 Every new type of Capability SHALL require a unique URI to identify the Capability. The rules for the Capability identifiers are similar to the rules for namespace URIs in XML schema. The only restriction is that it SHALL be a valid (unique) URI.
 
 \begin{itemize}
-    \item An XML schema namespace identifier can be just a simple URN, e.g. urn:my-namespace
+    \item An XML schema namespace identifier can be just a simple URN, e.g., urn:my-namespace
     \item Within the IVOA, the convention for namespace identifiers is to use a HTTP URL pointing to the namespace schema, or a resource describing it.
 \end{itemize}
 
 The VOSpace schema defines Capability identifiers as anyURI. The only restriction is that it SHALL be a valid (unique) URI.
 
 \begin{itemize}
-    \item A Capability URI can be a simple URN, e.g. urn:my-capability
+    \item A Capability URI can be a simple URN, e.g., urn:my-capability
 \end{itemize}
 
 This may be sufficient for testing and development on a private system, but it is not suitable for use on a public service. For a production system, any new Capabilities SHOULD have unique URIs that can be resolved into a description of the Capability. Ideally, these SHOULD be IVO registry URIs that point to a description registered in the IVO registry:
@@ -565,7 +567,7 @@ Using an IVO registry URI to identify Capabilities has two main advantages:
 
 \subsubsection{Capability descriptions}
 \label{subsubsec:capability descriptions}
-If the URI for a particular Capability is resolvable, i.e. an IVO registry identifier or a HTTP URL then it SHOULD point to an XML resource that describes the Capability.
+If the URI for a particular Capability is resolvable, i.e., an IVO registry identifier or a HTTP URL then it SHOULD point to an XML resource that describes the Capability.
 
 A CapabilityDescription SHOULD describe the third-party interface and how it should be used in this context. A CapabilityDescription SHOULD have the following members:
 
@@ -603,7 +605,7 @@ If a service implementation supports more than one version of the VOSpace interf
 
 One use case for this would be a VOSpace 2.1 client talking to a service that implements both VOSpace 2.0 and VOSpace 2.1, where the client is acting on behalf of a third party agent that only understands VOSpace 2.0. In this case, the client can use the information in the VOSpace 2.0 capability to direct the third party agent to the VOSpace 2.0 endpoint.
 
-Other standard service interfaces will also be registered, e.g.
+Other standard service interfaces will also be registered, e.g.,
 
 \begin{itemize}
     \item Cone Search
@@ -657,7 +659,7 @@ A VOSpace system that stores data in database tables would need to be able to un
 
 In order to tell the client what input data formats it can accept, the service publishes a list of specific Views in the accepts list for each Node.
 
-On the output side, a database system would not be able to provide access to the original input file. The contents of file would have been transferred into the database table and then discarded. The system has to generate the output results from the contents of the database table.
+On the output side, a database system would not be able to provide access to the original input file. The contents of the file would have been transferred into the database table and then discarded. The system has to generate the output results from the contents of the database table.
 
 In order to support this, the service needs to be able to tell the client what Views of the data are available.
 
@@ -689,14 +691,14 @@ Every new type of View SHALL require a unique URI to identify the View and its c
 The rules for the View identifiers are similar to the rules for namespace URIs in XML schema. The only restriction is that it SHALL be a valid (unique) URI.
 
 \begin{itemize}
-    \item An XML schema namespace identifier can be just a simple URN, e.g. urn:my-namespace
+    \item An XML schema namespace identifier can be just a simple URN, e.g., urn:my-namespace
     \item Within the IVOA, the convention for namespace identifiers is to use a HTTP URL pointing to the namespace schema, or a resource describing it
 \end{itemize}
 
 The current VOSpace schema defines View identifiers as anyURI. The only restriction is that it SHALL be a valid (unique) URI.
 
 \begin{itemize}
-    \item A View URI can be a simple URN, e.g. urn:my-view
+    \item A View URI can be a simple URN, e.g., urn:my-view
 \end{itemize}
 
 This may be sufficient for testing and development on a private system, but it is not scalable for use on a public service.
@@ -718,7 +720,7 @@ Using an IVO registry URI to identify Views has two main advantages:
 
 \subsubsection{View descriptions}
 \label{subsubsec:view descriptions}
-If the URI for a particular View is resolvable, i.e. an IVO registry identifier or a HTTP URL, then it SHOULD point to an XML resource that describes the View.
+If the URI for a particular View is resolvable, i.e., an IVO registry identifier or a HTTP URL, then it SHOULD point to an XML resource that describes the View.
 
 A ViewDescription SHOULD describe the data format and/or content of the view.
 
@@ -781,7 +783,7 @@ Note, this view is only valid for the data export operations, pullFromVoSpace an
 
 \subsubsection{Container views}
 \label{subsubsec:container views}
-In VOSpace 2.1, a view of a ContainerNode describes the data representation (format) of a file or data stream that represents the combined contents of the node and its children. If the view describes an archive format (tar, zip, etc.) then a service that accepts this view (format) for a ContainerNode SHALL provide access to the archive contents as children nodes of the container. Whether or not the service actually unpacks the archive is implementation dependent but the service SHALL behave as though it has done so. For example, a client may want to upload a tar file containing several images to a VOSpace service. If they associate it with (upload it to) a (Un)structuredDataNode then it will be treated as a blob and its contents will be not be available. However, if they upload it to a ContainerNode with an accepts view of "tar" then the image files within the tar file will be represented as children nodes of the ContainerNode and accessible like any other data object within the space.
+In VOSpace 2.1, a view of a ContainerNode describes the data representation (format) of a file or data stream that represents the combined contents of the node and its children. If the view describes an archive format (tar, zip, etc.) then a service that accepts this view (format) for a ContainerNode SHALL provide access to the archive contents as children nodes of the container. Whether or not the service actually unpacks the archive is implementation dependent but the service SHALL behave as though it has done so. For example, a client may want to upload a tar file containing several images to a VOSpace service. If they associate it with (upload it to) a (Un)structuredDataNode then it will be treated as a blob and its contents will be not be available. However, if they upload it to a ContainerNode with an accepts view of \verb|"tar"| then the image files within the tar file will be represented as children nodes of the ContainerNode and accessible like any other data object within the space.
 
 If a service provides an archive format (tar, zip, etc.) view of a ContainerNode then the service SHALL package the contents of the container and all its child nodes in the specified format.
 
@@ -812,14 +814,14 @@ Every new type of Protocol requires a unique URI to identify the Protocol and ho
 The rules for the Protocol identifiers are similar to the rules for namespace URIs in XML schema. The only restriction is that it SHALL be a valid (unique) URI
 
 \begin{itemize}
-    \item An XML schema namespace identifier can be just a simple URN, e.g. urn:my-namespace
+    \item An XML schema namespace identifier can be just a simple URN, e.g., urn:my-namespace
     \item Within the IVOA, the convention for namespace identifiers is to use a HTTP URL pointing to the namespace schema, or a resource describing it
 \end{itemize}
 
 The current VOSpace schema defines Protocol identifiers as anyURI. The only restriction is that it SHALL be a valid (unique) URI.
 
 \begin{itemize}
-    \item A Protocol URI can be a simple URN, e.g. urn:my-protocol
+    \item A Protocol URI can be a simple URN, e.g., urn:my-protocol
 \end{itemize}
 
 This may be sufficient for testing and development on a private system, but it is not scalable for use on a public service.
@@ -841,7 +843,7 @@ Using an IVO registry URI to identify Protocols has two main advantages:
 
 \subsubsection{Protocol descriptions}
 \label{subsubsec:protocol descriptions}
-If the URI for a particular Protocol is resolvable, i.e. an IVO registry identifier or a HTTP URL, then it SHOULD point to an XML resource that describes the Protocol.
+If the URI for a particular Protocol is resolvable, i.e., an IVO registry identifier or a HTTP URL, then it SHOULD point to an XML resource that describes the Protocol.
 
 A ProtocolDescription SHOULD describe the underlying transport protocol, and how it should be used in this context.
 
@@ -950,7 +952,7 @@ A client initiated UWS Job representation of a Transfer SHALL have the following
     \item \emph{target}: denotes the VOSpace node to/from which data is to be transferred
     \item \emph{direction}: denotes the direction of a data transfer
         \begin{itemize}
-            \item It can be a URI for internal data transfers (move and copy operations) or one of: pushToVoSpace, pullToVoSpace, pushFromVoSpace or pullFromVoSpace - for external data transfer.
+            \item It can be a URI for internal data transfers (move and copy operations) or one of: pushToVoSpace, pullToVoSpace, pushFromVoSpace or pullFromVoSpace -- for external data transfer.
         \end{itemize}
     \item \emph{view}: denotes the requested View
         \begin{itemize}
@@ -963,14 +965,17 @@ A client initiated UWS Job representation of a Transfer SHALL have the following
             \item Each protocol may contain one or more security methods that can be applied to the protocol.  It is recommended that a protocol for each securityMethod be included in the transfer.
             \item For an internal data transfer, this parameter is not required.
         \end{itemize}
-    \item \emph{keepBytes}: denotes whether the source object is to be kept in an internal data transfer, i.e. distinguishes between a move and a copy
+    \item \emph{keepBytes}: denotes whether the source object is to be kept in an internal data transfer, i.e., distinguishes between a move and a copy
         \begin{itemize}
             \item For an external data transfer, this parameter is not required.
         \end{itemize}
     \item \emph{param}: A list of zero or more parameters that specify any additional arguments for the transfer.
         \begin{itemize}
             \item Standard Property URIs should be used as the parameter key.
-            \item e.g. Clients may tell the service the size of a file they intend to upload: <vos:param uri="ivo://ivoa.net/vospace/core\#length">1024</vos:param>
+            \item e.g., Clients may tell the service the size of a file they intend to upload: 
+            \begin{lstlisting}
+            <vos:param uri="ivo://ivoa.net/vospace/core\#length">1024</vos:param>
+            \end{lstlisting}
         \end{itemize}
 \end{itemize}
 
@@ -982,7 +987,7 @@ The service representation of the results of a Transfer SHALL have the following
     \item \emph{target}: denotes the VOSpace node to/from which data is to be transferred
     \item \emph{direction}: denotes the direction of a data transfer
         \begin{itemize}
-            \item It can be a URI for internal data transfers (move and copy operations) or one of: pushToVoSpace, pullToVoSpace, pushFromVoSpace or pullFromVoSpace - for an external data transfer.
+            \item It can be a URI for internal data transfers (move and copy operations) or one of: pushToVoSpace, pullToVoSpace, pushFromVoSpace or pullFromVoSpace -- for an external data transfer.
         \end{itemize}
     \item \emph{view}: A View specifying the requested View
         \begin{itemize}
@@ -1063,7 +1068,7 @@ The server may attempt to transfer the data using any or all of the Protocols in
 
 The server SHALL be allowed to only use each Protocol option once. This allows a data source to issue one time URLs for a Transfer, and cancel each URL once it has been used.
 
-Once one of the Protocol options succeeds the transfer SHALL be considered to have completed - the status flag needs to be updated to reflect this -, and the server is not allowed to use any of the remaining Protocol options. This allows a data source to issue a set of one time URLs for a transfer, and to cancel any unused URLs once the transfer has been completed.
+Once one of the Protocol options succeeds the transfer SHALL be considered to have completed -- the status flag needs to be updated to reflect this -, and the server is not allowed to use any of the remaining Protocol options. This allows a data source to issue a set of one time URLs for a transfer, and to cancel any unused URLs once the transfer has been completed.
 
 Some Protocols MAY require the service to call a callback address when a data transfer completes. This behavior is specific to the Protocol, and SHOULD be defined in the ProtocolDescription.
 
@@ -1165,7 +1170,7 @@ The standard ID of a VOSpace is:
 
 \begin{verbatim}ivo://ivoa.net/std/VOSpace/v2.0\end{verbatim}
 
-The syntax of the standard IDs for the REST bindings has changed in VOSpace 2.1 to be in accordance with the IVOA Recommendation IVOA Identifiers 2.0 \citep{std:VOID}.  Specifically, the question mark (?) symbol is to be used in place of the hash (\#) symbol for listing the particular resource.  Secondly, the resource is now versioned to align with the version of the standard, rather than having the version in the standardID of the specification.
+The syntax of the standard IDs for the REST bindings has changed in VOSpace 2.1 to be in accordance with the IVOA Recommendation IVOA Identifiers 2.0 \citep{2016ivoa.spec.0523D}.  Specifically, the question mark (?) symbol is to be used in place of the hash (\#) symbol for listing the particular resource.  Secondly, the resource is now versioned to align with the version of the standard, rather than having the version in the standardID of the specification.
 
 Since only the /synctrans binding has changed in version 2.1, it is the only binding with a separate 2.1 resource identifier version.
 
@@ -1216,12 +1221,12 @@ These are the most probable access policies:
 
 \begin{itemize}
     \item No authorization is required, but clients must authenticate an identity (for logging purposes) in each request to the space
-    \item Clients may not create or change nodes (i.e. the contents of the space are fixed by the implementation or set by some interface other than VOSpace), but any client can read any node without authentication
+    \item Clients may not create or change nodes (i.e., the contents of the space are fixed by the implementation or set by some interface other than VOSpace), but any client can read any node without authentication
     \item Nodes are considered to be owned by the user who created them. Only the owner can operate on a node
     \item Node authorization is similar to that of Linux file system permission handling with ownership and group membership.
 \end{itemize}
 
-No operations to modify the access policy (e.g. to set permissions on an individual node) are included in this standard. Later versions may add such operations.
+No operations to modify the access policy (e.g., to set permissions on an individual node) are included in this standard. Later versions may add such operations.
 
 Where the access policy requires authentication of callers, the VOSpace service SHALL support one of the authentication methods defined in the IVOA Single Sign On Profile.
 
@@ -1240,7 +1245,7 @@ A VOSpace 2.1 service SHALL be a RESTful service with the operations listed in t
 
 \subsection{Service metadata}
 \label{subsec:service metadata}
-These operations return comprehensive lists of service-level metadata, e.g. all protocols supported by the service. Individual nodes within a service, however, may not necessarily support all of these, i.e. only container nodes may support archive formats such as zip or tar.
+These operations return comprehensive lists of service-level metadata, e.g., all protocols supported by the service. Individual nodes within a service, however, may not necessarily support all of these, i.e., only container nodes may support archive formats such as zip or tar.
 
 \subsubsection{getProtocols}
 \label{subsubsec:getprotocols}
@@ -1257,12 +1262,12 @@ A Protocols representation giving:
     \item accepts: A list of Protocols that the service SHALL accept
     \begin{itemize}
         \item In this context `accepting a protocol' means that the service SHALL act as a client for the protocol
-        \item e.g. `accepting httpget' means the service can read data from an external HTTP web server
+        \item e.g., `accepting httpget' means the service can read data from an external HTTP web server
     \end{itemize}
     \item provides: A list of Protocols that the service SHALL provide
     \begin{itemize}
         \item In this context `providing a protocol' means that the service SHALL act as a server for the protocol
-        \item e.g. `providing httpget' means the service can act as a http web server
+        \item e.g., `providing httpget' means the service can act as a http web server
     \end{itemize}
 \end{itemize}
 
@@ -1421,7 +1426,7 @@ http://server.example.com/vospace/nodes/<path to node>
 \end{verbatim}
 The node representation is template Node (as defined in section \ref{subsec:nodes and node types}) for the node to be created.
 
-A valid uri attribute SHALL be required. The name .auto is a reserved URI to indicate an auto-generated URI for the destination, i.e. given the following URI vos://service/path/.auto a service SHOULD create a new unique URI for the node within vos://service/path.
+A valid uri attribute SHALL be required. The name .auto is a reserved URI to indicate an auto-generated URI for the destination, i.e., given the following URI vos://service/path/.auto a service SHOULD create a new unique URI for the node within vos://service/path.
 
 If the node path of the uri in the node representation does not match the node path in the HTTP PUT URL the service SHALL return an error.
 
@@ -1438,7 +1443,7 @@ The permitted values of xs:type are:
     \item vos:LinkNode
 \end{itemize}
 
-When creating a new Node the service MAY substitute a valid subtype, i.e. If xs:type is set to vos:DataNode then this may be implemented as a DataNode, StructuredDataNode or an UnstructuredDataNode.
+When creating a new Node the service MAY substitute a valid subtype, i.e., If xs:type is set to vos:DataNode then this may be implemented as a DataNode, StructuredDataNode or an UnstructuredDataNode.
 
 The properties of the new Node can be set by adding Properties to the template. Attempting to set a Property that the service considers to be 'readOnly' SHALL cause a PermissionDenied fault. The accepts and provides lists of Views for the Node cannot be set using this method.
 
@@ -1530,7 +1535,7 @@ Moving nodes between separate VOSpace services SHOULD be handled by the client, 
 
 When the source is a ContainerNode, all its children (the contents of the container) SHALL also be moved to the new destination.
 
-When the destination is an existing ContainerNode, the source SHALL be placed under it (i.e. within the container).
+When the destination is an existing ContainerNode, the source SHALL be placed under it (i.e., within the container).
 
 The Node type cannot be changed using this method.
 
@@ -1539,7 +1544,7 @@ The Node type cannot be changed using this method.
     \item A HTTP POST of a Job representation for the transfer (see section 3.6) to http://rest-endpoint/transfers.
 \end{itemize}
 
-.auto is a reserved URI to indicate an autogenerated URI for the destination, i.e. vos://service/path/.auto SHOULD cause a new unique URI for the node within vos://service/path to be generated.
+.auto is a reserved URI to indicate an autogenerated URI for the destination, i.e., vos://service/path/.auto SHOULD cause a new unique URI for the node within vos://service/path to be generated.
 
 \paragraph{Response}
 \subparagraph{Status code} The initial response is a HTTP 303 status code with the Location header keyword assigned to the created job.
@@ -1560,7 +1565,7 @@ If an autogenerated URI for the destination was specified in the request then it
 
 \paragraph{Faults}
 
-For all faults, the service shall set the PHASE to ``ERROR'' in the Job representation. The <errorSummary> element in the Job representation shall be set to the appropriate value for the fault type and the appropriate fault representation (see section 5.5) provided at the error URI: http://rest-endpoint/transfers/(jobid)/error.
+For all faults, the service shall set the PHASE to ``ERROR'' in the Job representation. The \verb|<errorSummary>| element in the Job representation shall be set to the appropriate value for the fault type and the appropriate fault representation (see section 5.5) provided at the error URI: http://rest-endpoint/transfers/(jobid)/error.
 
 \vspace{3mm}
 \begin{tabular}{ p{5cm} l p{4cm} }
@@ -1676,13 +1681,13 @@ Error and result details can be seen by performing an HTTP GET to the job URL:
 Copy a node with a VOSpace service.
 Note that this does not cover copying data between two separate VOSpace services.
 Copying nodes between separate VOSpace services SHOULD be handled by the client, using the import and export methods.
-When the source is a ContainerNode, all its children (the full contents of the container) SHALL get copied, i.e. this is a deep recursive copy.
-When the destination is an existing ContainerNode, the copy SHALL be placed under it (i.e. within the container).
+When the source is a ContainerNode, all its children (the full contents of the container) SHALL get copied, i.e., this is a deep recursive copy.
+When the destination is an existing ContainerNode, the copy SHALL be placed under it (i.e., within the container).
 The Node type cannot be changed using this method.
 
 \paragraph{Request}
 A HTTP POST of a Job representation for the transfer (see section \ref{subsec:transfers}) to http://rest-endpoint/transfers.
-.auto is the reserved URI to indicate an auto-generated URI for the destination, i.e. vos://service/path/.auto SHOULD cause a new unique URI for the node within vos://service/path to be generated.
+.auto is the reserved URI to indicate an auto-generated URI for the destination, i.e., vos://service/path/.auto SHOULD cause a new unique URI for the node within vos://service/path to be generated.
 
 \paragraph{Response}
 The initial response is a HTTP 303 status code with the Location header keyword assigned to the created job.
@@ -1702,7 +1707,7 @@ If an autogenerated URI for the destination was specified in the request then it
 \end{lstlisting}
 
 \paragraph{Faults}
-For all faults, the service shall set the PHASE to "ERROR" in the Job representation. The <errorSummary> element in the Job representation shall be set to the appropriate value for the fault type and the appropriate fault representation (see section \ref{subsec:fault arguments}) provided at the error URI: http://rest-endpoint/transfers/(jobid)/error.
+For all faults, the service shall set the PHASE to ``ERROR'' in the Job representation. The \verb|<errorSummary>| element in the Job representation shall be set to the appropriate value for the fault type and the appropriate fault representation (see section \ref{subsec:fault arguments}) provided at the error URI: http://rest-endpoint/transfers/(jobid)/error.
 
 \vspace{3mm}
 \begin{tabular}{ p{5cm} l p{4cm} }
@@ -1878,9 +1883,9 @@ This can take the optional parameters to control the size of the response:
 \begin{itemize}
     \item \emph{detail} with values of:
     \begin{itemize}
-        \item \emph{min}: the returned record for the node contains minimum detail with all optional parts removed - the node type should be returned
+        \item \emph{min}: the returned record for the node contains minimum detail with all optional parts removed -- the node type should be returned
         \begin{itemize}
-            \item e.g. <Node uri="vos://service/name" xs:type="Node"/>
+            \item e.g., \verb|<Node uri="vos://service/name" xs:type="Node"/>|
         \end{itemize}
         \item \emph{max}: the returned record for the node contains the maximum detail, including any xs:type specific extensions
         \item \emph{properties}: the returned record for the node contains the basic node element with a list of properties but no xs:type specific extensions
@@ -1898,10 +1903,10 @@ The list of supported protocols for a node can be retrieved with:
 \end{itemize}
     
 \paragraph{Response}
-A HTTP 200 status code and a Node representation in the entity-body
-When no parameters are present in the request, the full expanded record for the node SHALL be returned, including any xs:type specific extensions; otherwise the appropriate form for the specified value of the "detail" parameter SHALL be returned.
+A HTTP 200 status code and a Node representation in the entity-body.
+When no parameters are present in the request, the full expanded record for the node SHALL be returned, including any xs:type specific extensions; otherwise the appropriate form for the specified value of the ``detail'' parameter SHALL be returned.
 
-When the node is a container, the returned record will also contain a list of direct children nodes in the container (as <node> subelements under the < nodes> element).
+When the node is a container, the returned record will also contain a list of direct children nodes in the container (as \verb|<node>| subelements under the \verb|<nodes>| element).
 
 If a ``uri'' and ``offset'' are specified in the request then the returned list will consist of the subset of children which begins at the node matching the specified value of the ``uri'' parameter and with cardinality matching the specified value of the ``offset'' parameter drawn from an ordered sequence of all children. The ordering is determined by the server but results must always be drawn from the same ordered sequence.
 
@@ -2039,7 +2044,7 @@ Response:
 % \paragraph{Response}
 % The initial response is a HTTP 303 status code with the Location header keyword assigned to the created job.
 % 
-% The search results representation can be retrieved directly from the link reported in the Results List, available from the results endpoint - http://rest-endpoint/searches/(jobid)/results -, the standard UWS location under the results endpoint - http://rest-endpoint/searches/(jobid)/results/searchDetails - (which may well just be a redirect to the former link), or as part of the full Job representation from http://rest-endpoint/searches/(jobid). The result element in the Results List SHALL have an id of "searchDetails":
+% The search results representation can be retrieved directly from the link reported in the Results List, available from the results endpoint -- http://rest-endpoint/searches/(jobid)/results -, the standard UWS location under the results endpoint -- http://rest-endpoint/searches/(jobid)/results/searchDetails -- (which may well just be a redirect to the former link), or as part of the full Job representation from http://rest-endpoint/searches/(jobid). The result element in the Results List SHALL have an id of ``searchDetails'':
 % 
 % \begin{lstlisting}
 % <uws:job>
@@ -2186,11 +2191,11 @@ The service returns a 303 redirect with the Location set to the URL of the UWS j
 
 If the job creation POST is sent the synchronous transfer endpoint instead (http://rest-endpoint/synctrans), then the Job is started immediately.
 
-The status of any transfer can be obtained by polling the phase endpoint for a particular transfer, i.e. a HTTP GET to http://rest-endpoint/transfers/(jobid)/phase.
+The status of any transfer can be obtained by polling the phase endpoint for a particular transfer, i.e., a HTTP GET to http://rest-endpoint/transfers/(jobid)/phase.
 
-Once a transfer has completed, any results can be obtained by following the link in the Results List available from the results endpoint for that transfer, i.e. with a HTTP GET to http://rest-endpoint/transfers/(jobid)/results. This pertains particularly to the transfer methods in which data is sent to or read from a service-negotiated URL (pushToVoSpace and pullFromVoSpace).
+Once a transfer has completed, any results can be obtained by following the link in the Results List available from the results endpoint for that transfer, i.e., with a HTTP GET to http://rest-endpoint/transfers/(jobid)/results. This pertains particularly to the transfer methods in which data is sent to or read from a service-negotiated URL (pushToVoSpace and pullFromVoSpace).
 
-A transfer can also be aborted at any stage with a HTTP POST of the parameter ``PHASE=ABORT'' to the endpoint: http://rest-endpoint/transfers/(jobid)/phase
+A transfer can also be aborted at any stage with a HTTP POST of the parameter ``PHASE=ABORT'' to the endpoint:\\ http://rest-endpoint/transfers/(jobid)/phase
 
 The two write operations, pushToVoSpace and pullToVoSpace, should set the busy flag on the Node to true while the operation is in progress.  This would have the consequence that the two read operations, pullFromVoSpace and pushFromVoSpace, may fail on requests to that Node.
 
@@ -2225,7 +2230,7 @@ The list of Protocols SHOULD not contain endpoint addresses, the service will su
 
 The service SHALL ignore any of the requested protocols and security methods that it does not understand or is unable to support.
 
-.auto is the reserved URI to indicate an auto-generated URI for the destination, i.e. vos://service/path/.auto SHOULD cause a new unique URI for the node within vos://service/path to be generated.  If supported, this URI SHALL be specified as a result in the Results list for the completed transfer with the id of "target".
+.auto is the reserved URI to indicate an auto-generated URI for the destination, i.e., vos://service/path/.auto SHOULD cause a new unique URI for the node within vos://service/path to be generated.  If supported, this URI SHALL be specified as a result in the Results list for the completed transfer with the id of \verb|"target"|.
 
 A pushToVoSpace transfer may be initiated with an HTTP POST of a Job representation of the transfer to http://rest-endpoint/transfers. The service SHALL respond with a redirect to the newly created job.  (See Example 1)
 
@@ -2260,7 +2265,7 @@ The service SHALL respond with the job containing the transfer results in the re
 
 \paragraph{Response}
 Redirect responses are a HTTP 303 status code with the Location header keyword assigned to the created job.
-The service SHALL select which of the requested Protocols it is willing to provide and fill in the operational details for each one in the transfer result representation - this SHOULD normally include specifying the destination URL of the transfer protocol endpoint.
+The service SHALL select which of the requested Protocols it is willing to provide and fill in the operational details for each one in the transfer result representation -- this SHOULD normally include specifying the destination URL of the transfer protocol endpoint.
 
 The transfer result SHOULD not include any Protocols or security methods that it is unable to support.
 
@@ -2268,7 +2273,7 @@ During the byte transfer for the pushToVoSpace operation, the service SHOULD set
 
 If the busy flag of the Node is already set to true, the service SHOULD respond with a NodeBusy fault.
 
-The transfer results representation can be retrieved directly from the link reported in the Results List, available either from the results endpoint - http://rest-endpoint/transfers/(jobid)/results - or as part of the full Job representation for the completed transfer available from http://rest-endpoint/transfers/(jobid). The result element in the Results List SHALL have an id of "transferDetails":
+The transfer results representation can be retrieved directly from the link reported in the Results List, available either from the results endpoint -- http://rest-endpoint/transfers/(jobid)/results -- or as part of the full Job representation for the completed transfer available from http://rest-endpoint/transfers/(jobid). The result element in the Results List SHALL have an id of ``transferDetails'':
 \begin{lstlisting}
 <uws:job>
 ...
@@ -2287,7 +2292,7 @@ The HTTP 303 redirect points to a transfer representation with the required tran
 For parameter based transfers, the transfer representation with the required transfer details and endpoints is returned directly in the response--no redirect is issued.
 
 \paragraph{Faults}
-For all faults using the UWS mode, the service shall set the PHASE to "ERROR" in the Job representation. The <errorSummary> element in the Job representation shall be set to the appropriate value for the fault type and the appropriate fault representation (see section 5.5) provided at the error URI: http://rest-endpoint/transfers/(jobid)/error.
+For all faults using the UWS mode, the service shall set the PHASE to ``ERROR'' in the Job representation. The \verb|<errorSummary>| element in the Job representation shall be set to the appropriate value for the fault type and the appropriate fault representation (see section 5.5) provided at the error URI: http://rest-endpoint/transfers/(jobid)/error.
 
 \vspace{3mm}
 \begin{tabular}{ p{5cm} l p{4cm} }
@@ -2648,7 +2653,7 @@ During the byte transfer for the pullToVoSpace operation, the service SHOULD set
 If the busy flag of the Node is already set to true, the service SHOULD respond with a NodeBusy fault.
 
 \paragraph{Faults}\
-For all faults, the service shall set the PHASE to "ERROR" in the Job representation. The <errorSummary> element in the Job representation shall be set to the appropriate value for the fault type and the appropriate fault representation (see section 5.5) provided at the error URI: http://rest-endpoint/transfers/(jobid)/error.
+For all faults, the service shall set the PHASE to ``ERROR'' in the Job representation. The \verb|<errorSummary>| element in the Job representation shall be set to the appropriate value for the fault type and the appropriate fault representation (see section 5.5) provided at the error URI: http://rest-endpoint/transfers/(jobid)/error.
 
 \vspace{3mm}
 \begin{tabular}{ p{5cm} l p{4cm} }
@@ -2850,13 +2855,13 @@ Clients may also use the "view" parameter on the getNode operation. Services may
 
 \paragraph{Response}
 The initial response for the UWS mode is a HTTP 303 status code with the Location header keyword assigned to the created job
-The service SHALL select which of the requested Protocols it is willing to provide and fill in the operational details for each one in the transfer result representation - this SHOULD normally include specifying the source URL of the transfer protocol endpoint.
+The service SHALL select which of the requested Protocols it is willing to provide and fill in the operational details for each one in the transfer result representation -- this SHOULD normally include specifying the source URL of the transfer protocol endpoint.
 
 The service response SHOULD not include any Protocols that it is unable to support.
 
 If the busy flag of the Node is set to true, the service MAY respond with a NodeBusy fault.
 
-The transfer results representation can be retrieved directly from the link reported in the Results List, available either from the results endpoint - http://rest-endpoint/transfers/(jobid)/results - or as part of the full Job representation for the completed transfer available from http://rest-endpoint/transfers/(jobid). In the latter case, the result element in the Results List SHALL have an id of "transferDetails":
+The transfer results representation can be retrieved directly from the link reported in the Results List, available either from the results endpoint -- http://rest-endpoint/transfers/(jobid)/results -- or as part of the full Job representation for the completed transfer available from http://rest-endpoint/transfers/(jobid). In the latter case, the result element in the Results List SHALL have an id of ``transferDetails'':
 \begin{lstlisting}
 <uws:job>
 ...
@@ -2874,7 +2879,7 @@ The HTTP 303 redirect points to a transfer representation with the required tran
 If the transfer was initiated with a HTTP POST to http://rest-rendpoint/sync with transfer information TARGET, DIRECTION, and PROTOCOL supplied as query string parameters, the service may respond with the transfer details directly. If the parameter REQUEST=redirect is also provided in this POST, then the service may respond with a redirect to a preferred endpoint (example below).
 
 \paragraph{Faults}
-For all faults using the UWS mode, the service shall set the PHASE to "ERROR" in the Job representation. The <errorSummary> element in the Job representation shall be set to the appropriate value for the fault type and the appropriate fault representation (see section 5.5) provided at the error URI: http://rest-endpoint/transfers/(jobid)/error.
+For all faults using the UWS mode, the service shall set the PHASE to ``ERROR'' in the Job representation. The \verb|<errorSummary>| element in the Job representation shall be set to the appropriate value for the fault type and the appropriate fault representation (see section 5.5) provided at the error URI: http://rest-endpoint/transfers/(jobid)/error.
 
 \vspace{3mm}
 \begin{tabular}{ p{5cm} l p{4cm} }
@@ -3539,7 +3544,7 @@ The requests and responses of a VOSpace 2.1 service shall adhere to the followin
 
 \section{Compliance matrix}
 \label{sec:compliance matrix}
-This table summarizes the mandatory behaviour required of a fully compliant VOSpace 2.1 service, i.e. those operations denoted as SHALL and MUST occurring. Note that for faults the general condition is specified but specific details should be checked in the relevant sections. Those associated with optional features are marked with an asterisk in the appropriate section reference - if the service implements an optional feature then it must show this mandatory behaviour.
+This table summarizes the mandatory behaviour required of a fully compliant VOSpace 2.1 service, i.e., those operations denoted as SHALL and MUST occurring. Note that for faults the general condition is specified but specific details should be checked in the relevant sections. Those associated with optional features are marked with an asterisk in the appropriate section reference -- if the service implements an optional feature then it must show this mandatory behaviour.
 
 \hskip-2.0cm\begin{tabular}{ | p {1cm} | p {11cm} | p {4cm} | }
 \hline
@@ -3586,13 +3591,13 @@ xx & Standard properties are represented by the specified URIs & ~\ref{subsubsec
 34 & A server updates the status flag in the UWS Job representation as appropriate & ~\ref{subsubsec:service-initiated transfers}, ~\ref{subsubsec:client-initiated transfers} \\ \hline
 % 35 & A Search UWS Job representation has elements: uri, limit, detail, matches and node & ~\ref{subsec:searches}* \\ \hline
 % 36 & A Search results representation has elements: nodes & ~\ref{subsec:searches}* \\ \hline
-35 & A VOSpace service has the REST bindings: properties, views, protocols, nodes, and transfers & ~\ref{subsec:rest bindings} \\ \hline
+35 & A VOSpace service has the REST bindings: properties, views, protocols, nodes, and transfers & ~\ref{sec:rest bindings} \\ \hline
 36 & Access policies on a VOSpace service are declared in the registered metadata for the service & ~\ref{sec:access control} \\ \hline
 37 & VOSpace authentication employs IVOA SSO supported methods & ~\ref{sec:access control} \\ \hline
 38 & A VOSpace service supports the operations: getProtocols, getViews, getProperties, createNode, deleteNode, moveNode, copyNode, getNode, setNode, pullFromVoSpace. The following are optional operations: pushToVoSpace, pullToVoSpace, pushFromVoSpace & ~\ref{subsubsec:getprotocols}, ~\ref{subsubsec:getviews}, ~\ref{subsubsec:getproperties}, ~\ref{subsubsec:createnode}, ~\ref{subsubsec:movenode}, ~\ref{subsubsec:copynode}, ~\ref{subsubsec:deletenode}, ~\ref{subsubsec:getnode}, ~\ref{subsubsec:setnode}, ~\ref{subsubsec:pushtovospace}*, ~\ref{subsubsec:pushtovospace}*, ~\ref{subsubsec:pullfromvospace}, ~\ref{subsubsec:pushfromvospace}* \\ \hline
 39 & accepts and provides specify entities that the service supports & ~\ref{subsubsec:getprotocols}, ~\ref{subsubsec:getviews}, ~\ref{subsubsec:getproperties} \\ \hline
 40 & An autogenerated URI is specified as a result in the Results List & ~\ref{subsubsec:createnode}*, ~\ref{subsubsec:movenode}*, ~\ref{subsubsec:copynode}*, ~\ref{subsubsec:pushtovospace}* \\ \hline
-41 & Any data written to the reserved URI .null is discarded & ~\ref{subsec:rest bindings} \\ \hline
+41 & Any data written to the reserved URI .null is discarded & ~\ref{sec:rest bindings} \\ \hline
 42 & accepts is filled in based on service capabilities & ~\ref{subsubsec:createnode} \\ \hline
 43 & If a container is deleted then so are its children & ~\ref{subsubsec:deletenode} \\ \hline
 44 & If a container is listed, only direct children are listed & ~\ref{subsubsec:getnode} \\ \hline
@@ -3619,7 +3624,7 @@ xx & Standard properties are represented by the specified URIs & ~\ref{subsubsec
 60 & A HTTP 409 status code with a DuplicateFault fault in the body is thrown if the specified node already exists & ~\ref{subsubsec:createnode} \\ \hline
 61 & A HTTP 404 status code with a ContainerNotFound fault in the body is thrown if a container is not found & ~\ref{subsubsec:createnode}, ~\ref{subsubsec:deletenode} \\ \hline
 62 & A HTTP 400 status code with a LinkFound fault in the body is thrown if a LinkNode is found & ~\ref{subsubsec:createnode}, ~\ref{subsubsec:deletenode} \\ \hline
-63 & The PHASE in the UWS Job representation is set to "ERROR" in case of a fault occurring & ~\ref{subsubsec:movenode}, ~\ref{subsubsec:findnodes}*, ~\ref{subsubsec:pushtovospace}*, ~\ref{subsubsec:pulltovospace}*, ~\ref{subsubsec:pullfromvospace}, ~\ref{subsubsec:pushfromvospace}* \\ \hline
+63 & The PHASE in the UWS Job representation is set to ``ERROR'' in case of a fault occurring & ~\ref{subsubsec:movenode}, ~\ref{subsubsec:findnodes}*, ~\ref{subsubsec:pushtovospace}*, ~\ref{subsubsec:pulltovospace}*, ~\ref{subsubsec:pullfromvospace}, ~\ref{subsubsec:pushfromvospace}* \\ \hline
 64 & The errorSummary element in the UWS Job representation is set to the appropriate value for the type of fault occurring & ~\ref{subsubsec:movenode}, ~\ref{subsubsec:findnodes}*, ~\ref{subsubsec:pushtovospace}*, ~\ref{subsubsec:pulltovospace}*, ~\ref{subsubsec:pullfromvospace}, ~\ref{subsubsec:pushfromvospace}* \\ \hline
 65 & The appropriate fault representation is provided at the error URI for the job & ~\ref{subsubsec:movenode}, ~\ref{subsubsec:findnodes}*, ~\ref{subsubsec:pushtovospace}*, ~\ref{subsubsec:pulltovospace}*, ~\ref{subsubsec:pullfromvospace}, ~\ref{subsubsec:pushfromvospace}* \\ \hline
 \end{tabular}
@@ -3669,7 +3674,7 @@ ivo://ivoa.net/vospace/core\#type & the nature or genre of the resource & string
 \paragraph{From version 2.1-20150601:}
 \begin{itemize}
     \item Added REQUEST=redirect for further optimized pullFromVoSpace
-    \item Removed "search" and "find nodes" until use cases and implementations are presented
+    \item Removed ``search'' and ``find nodes'' until use cases and implementations are presented
     \item Changed pullToVoSpace, pushFromVoSpace to be client orchestrated.
     \item Changed Transfer in XSD to accept parameters.
     \item Recreated and expanded all webservice operation examples
@@ -3737,7 +3742,7 @@ ivo://ivoa.net/vospace/core\#type & the nature or genre of the resource & string
     \item Removed text about WSDL/WADL
 \end{itemize}
 
-\bibliography{ivoatex/ivoabib}
+\bibliography{ivoatex/ivoabib,ivoatex/docrepo}
 
 
 \end{document}
