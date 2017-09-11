@@ -30,7 +30,6 @@
 
 \editor{Matthew Graham}
 \editor{Brian Major}
-\editor{Dave Morris}
 
 \previousversion[http://www.ivoa.net/documents/VOSpace/20160420/index.html]{WD-VOSpace-2.1-20160405}
 \previousversion[http://www.ivoa.net/documents/VOSpace/20150601/index.html]{WD-VOSpace-2.1-20150601}
@@ -168,7 +167,7 @@ The IVOA Architecture \citep{note:VOARCH} provides a high-level view of how IVOA
 \label{fig:archdiag}
 \end{figure}
 
-In this architecture, users employ a variety of tools (from the User Layer) to discover and access archives and services of interest (represented in the Resource Layer). VOSpace provides an interface to storage resources containing the results of using these archives and services and also to other storage solutions, e.g., local disks, where users might want to transfer these results for further work. Items in these resources are referenced by a VOSpace identifier which is related to the standard IVOA Resource Identifier (see section 2). This version of VOSpace employs the UWS design pattern \citep{std:UWS} to manage data transfers (see section \ref{subsec:transfers}). VOSpace instances may also employ the IVOA Single-Sign-On standard \citep{std:SSOAUTH2.0} for authentication purposes (see section \ref{sec:access control}) and IVOA Credential Delegation Protocol \citep{std:CDP} to delegate data transfers.
+In this architecture, users employ a variety of tools (from the User Layer) to discover and access archives and services of interest (represented in the Resource Layer). VOSpace provides an interface to storage resources containing the results of using these archives and services and also to other storage solutions, e.g., local disks, where users might want to transfer these results for further work. Items in these resources are referenced by a VOSpace identifier which is related to the standard IVOA Resource Identifier (see section 2). This version of VOSpace employs the UWS design pattern \citep{std:UWS} to manage data transfers (see section \ref{subsec:transfers}). VOSpace instances may also employ the IVOA Single-Sign-On standard \citep{std:SSOAUTH2} for authentication purposes (see section \ref{sec:access control}) and IVOA Credential Delegation Protocol \citep{std:CDP} to delegate data transfers.
 
 % Note: add 'search' section to above paragraph when reinstated
 
@@ -920,7 +919,7 @@ For transfer requests, the securityMethod indicates that the client is capable o
 
 The Protocol list in transfer responses represent the protocol and securityMethod combinations that are supported by the server.  The server must only list supported combinations.  The server may choose to consult the protocol and securityMethod combinations in the transfer request to generate the ordered list of protocols.
 
-Please refer to the IVOA Single-Sign-On Profile: Authentication Mechanisms for more information: \citep{std:SSOAUTH2.0}
+Please refer to the IVOA Single-Sign-On Profile: Authentication Mechanisms for more information: \citep{std:SSOAUTH2}
 
 \subsection{Transfers}
 \label{subsec:transfers}
@@ -1207,7 +1206,7 @@ VOSpace implementations may support a number of authentication methods including
     \item OAuth (http://oauth.net)
 \end{itemize}
 
-For a full list of authentication methods and the associated standardIDs please refer to the document: \href{http://www.ivoa.net/documents/latest/SSOAuthMech.html}{IVOA Single-Sign-On Profile: Authentication Mechanisms}. 	
+For a full list of authentication methods and the associated standardIDs please refer to the document: \citep{std:SSOAUTH2.0}. 	
 
 When a client is requesting a transfer from the service, the authentication type (securityMethod) may be supplied along side the list of transfer protocols. The \emph{securityMethod} is specified by standardID.  If the service supports the requested type, it may base the construction of the endpoint URL for data transfer from this information.  (Services may encounter situations when the URL for data transfer will depend on the authentication type the client wishes to use.)
 
@@ -1666,7 +1665,7 @@ Response:
 > GET /vospace/transfers/glmldqf591feljub/phase HTTP/1.1
 >
 < HTTP/1.1 200 OK
-< Content-Type: text/plain;charset=UTF-8
+< Content-Type: text/plain
 <
 COMPLETED
 \end{lstlisting}
@@ -1811,7 +1810,7 @@ Response:
 > GET /vospace/transfers/usil5s8mdbgjwzvq/phase HTTP/1.1
 >
 < HTTP/1.1 200 OK
-< Content-Type: text/plain;charset=UTF-8
+< Content-Type: text/plain
 <
 COMPLETED
 \end{lstlisting}
@@ -2437,7 +2436,7 @@ Response:
 > GET /vospace/transfers/zkqzpftmufdi8luh/results/transferDetails HTTP/1.1
 >
 < HTTP/1.1 200 OK
-< Content-Type: text/xml;charset=UTF-8
+< Content-Type: text/xml
 <
 <?xml version="1.0" encoding="UTF-8"?>
 <vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1">
@@ -2458,7 +2457,6 @@ The FITS file can now be pushed over HTTP PUT to one of the endpoints listed in 
 Response:
 \begin{lstlisting}
 > PUT /trans/mydata1 HTTP/1.1
-> Content-Type: text/xml
 >
 < HTTP/1.1 100 Continue
 < HTTP/1.1 200 OK
@@ -2474,7 +2472,7 @@ Response:
 > GET /vospace/transfers/zkqzpftmufdi8luh/phase HTTP/1.1
 >
 < HTTP/1.1 200 OK
-< Content-Type: text/plain;charset=UTF-8
+< Content-Type: text/plain
 <
 COMPLETED
 \end{lstlisting}
@@ -2580,7 +2578,7 @@ Response:
 > GET /vospace/transfers/zkqzpftmufdi8luh/results/transferDetails HTTP/1.1
 >
 < HTTP/1.1 200 OK
-< Content-Type: text/xml;charset=UTF-8
+< Content-Type: text/xml
 <
 <?xml version="1.0" encoding="UTF-8"?>
 <vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1">
@@ -2609,7 +2607,7 @@ Response:
 > POST /vospace/synctrans?TARGET=vos://example.com~vospace/mydata1&DIRECTION=pushToVoSpace&PROTOCOL=ivo://ivoa.net/vospace/core\%23httpput HTTP/1.1
 >
 < HTTP/1.1 200 OK
-< Content-Type: text/xml;charset=UTF-8
+< Content-Type: text/xml
 <
 <?xml version="1.0" encoding="UTF-8"?>
 <vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1">
@@ -2805,7 +2803,7 @@ Request a set of URLs that the client can read data from.
 The client requests access to the data in a Node, and the server SHALL respond with a set of URLs that the client can read the data from.
 
 \paragraph{Request}
-A HTTP POST of a Job representation for the transfer to http://rest-endpoint/transfers or http://rest-endpoint/synctrans
+A HTTP POST of a Job representation for the transfer to http://rest-endpoint/transfers or http://rest-endpoint/synctrans.
 The transfer representation SHOULD contain details of the View and a list of the Protocols that the client would like to use.
 
 The list of Protocols SHOULD not contain endpoint addresses; the service SHALL supply the endpoint addresses in the response.
@@ -3028,7 +3026,7 @@ Response:
 > GET /vospace/transfers/m4ipu36gairz0dnl/results/transferDetails HTTP/1.1
 >
 < HTTP/1.1 200 OK
-< Content-Type: text/xml;charset=UTF-8
+< Content-Type: text/xml
 <
 <?xml version="1.0" encoding="UTF-8"?>
 <vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1">
@@ -3051,7 +3049,7 @@ Response:
 > GET /mydata1 HTTP/1.1
 >
 < HTTP/1.1 200 OK
-< Content-Type: text/plain;charset=UTF-8
+< Content-Type: text/plain
 <
 [data not shown]
 \end{lstlisting}
@@ -3064,7 +3062,7 @@ Response:
 > GET /vospace/transfers/m4ipu36gairz0dnl/phase HTTP/1.1
 >
 < HTTP/1.1 200 OK
-< Content-Type: text/plain;charset=UTF-8
+< Content-Type: text/plain
 <
 COMPLETED
 \end{lstlisting}
@@ -3107,7 +3105,7 @@ Response:
 > GET /vospace/transfers/m4ipu36gairz0dnl/results/transferDetails HTTP/1.1
 >
 < HTTP/1.1 200 OK
-< Content-Type: text/xml;charset=UTF-8
+< Content-Type: text/xml
 <
 <?xml version="1.0" encoding="UTF-8"?>
 <vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1">
@@ -3130,7 +3128,7 @@ Response:
 > GET /mydata1 HTTP/1.1
 >
 < HTTP/1.1 200 OK
-< Content-Type: text/plain;charset=UTF-8
+< Content-Type: text/plain
 <
  [data not shown]
 \end{lstlisting}
@@ -3180,7 +3178,7 @@ Response:
 > GET /vospace/transfers/zkqzpftmufdi8luh/results/transferDetails HTTP/1.1
 >
 < HTTP/1.1 200 OK
-< Content-Type: text/xml;charset=UTF-8
+< Content-Type: text/xml
 <
 <?xml version="1.0" encoding="UTF-8"?>
 <vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1">
@@ -3202,7 +3200,7 @@ Response:
 > GET /mydata1 HTTP/1.1
 >
 < HTTP/1.1 200 OK
-< Content-Type: text/plain;charset=UTF-8
+< Content-Type: text/plain
 <
  [data not shown]
 \end{lstlisting}
@@ -3222,7 +3220,7 @@ Response:
 > POST /vospace/synctrans?TARGET=vos://example.com~vospace/mydata1&DIRECTION=pullFromVoSpace&PROTOCOL=ivo://ivoa.net/vospace/core\%23httpget HTTP/1.1
 >
 < HTTP/1.1 200 OK
-< Content-Type: text/xml;charset=UTF-8
+< Content-Type: text/xml
 <
 <?xml version="1.0" encoding="UTF-8"?>
 <vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1">
@@ -3245,7 +3243,7 @@ Response:
 > GET /mydata1 HTTP/1.1
 >
 < HTTP/1.1 200 OK
-< Content-Type: text/plain;charset=UTF-8
+< Content-Type: text/plain
 <
  [data not shown]
  \end{lstlisting}
@@ -3278,7 +3276,7 @@ Response:
 > GET /mydata1 HTTP/1.1
 >
 < HTTP/1.1 200 OK
-< Content-Type: text/plain;charset=UTF-8
+< Content-Type: text/plain
 <
  [data not shown]
 \end{lstlisting}
@@ -3312,7 +3310,7 @@ Response:
 > GET /mydata1 HTTP/1.1
 >
 < HTTP/1.1 200 OK
-< Content-Type: text/plain;charset=UTF-8
+< Content-Type: text/plain
 <
  [data not shown]
 \end{lstlisting}
