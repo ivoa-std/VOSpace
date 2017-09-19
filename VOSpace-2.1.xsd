@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xs:schema targetNamespace="http://www.ivoa.net/xml/VOSpace/v2.1" elementFormDefault="qualified"
-    attributeFormDefault="unqualified" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+<xs:schema targetNamespace="http://www.ivoa.net/xml/VOSpace/v2.0" elementFormDefault="qualified"
+    attributeFormDefault="unqualified"
+    version="2.1-PR-20170405"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
     xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1"
     xmlns:uws="http://www.ivoa.net/xml/UWS/v1.0"
     xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -574,7 +576,23 @@
           </xs:annotation>
         </xs:element>
     </xs:sequence>
+    <xs:attribute name="version" type="uws:VOSVersion" use="optional">
+      <xs:annotation>
+        <xs:documentation>
+          Note that this attribute is actually required by the 2.1 specification - however remains optional in the schema for backwards compatibility. It will be formally required in the next major revision.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
   </xs:complexType>
+
+  <xs:simpleType name="VOSVersion">
+    <xs:annotation>
+      <xs:documentation>
+        The version of the VOSpace standard that the server complies with.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string"/>
+  </xs:simpleType>
 
   <!-- ======== Response representations ======== -->
 

@@ -134,7 +134,7 @@ The user will then describe the data format (the view) they want to use in uploa
 
 The service will reply with a redirect to a location with an amended version of the transfer representation that contains, for the protocols the service supports, URL endpoints that the user may HTTP PUT the data file to, e.g., http://storage1.example.com/vospace/mytable1.  The user will then use a regular HTTP client to transfer (PUT) the local file to one of the endpoints. This illustrates an important point about VOSpace -- it is only concerned with the server-side management of data storage and transfer. A client negotiates the details of a data transfer with a VOSpace service but the actual transfer of bytes across a network is handled by other tools.
 
-Similarly, when a user wants to retrieve a data file from a VOSpace service, they will specify the data format (view) they want to use in downloading the file (e.g., VOTable), and the transport protocol (the protocol) that they want to employ to download the file (e.g., HTTP GET), and then HTTP POST a XML description of this transfer request to the VOSpace transfer URL (e.g., http://server.example.com/vospace/synctrans). The description will resemble this:
+Similarly, when users want to retrieve a data file from a VOSpace service, they will specify the data format (view) they want to use in downloading the file (e.g., VOTable), and the transport protocol (the protocol) that they want to employ to download the file (e.g., HTTP GET), and then HTTP POST a XML description of this transfer request to the VOSpace transfer URL (e.g., http://server.example.com/vospace/synctrans). The description will resemble this:
 
 \begin{lstlisting}
 <vos:transfer xmlns="http://www.ivoa.net/xml/VOSpace/v2.1">
@@ -167,7 +167,7 @@ The IVOA Architecture \citep{note:VOARCH} provides a high-level view of how IVOA
 \label{fig:archdiag}
 \end{figure}
 
-In this architecture, users employ a variety of tools (from the User Layer) to discover and access archives and services of interest (represented in the Resource Layer). VOSpace provides an interface to storage resources containing the results of using these archives and services and also to other storage solutions, e.g., local disks, where users might want to transfer these results for further work. Items in these resources are referenced by a VOSpace identifier which is related to the standard IVOA Resource Identifier (see section 2). This version of VOSpace employs the UWS design pattern \citep{std:UWS} to manage data transfers (see section \ref{subsec:transfers}). VOSpace instances may also employ the IVOA Single-Sign-On standard \citep{std:SSOAUTH2} for authentication purposes (see section \ref{sec:access control}) and IVOA Credential Delegation Protocol \citep{std:CDP} to delegate data transfers.
+In this architecture, users employ a variety of tools (from the User Layer) to discover and access archives and services of interest (represented in the Resource Layer). VOSpace provides an interface to storage resources containing the results of using these archives and services and also to other storage solutions, e.g., local disks, where users might want to transfer these results for further work. Items in these resources are referenced by a VOSpace identifier which is related to the standard IVOA Resource Identifier. This version of VOSpace employs the UWS design pattern \citep{std:UWS} to manage data transfers (see section \ref{subsec:transfers}). VOSpace instances may also employ the IVOA Single-Sign-On standard \citep{std:SSOAUTH2} for authentication purposes (see section \ref{sec:access control}) and IVOA Credential Delegation Protocol \citep{std:CDP} to delegate data transfers.
 
 % Note: add 'search' section to above paragraph when reinstated
 
@@ -380,7 +380,7 @@ The following Nodes, appearing as part of a node-path, are reserved:
 \label{subsec:properties}
 \emph{Properties} are simple string-based metadata properties associated with a node.
 
-Individual \emph{Properties} should contain simple short string values, not large blocks of information. If a system needs to attach a large amount of metadata to a node, then it should either use multiple small \emph{Properties}, or a single \emph{Property} containing a URI or URL pointing to an external resource that contains the additional metadata.
+Individual \emph{Properties} should contain simple short string values, not large blocks of information. If a system needs to attach a large amount of metadata to a node, then it should either use multiple small \emph{Properties}, or a single \emph{Property} containing a URI to an internal or external resource that contains the additional metadata.
 
 A \emph{Property} representation SHALL have the following elements:
 
@@ -602,8 +602,6 @@ Capability URIs and CapabilityDescriptions for the core set of Capabilities are 
 \end{itemize}
 If a service implementation supports more than one version of the VOSpace interface then these capability URIs can be used with a VOSpace service to identify different VOSpace capabilities for a node.
 
-One use case for this would be a VOSpace 2.1 client talking to a service that implements both VOSpace 2.0 and VOSpace 2.1, where the client is acting on behalf of a third party agent that only understands VOSpace 2.0. In this case, the client can use the information in the VOSpace 2.0 capability to direct the third party agent to the VOSpace 2.0 endpoint.
-
 Other standard service interfaces will also be registered, e.g.,
 
 \begin{itemize}
@@ -629,7 +627,8 @@ The metadata for a DataNode contains two lists of Views.
 A View representation SHALL have the following members:
 
 \begin{itemize}
-    \item \emph{uri}: an optional boolean flag to indicate that the View preserves the original bit pattern of the data
+    \item \emph{uri}: The view identifier
+    \item \emph{original}: an optional boolean flag to indicate that the View preserves the original bit pattern of the data
     \item \emph{param}: a set of name-value pairs that can be used to specify additional arguments for the View
 \end{itemize}
 
@@ -767,14 +766,14 @@ The following standard URIs are registered under a StandardKeyEnumeration resour
 \end{itemize}
 
 \paragraph{Default import view}
-If a client imports data using this view, the data SHALL be treated as a binary BLOB, and stored as is with no additional processing. This is equivalent to the application/binary MIME type.
+If a client imports data using this view, the data SHALL be treated as a binary BLOB, and stored as is with no additional processing. This is equivalent to the application/octet-stream MIME type.
 
 Note, this view is OPTIONAL, and the service may throw a ViewNotSupported exception if it does not accept this view. In particular, this view cannot be used to import data into a StructuredDataNode as the service needs to know about and understand the data format to be able to create the StructuredDataNode.
 
 Note, this view is only valid for the data import operations, pullToVoSpace and pushToVoSpace. If this view is requested in an export operation, pullFromVoSpace and pushToVoSpace, then the service SHOULD throw a ViewNotSupported exception.
 
 \paragraph{Default export view}
-If a client requests data using this view, the server SHALL choose whichever of the available views (the server) thinks is the most appropriate, based on how the data is stored. In a simple file-based system, this will probably be the same format that the data was originally imported in. In a database table system, this will probably either be VOTable or CVS, depending on the level of metadata available.
+If a client requests data using this view, the server SHALL choose whichever of the available views the server thinks is the most appropriate, based on how the data is stored. In a simple file-based system, this will probably be the same format that the data was originally imported in. In a database table system, this will probably either be VOTable or CVS, depending on the level of metadata available.
 
 Note, this view is OPTIONAL, and the server may throw a ViewNotSupported exception if it does not provide this view. However, in most cases, it is expected that a service would be able to select an appropriate 'default' format for data held within the service.
 
@@ -883,15 +882,19 @@ Protocol URIs and ProtocolDescriptions for the core set of standard protocols ar
 
 However, this is not intended to be a closed list, different implementations are free to define and use their own transfer Protocols and authentication types.
 
-\subsubsection{Public share protocol}
-\label{subsubsec:public share protocol}
+\subsubsection{External standard protocols}
+\label{subsubsec:external standard protocols}
 
-The public share protocol provides a means of obtaining, through a transfer negotiation, a URL endpoint from a VOSpace service that can be shared with colleagues or published in a paper.  Implementation of this protocol is optional so services MAY provide support for the public share protocol if they wish to generate URLs to data objects that can be shared with anonymous users.
+The following section lists protocols that are identified by an external URI and are documented at the location referenced by that URI.  If a service provides protocols with the following URIs, one should regard the information at the referenced location as if they were a part of this specification.  Incompatible changes to protocols listed here are forbidden by this specification.
 
-The standard ID for the public share protocol is:
+Currently, there is only external standard protocol: the \emph{public share protocol}.
+
+The \emph{public share protocol} provides a means of obtaining, through a transfer negotiation, a URL endpoint from a VOSpace service that can be shared with colleagues or published in a paper.  Implementation of this protocol is optional so services MAY provide support for the \emph{public share protocol} if they wish to generate URLs to data objects that can be shared with anonymous users.
+
+The standard ID for the \emph{public share protocol} is:
 \begin{verbatim}http://wiki.ivoa.net/twiki/bin/view/IVOA/VOSpacePublicShare\end{verbatim}
 
-Note that standard ID serves as both a URL to a document describing the protocol and as the URI identifying the protocol.  Thus, readers can find additional documentation on the public share protocol at the URL of the standard ID.
+Note that, as mentioned above, the standard ID serves as both a URL to a document describing the protocol and as the URI identifying the protocol.  Thus, readers can find additional documentation on the public share protocol at the URL of the standard ID.
 
 The curl command below gives an example of how to obtain a public share URL from VOSpace:
 
@@ -1009,7 +1012,7 @@ The service representation of the results of a Transfer SHALL have the following
 
 \subsubsection{URL Parameter Transfers}
 \label{subsubsec:url parameter transfers}
-A simplified and restricted method of transfer negotiation makes use of URL query string parameters rather than XML documents.  Parameter based transfer negotiation support is optional and is limited to the UWS synchronous transfer endpoint.  The following is an example URL for a parameter transfer negotiation:
+A simplified and restricted method of transfer negotiation makes use of URL query string parameters rather than XML documents.  Parameter based transfer negotiation support is optional and is limited to the synchronous transfer endpoint.  The following is an example URL for a parameter transfer negotiation:
 
 \begin{verbatim}
 http://server.example.com/vospace/synctrans?
@@ -1540,7 +1543,7 @@ The Node type cannot be changed using this method.
 
 \paragraph{Request}
 \begin{itemize}
-    \item A HTTP POST of a Job representation for the transfer (see section 3.6) to http://rest-endpoint/transfers.
+    \item A HTTP POST of a Job representation for the transfer to http://rest-endpoint/transfers.
 \end{itemize}
 
 .auto is a reserved URI to indicate an autogenerated URI for the destination, i.e., vos://service/path/.auto SHOULD cause a new unique URI for the node within vos://service/path to be generated.
@@ -1564,7 +1567,7 @@ If an autogenerated URI for the destination was specified in the request then it
 
 \paragraph{Faults}
 
-For all faults, the service shall set the PHASE to ``ERROR'' in the Job representation. The \verb|<errorSummary>| element in the Job representation shall be set to the appropriate value for the fault type and the appropriate fault representation (see section 5.5) provided at the error URI: http://rest-endpoint/transfers/(jobid)/error.
+For all faults, the service shall set the PHASE to ``ERROR'' in the Job representation. The \verb|<errorSummary>| element in the Job representation shall be set to the appropriate value for the fault type and the appropriate fault representation provided at the error URI: http://rest-endpoint/transfers/(jobid)/error.
 
 \vspace{3mm}
 \begin{tabular}{ p{5cm} l p{4cm} }
@@ -2291,7 +2294,7 @@ The HTTP 303 redirect points to a transfer representation with the required tran
 For parameter based transfers, the transfer representation with the required transfer details and endpoints is returned directly in the response--no redirect is issued.
 
 \paragraph{Faults}
-For all faults using the UWS mode, the service shall set the PHASE to ``ERROR'' in the Job representation. The \verb|<errorSummary>| element in the Job representation shall be set to the appropriate value for the fault type and the appropriate fault representation (see section 5.5) provided at the error URI: http://rest-endpoint/transfers/(jobid)/error.
+For all faults using the UWS mode, the service shall set the PHASE to ``ERROR'' in the Job representation. The \verb|<errorSummary>| element in the Job representation shall be set to the appropriate value for the fault type and the appropriate fault representation provided at the error URI: http://rest-endpoint/transfers/(jobid)/error.
 
 \vspace{3mm}
 \begin{tabular}{ p{5cm} l p{4cm} }
@@ -2651,7 +2654,7 @@ During the byte transfer for the pullToVoSpace operation, the service SHOULD set
 If the busy flag of the Node is already set to true, the service SHOULD respond with a NodeBusy fault.
 
 \paragraph{Faults}\
-For all faults, the service shall set the PHASE to ``ERROR'' in the Job representation. The \verb|<errorSummary>| element in the Job representation shall be set to the appropriate value for the fault type and the appropriate fault representation (see section 5.5) provided at the error URI: http://rest-endpoint/transfers/(jobid)/error.
+For all faults, the service shall set the PHASE to ``ERROR'' in the Job representation. The \verb|<errorSummary>| element in the Job representation shall be set to the appropriate value for the fault type and the appropriate fault representation provided at the error URI: http://rest-endpoint/transfers/(jobid)/error.
 
 \vspace{3mm}
 \begin{tabular}{ p{5cm} l p{4cm} }
@@ -2877,7 +2880,7 @@ The HTTP 303 redirect points to a transfer representation with the required tran
 If the transfer was initiated with a HTTP POST to http://rest-rendpoint/sync with transfer information TARGET, DIRECTION, and PROTOCOL supplied as query string parameters, the service may respond with the transfer details directly. If the parameter REQUEST=redirect is also provided in this POST, then the service may respond with a redirect to a preferred endpoint (example below).
 
 \paragraph{Faults}
-For all faults using the UWS mode, the service shall set the PHASE to ``ERROR'' in the Job representation. The \verb|<errorSummary>| element in the Job representation shall be set to the appropriate value for the fault type and the appropriate fault representation (see section 5.5) provided at the error URI: http://rest-endpoint/transfers/(jobid)/error.
+For all faults using the UWS mode, the service shall set the PHASE to ``ERROR'' in the Job representation. The \verb|<errorSummary>| element in the Job representation shall be set to the appropriate value for the fault type and the appropriate fault representation provided at the error URI: http://rest-endpoint/transfers/(jobid)/error.
 
 \vspace{3mm}
 \begin{tabular}{ p{5cm} l p{4cm} }
@@ -3587,8 +3590,6 @@ xx & Standard properties are represented by the specified URIs & ~\ref{subsubsec
 32 & A data transfer is complete once a specified protocol is successful & ~\ref{subsubsec:service-initiated transfers}, ~\ref{subsubsec:client-initiated transfers} \\ \hline
 33 & A data transfer has failed if none of the specified protocols has been successful & ~\ref{subsubsec:service-initiated transfers}, ~\ref{subsubsec:client-initiated transfers} \\ \hline
 34 & A server updates the status flag in the UWS Job representation as appropriate & ~\ref{subsubsec:service-initiated transfers}, ~\ref{subsubsec:client-initiated transfers} \\ \hline
-% 35 & A Search UWS Job representation has elements: uri, limit, detail, matches and node & ~\ref{subsec:searches}* \\ \hline
-% 36 & A Search results representation has elements: nodes & ~\ref{subsec:searches}* \\ \hline
 35 & A VOSpace service has the REST bindings: properties, views, protocols, nodes, and transfers & ~\ref{sec:rest bindings} \\ \hline
 36 & Access policies on a VOSpace service are declared in the registered metadata for the service & ~\ref{sec:access control} \\ \hline
 37 & VOSpace authentication employs IVOA SSO supported methods & ~\ref{sec:access control} \\ \hline
