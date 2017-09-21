@@ -104,7 +104,7 @@ Let's consider the first step: the user provides a XML description of the data f
 <vos:node xmlns="http://www.ivoa.net/xml/VOSpace/v2.1"
     xmlns:xs="http://www.w3.org/2001/XMLSchema-instance" 
     uri="vos://example.com!vospace/mytable1"
-    xs:type="vos:UnstructuredDataNode">  
+    xsi:type="vos:UnstructuredDataNode">  
     <vos:properties> 
         <vos:property uri="ivo://ivoa.net/vospace/core#mimetype">
             text/xml
@@ -255,7 +255,7 @@ The tilde (`$\mathtt{\sim}$') character was introduced in version 2.0 as an alte
 A VOSpace identifier can be resolved to a HTTP endpoint for accessing representations of the node associated with it. A client SHOULD use the following procedure to resolve access to a VOSpace node from a VOSpace identifier:
 
 \begin{itemize}
-    \item Resolve HTTP service endpoint of VOSpace service with registry
+    \item Resolve the HTTP endpoint of a VOSpace service with using the registry.  
     \item Append ``nodes/'' and the path following the naming authority part of the VOSpace identifier to the service endpoint
 \end{itemize}
 
@@ -296,7 +296,7 @@ Each data object within a VOSpace SHALL be represented as a node that is identif
 
 There are different types of nodes and the type of a VOSpace node determines how the VOSpace service stores and interprets the node data.
 
-In an XML representation of a Node, the type is specified by the \emph{xs:type} attribute on the node.  For example, \emph{xs:type="vos:ContainerNode"}.
+In an XML representation of a Node, the type is specified by the \emph{xsi:type} attribute on the node.  For example, \emph{xsi:type="vos:ContainerNode"}.
 
 The types are arranged in a hierarchy (see Figure ~\ref{fig:nodehierarchy}), with more detailed types inheriting the structure of more generic types.
 
@@ -602,17 +602,6 @@ Capability URIs and CapabilityDescriptions for the core set of Capabilities are 
 \end{itemize}
 If a service implementation supports more than one version of the VOSpace interface then these capability URIs can be used with a VOSpace service to identify different VOSpace capabilities for a node.
 
-Other standard service interfaces will also be registered, e.g.,
-
-\begin{itemize}
-    \item Cone Search
-    \item SIAP
-    \item SSAP
-    \item TAP
-\end{itemize}
-
-However, this is not intended to be a closed list and different implementations are free to define and use their own Capabilities.
-
 \subsection{Views}
 \label{subsec:views}
 A View describes the data formats and contents available for importing or exporting data to or from a VOSpace node.
@@ -737,8 +726,6 @@ A ViewDescription MAY have the following optional members:
     \item \emph{Parameters}: a list of required and option parameters the view accepts, if applicable
 \end{itemize}
 
-However, at the time of writing, the schema for registering ViewDescriptions in the IVO registry has not been finalized.
-
 \paragraph{UI Display name}
 If a client is unable to resolve a View identifier into a description, then it MAY just display the identifier as a text string:
 
@@ -852,8 +839,6 @@ A ProtocolDescription SHOULD have the following members:
     \item \emph{DisplayName}: A simple display name of the Protocol
     \item \emph{Description}: Text block describing describing the underlying transport protocol, and how it should be used in this context
 \end{itemize}
-
-However, at the time of writing, the schema for registering ProtocolDescriptions in the IVO registry has not been finalized.
 
 \paragraph{UI display name}
 
@@ -1131,10 +1116,10 @@ If none of the Protocol options succeed, then the transfer SHALL be considered t
 %         \begin{itemize}
 %             \item min: The list contains the minimum detail for each Node with all optional parts removed - the node type should be returned
 %                 \begin{itemize}
-%                     \item e.g. \emph{<node uri="vos://service/name" xs:type="Node"/>}
+%                     \item e.g. \emph{<node uri="vos://service/name" xsi:type="Node"/>}
 %                 \end{itemize}
-%             \item max : The list contains the maximum detail for each Node, including any xs:type specific extensions
-%             \item properties : The list contains a basic node element with a list of properties for each Node with no xs:type specific extensions.
+%             \item max : The list contains the maximum detail for each Node, including any xsi:type specific extensions
+%             \item properties : The list contains a basic node element with a list of properties for each Node with no xsi:type specific extensions.
 %         \end{itemize}
 %     \item \emph{matches}: An OPTIONAL search string consisting of properties and values to match against and joined in conjunction (and) or disjunction (or).
 %         \begin{itemize}
@@ -1170,7 +1155,13 @@ In a REST (Representational State Transfer) binding of VOSpace, each of the obje
 
 The standard ID of a VOSpace is:
 
+\begin{verbatim}ivo://ivoa.net/std/VOSpace\end{verbatim}
+
+The 2.0 specification defined the standardID as:
+
 \begin{verbatim}ivo://ivoa.net/std/VOSpace/v2.0\end{verbatim}
+
+so this will also be recognized as a valid standardID for VOSpace in the 2.1 specification.
 
 The syntax of the standard IDs for the REST bindings has changed in VOSpace 2.1 to be in accordance with the IVOA Recommendation IVOA Identifiers 2.0 \citep{2016ivoa.spec.0523D}.  Specifically, the question mark (?) symbol is to be used in place of the hash (\#) symbol for listing the particular resource.  Secondly, the resource is now versioned to align with the version of the standard, rather than having the version in the standardID of the specification.
 
@@ -1179,24 +1170,25 @@ Since only the /synctrans binding has changed in version 2.1, it is the only bin
 The following is a list of the resourceIDs for the REST bindings for VOSpace 2.x implementations:
 
 \begin{itemize}
-    \item \begin{verbatim}ivo://ivoa.net/std/VOSpace/v2.0#/properties\end{verbatim} The properties employed in the space.
-    \item \begin{verbatim}ivo://ivoa.net/std/VOSpace/v2.0#/views\end{verbatim} The protocols employed in the space.
-    \item \begin{verbatim}ivo://ivoa.net/std/VOSpace/v2.0#/protocols\end{verbatim} The views employed in the space.
-    \item \begin{verbatim}ivo://ivoa.net/std/VOSpace/v2.0#/nodes\end{verbatim} A Node under the nodes of the space.
-    \item \begin{verbatim}ivo://ivoa.net/std/VOSpace/v2.0#/transfers\end{verbatim} Asynchronous transfers for the space.
-    \item \begin{verbatim}ivo://ivoa.net/std/VOSpace/v2.0#/transfers/(job-id)/results/transferDetails\end{verbatim} The resulting transfer details.
+    \item \begin{verbatim}ivo://ivoa.net/std/VOSpace/v2.0#properties\end{verbatim} The properties employed in the space.
+    \item \begin{verbatim}ivo://ivoa.net/std/VOSpace/v2.0#views\end{verbatim} The protocols employed in the space.
+    \item \begin{verbatim}ivo://ivoa.net/std/VOSpace/v2.0#protocols\end{verbatim} The views employed in the space.
+    \item \begin{verbatim}ivo://ivoa.net/std/VOSpace/v2.0#nodes\end{verbatim} A Node under the nodes of the space.
+    \item \begin{verbatim}ivo://ivoa.net/std/VOSpace/v2.0#transfers\end{verbatim} Asynchronous transfers for the space.
 \end{itemize}
+
+Transfer details can be discovered by appending \emph{/[job-id]/results/transferDetails} to the end of a service's transfer endpoint.
 
 In version 2.0, the following is the resourceID for synchronous transfers in the space:
 
 \begin{itemize}
-    \item \begin{verbatim}ivo://ivoa.net/std/VOSpace/v2.0#/synctrans\end{verbatim}
+    \item \begin{verbatim}ivo://ivoa.net/std/VOSpace/v2.0#sync\end{verbatim}
 \end{itemize}
 
 In version 2.1, the following resourceID has been introduced for the 2.1 version of synchronous transfers:
 
 \begin{itemize}
-    \item \begin{verbatim}ivo://ivoa.net/std/VOSpace#synctrans-2.1\end{verbatim}
+    \item \begin{verbatim}ivo://ivoa.net/std/VOSpace#sync-2.1\end{verbatim}
 \end{itemize}
 
 \section{Access Control}
@@ -1432,9 +1424,9 @@ A valid uri attribute SHALL be required. The name .auto is a reserved URI to ind
 
 If the node path of the uri in the node representation does not match the node path in the HTTP PUT URL the service SHALL return an error.
 
-If the Node xs:type is not specified then a generic node of type Node is implied.
+If the Node xsi:type is not specified then a generic node of type Node is implied.
 
-The permitted values of xs:type are:
+The permitted values of xsi:type are:
 
 \begin{itemize}
     \item vos:Node
@@ -1445,7 +1437,7 @@ The permitted values of xs:type are:
     \item vos:LinkNode
 \end{itemize}
 
-When creating a new Node the service MAY substitute a valid subtype, i.e., If xs:type is set to vos:DataNode then this may be implemented as a DataNode, StructuredDataNode or an UnstructuredDataNode.
+When creating a new Node the service MAY substitute a valid subtype, i.e., If xsi:type is set to vos:DataNode then this may be implemented as a DataNode, StructuredDataNode or an UnstructuredDataNode.
 
 The properties of the new Node can be set by adding Properties to the template. Attempting to set a Property that the service considers to be 'readOnly' SHALL cause a PermissionDenied fault. The accepts and provides lists of Views for the Node cannot be set using this method.
 
@@ -1471,7 +1463,7 @@ The \emph{capabilities} list for the Node MAY not be filled in until some data h
     \item The service SHALL throw a HTTP 409 status code including a DuplicateNode fault in the entity body if a Node already exists with the same URI
     \item The service SHALL throw a HTTP 400 status code including an InvalidURI fault in the entity body if the requested URI is invalid
     \item If the URI node path does not match the node path of the HTTP PUT request the service must throw a HTTP 400 status including an InvalidURI fault in the entity body.
-    \item The service SHALL throw a HTTP 400 status code including a TypeNotSupported fault in the entity body if the type specified in xs:type is not supported
+    \item The service SHALL throw a HTTP 400 status code including a TypeNotSupported fault in the entity body if the type specified in xsi:type is not supported
     \item The service SHALL throw a HTTP 403 status code including PermissionDenied fault in the entity body if the user does not have permissions to perform the operation
     \item If a parent node in the URI path does not exist then the service SHALL throw a HTTP 404 status code including a ContainerNotFound fault in the entity body.
     \begin{itemize}
@@ -1490,7 +1482,7 @@ Create a node
 The node to be created (newNode.xml):
 \begin{lstlisting}
 <vos:node xmlns:xs="http://www.w3.org/2001/XMLSchema-instance"
-    xmlns="http://www.ivoa.net/xml/VOSpace/v2.1" xs:type="vos:UnstructuredDataNode" uri="vos://example.com!vospace/mydata1">
+    xmlns="http://www.ivoa.net/xml/VOSpace/v2.1" xsi:type="vos:UnstructuredDataNode" uri="vos://example.com!vospace/mydata1">
   <vos:properties>
     <vos:property uri="ivo://ivoa.net/vospace/core#description">My important results</vos:property>
   </vos:properties>
@@ -1513,7 +1505,7 @@ Response:
 <
 <vos:node xmlns:xi="http://www.w3.org/2001/XMLSchema-instance"
       xmlns="http://www.ivoa.net/xml/VOSpace/v2.1"
-      xs:type="vos:UnstructuredDataNode" 
+      xsi:type="vos:UnstructuredDataNode" 
       uri="vos://example.com!vospace/mydata1">
   <vos:properties>
     <vos:property uri="ivo://ivoa.net/vospace/core#description">My important results</vos:property>
@@ -1887,10 +1879,10 @@ This can take the optional parameters to control the size of the response:
     \begin{itemize}
         \item \emph{min}: the returned record for the node contains minimum detail with all optional parts removed -- the node type should be returned
         \begin{itemize}
-            \item e.g., \verb|<Node uri="vos://service/name" xs:type="Node"/>|
+            \item e.g., \verb|<Node uri="vos://service/name" xsi:type="Node"/>|
         \end{itemize}
-        \item \emph{max}: the returned record for the node contains the maximum detail, including any xs:type specific extensions
-        \item \emph{properties}: the returned record for the node contains the basic node element with a list of properties but no xs:type specific extensions
+        \item \emph{max}: the returned record for the node contains the maximum detail, including any xsi:type specific extensions
+        \item \emph{properties}: the returned record for the node contains the basic node element with a list of properties but no xsi:type specific extensions
     \end{itemize}
     \item \emph{uri} with a value of a VOSpace identifier, URI-encoded according to RFC2396
     \item \emph{limit} with an integer value indicating the maximum number of results in the response.
@@ -1906,13 +1898,13 @@ The list of supported protocols for a node can be retrieved with:
     
 \paragraph{Response}
 A HTTP 200 status code and a Node representation in the entity-body.
-When no parameters are present in the request, the full expanded record for the node SHALL be returned, including any xs:type specific extensions; otherwise the appropriate form for the specified value of the ``detail'' parameter SHALL be returned.
+When no parameters are present in the request, the full expanded record for the node SHALL be returned, including any xsi:type specific extensions; otherwise the appropriate form for the specified value of the ``detail'' parameter SHALL be returned.
 
 When the node is a container, the returned record will also contain a list of direct children nodes in the container (as \verb|<node>| subelements under the \verb|<nodes>| element).
 
 If a ``uri'' and ``offset'' are specified in the request then the returned list will consist of the subset of children which begins at the node matching the specified value of the ``uri'' parameter and with cardinality matching the specified value of the ``offset'' parameter drawn from an ordered sequence of all children. The ordering is determined by the server but results must always be drawn from the same ordered sequence.
 
-For the target node and for any children returned for a container node, the attribute \emph{xs:type} SHALL be included in the resulting Node document.  
+For the target node and for any children returned for a container node, the attribute \emph{xsi:type} SHALL be included in the resulting Node document.  
 
 \paragraph{Faults}
 \begin{itemize}
@@ -1937,7 +1929,7 @@ Response:
 < Content-Type: text/xml
 <
 <?xml version="1.0" encoding="UTF-8"?>
-<vos:node xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1" xmlns:xs="http://www.w3.org/2001/XMLSchema-instance" uri="vos://example.com!vospace/mydir" xs:type="vos:ContainerNode">
+<vos:node xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1" xmlns:xs="http://www.w3.org/2001/XMLSchema-instance" uri="vos://example.com!vospace/mydir" xsi:type="vos:ContainerNode">
   <vos:properties>
     <vos:property uri="ivo://ivoa.net/vospace/core#description">My award winning images</property>
   </vos:properties>
@@ -1949,9 +1941,9 @@ Response:
   </vos:provides>
   <vos:capabilities/>
   <vos:nodes>
-    <vos:node uri="vos://example.com!vospace/mydir/file3401" xs:type="vos:DataNode"/>
-    <vos:node uri="vos://example.com!vospace/mydir/file3406" xs:type="vos:DataNode"/>
-    <vos:node uri="vos://example.com!vospace/mydir/file3532" xs:type="vos:DataNode"/>
+    <vos:node uri="vos://example.com!vospace/mydir/file3401" xsi:type="vos:DataNode"/>
+    <vos:node uri="vos://example.com!vospace/mydir/file3406" xsi:type="vos:DataNode"/>
+    <vos:node uri="vos://example.com!vospace/mydir/file3532" xsi:type="vos:DataNode"/>
   </vos:nodes>
 \end{lstlisting}
 
@@ -1964,7 +1956,7 @@ A HTTP POST of a Node representation to the URL of an existing node http://rest-
 \begin{itemize}
     \item \emph{node}: A Node containing the Node uri and a list of the Properties to set (as defined in section 3.1)
 \end{itemize}
-This will add or update the node properties including any xs:type specific elements.
+This will add or update the node properties including any xsi:type specific elements.
 
 The operation is the union of existing values and new ones.  An empty value sets the value to blank.  To delete a Property, set the xs:nil attribute to true
 
@@ -1976,7 +1968,7 @@ This method cannot be used to create children of a container Node.
 
 \paragraph{Response}
 A HTTP 200 status code and a Node representation in the entity-body
-The full expanded record for the node SHALL be returned, including any xs:type specific extensions.
+The full expanded record for the node SHALL be returned, including any xsi:type specific extensions.
 
 \paragraph{Faults}
 \begin{itemize}
@@ -1997,7 +1989,7 @@ Set node metadata
 \noindent
 The updated node (setNode.xml) is:
 \begin{lstlisting}
-<node xmlns:xs="http://www.w3.org/2001/XMLSchema-instance" xs:type="vos:UnstructuredDataNode" xmlns="http://www.ivoa.net/xml/VOSpace/v2.1" uri="vos://nvo.caltech!vospace/mydata1">
+<node xmlns:xs="http://www.w3.org/2001/XMLSchema-instance" xsi:type="vos:UnstructuredDataNode" xmlns="http://www.ivoa.net/xml/VOSpace/v2.1" uri="vos://nvo.caltech!vospace/mydata1">
   <properties>
     <property uri="ivo://ivoa.net/vospace/core#title" readOnly="false">Title for my data</property>
   </properties>
@@ -2019,7 +2011,7 @@ Response:
 < Content-Type: text/xml
 <
 <?xml version="1.0" encoding="UTF-8"?>
-<vos:node xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1" xmlns:xs="http://www.w3.org/2001/XMLSchema-instance" uri="vos://cadc.nrc.ca!vospace/mydata1" xs:type="vos:DataNode" busy="false">
+<vos:node xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1" xmlns:xs="http://www.w3.org/2001/XMLSchema-instance" uri="vos://cadc.nrc.ca!vospace/mydata1" xsi:type="vos:DataNode" busy="false">
   <vos:properties>
     <vos:property uri="ivo://ivoa.net/vospace/core#length" readOnly="true">44</vos:property>
     <vos:property uri="ivo://ivoa.net/vospace/core#MD5" readOnly="true">12c13e49f2fd37e2c91bcca6acb78a08</vos:property>
@@ -2151,12 +2143,12 @@ Response:
 % < 
 % <nodes xmlns="http://www.ivoa.net/xml/VOSpace/v2.1"
 % xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-%   <node uri="vos://nvo.caltech!vospace/mydir/img1" xs:type="vos:UnstructuredDataNode">
+%   <node uri="vos://nvo.caltech!vospace/mydir/img1" xsi:type="vos:UnstructuredDataNode">
 %     <properties>
 %       <property uri="ivo://ivoa.net/vospace/core#description">This is an R-band image of the galaxy NGC 3276</property>
 %     </properties>
 %   </node>
-%   <node uri="vos://nvo.caltech!vospace/mydir/img5" xs:type="vos:StructuredDataNode">
+%   <node uri="vos://nvo.caltech!vospace/mydir/img5" xsi:type="vos:StructuredDataNode">
 %     <properties>
 %       <property uri="ivo://ivoa.net/vospace/core#description">This is a Chandra mosaic of the Fornax cluster of galaxies</property>
 %     </properties>
@@ -2224,7 +2216,7 @@ An HTTP POST of a Job representation for the transfer to http://rest-endpoint/tr
 
 If a Node already exists at the target URI, then the data SHALL be imported into the existing Node and the Node properties SHALL be cleared unless the node is a ContainerNode.
 
-If there is no Node at the target URI, then the service SHALL create a new Node using the uri and the default xs:type for the space.
+If there is no Node at the target URI, then the service SHALL create a new Node using the uri and the default xsi:type for the space.
 
 The transfer representation contains details of the View and a list of the Protocols (and, optionally, the preferred security method(s) per protocol) that the client wants to use.
 
@@ -2644,7 +2636,7 @@ A HTTP POST of a Job representation for the transfer to http://rest-endpoint/tra
 
 If a Node already exists at the target URI, then the data SHALL be imported into the existing Node and the Node properties SHALL be cleared unless the node is a ContainerNode.
 
-If there is no Node at the target URI, then the service SHALL create a new Node using the uri, and the default xs:type for the space.
+If there is no Node at the target URI, then the service SHALL create a new Node using the uri, and the default xsi:type for the space.
 
 \paragraph{Response}
 The initial response is a HTTP 303 status code with the Location header keyword assigned to the created job.
