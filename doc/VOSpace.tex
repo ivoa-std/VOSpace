@@ -167,7 +167,7 @@ The IVOA Architecture \citep{note:VOARCH} provides a high-level view of how IVOA
 \label{fig:archdiag}
 \end{figure}
 
-In this architecture, users employ a variety of tools (from the User Layer) to discover and access archives and services of interest (represented in the Resource Layer). VOSpace provides an interface to storage resources containing the results of using these archives and services and also to other storage solutions, e.g., local disks, where users might want to transfer these results for further work. Items in these resources are referenced by a VOSpace identifier which is related to the standard IVOA Resource Identifier. This version of VOSpace employs the UWS design pattern \citep{std:UWS} to manage data transfers (see section \ref{subsec:transfers}). VOSpace instances may also employ the IVOA Single-Sign-On standard \citep{std:SSOAUTH2} for authentication purposes (see section \ref{sec:access control}) and IVOA Credential Delegation Protocol \citep{std:CDP} to delegate data transfers.
+In this architecture, users employ a variety of tools (from the User Layer) to discover and access archives and services of interest (represented in the Resource Layer). VOSpace provides an interface to storage resources containing the results of using these archives and services and also to other storage solutions, e.g., local disks, where users might want to transfer these results for further work. Items in these resources are referenced by a VOSpace identifier which is related to the standard IVOA Resource Identifier. This version of VOSpace employs the UWS design pattern \citep{std:UWS} to manage data transfers (see section \ref{subsec:transfers}). VOSpace instances may also employ the IVOA Single-Sign-On standard \citep{2017ivoa.spec.0524T} for authentication purposes (see section \ref{sec:access control}) and IVOA Credential Delegation Protocol \citep{std:CDP} to delegate data transfers.
 
 % Note: add 'search' section to above paragraph when reinstated
 
@@ -907,7 +907,7 @@ For transfer requests, the securityMethod indicates that the client is capable o
 
 The Protocol list in transfer responses represent the protocol and securityMethod combinations that are supported by the server.  The server must only list supported combinations.  The server may choose to consult the protocol and securityMethod combinations in the transfer request to generate the ordered list of protocols.
 
-Please refer to the IVOA Single-Sign-On Profile: Authentication Mechanisms for more information: \citep{std:SSOAUTH2}
+Please refer to the IVOA Single-Sign-On Profile: Authentication Mechanisms for more information: \citep{2017ivoa.spec.0524T}
 
 \subsection{Transfers}
 \label{subsec:transfers}
@@ -1201,7 +1201,7 @@ VOSpace implementations may support a number of authentication methods including
     \item OAuth (http://oauth.net)
 \end{itemize}
 
-For a full list of authentication methods and the associated standardIDs please refer to the document: \citep{std:SSOAUTH2.0}. 	
+For a full list of authentication methods and the associated standardIDs please refer to the document: \citep{2017ivoa.spec.0524T.0}. 	
 
 When a client is requesting a transfer from the service, the authentication type (securityMethod) may be supplied along side the list of transfer protocols. The \emph{securityMethod} is specified by standardID.  If the service supports the requested type, it may base the construction of the endpoint URL for data transfer from this information.  (Services may encounter situations when the URL for data transfer will depend on the authentication type the client wishes to use.)
 
