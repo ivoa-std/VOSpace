@@ -7,7 +7,7 @@ DOCNAME = VOSpace
 DOCVERSION = 2.1
 
 # Publication date, ISO format; update manually for "releases"
-DOCDATE = 20170405
+DOCDATE = 20170924
 
 # What is it you're writing: NOTE, WD, PR, or REC
 DOCTYPE = PR
