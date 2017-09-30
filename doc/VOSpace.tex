@@ -31,6 +31,7 @@
 \editor{Matthew Graham}
 \editor{Brian Major}
 
+\previousversion[http://www.ivoa.net/documents/VOSpace/20160420/index.html]{PR-VOSpace-2.1-20170405}
 \previousversion[http://www.ivoa.net/documents/VOSpace/20160420/index.html]{WD-VOSpace-2.1-20160405}
 \previousversion[http://www.ivoa.net/documents/VOSpace/20150601/index.html]{WD-VOSpace-2.1-20150601}
 \previousversion[http://www.ivoa.net/documents/VOSpace/20140805/index.html]{WD-VOSpace-2.1-20140805}
@@ -167,7 +168,7 @@ The IVOA Architecture \citep{note:VOARCH} provides a high-level view of how IVOA
 \label{fig:archdiag}
 \end{figure}
 
-In this architecture, users employ a variety of tools (from the User Layer) to discover and access archives and services of interest (represented in the Resource Layer). VOSpace provides an interface to storage resources containing the results of using these archives and services and also to other storage solutions, e.g., local disks, where users might want to transfer these results for further work. Items in these resources are referenced by a VOSpace identifier which is related to the standard IVOA Resource Identifier. This version of VOSpace employs the UWS design pattern \citep{std:UWS} to manage data transfers (see section \ref{subsec:transfers}). VOSpace instances may also employ the IVOA Single-Sign-On standard \citep{2017ivoa.spec.0524T} for authentication purposes (see section \ref{sec:access control}) and IVOA Credential Delegation Protocol \citep{std:CDP} to delegate data transfers.
+In this architecture, users employ a variety of tools (from the User Layer) to discover and access archives and services of interest (represented in the Resource Layer). VOSpace provides an interface to storage resources containing the results of using these archives and services and also to other storage solutions, e.g., local disks, where users might want to transfer these results for further work. Items in these resources are referenced by a VOSpace identifier which is related to the standard IVOA Resource Identifier. This version of VOSpace employs the UWS design pattern \citep{std:UWS} to manage data transfers (see section \ref{subsec:transfers}). VOSpace instances may also employ the IVOA Single-Sign-On standard \citep{std:SSOAUTH2} for authentication purposes (see section \ref{sec:access control}) and IVOA Credential Delegation Protocol \citep{std:CDP} to delegate data transfers.
 
 % Note: add 'search' section to above paragraph when reinstated
 
@@ -211,7 +212,7 @@ Such a URI SHALL have the following parts with the meanings and encoding rules d
   \item (optional) fragment identifier (with the expected semantics noted in URI fragments in IVOA specifications \citep{note:uriforms})
 \end{itemize}
 
-The naming authority for a VOSpace node SHALL be the VOSpace service through which the node was created. The authority part of the URI SHALL be constructed from the IVO registry identifier \citep{2016ivoa.spec.0523D} for that service by deleting the ivo:// prefix and changing all forward-slash characters(`/') in the resource key to exclamation marks (`!') or tildes (`$\mathtt{\sim}$'). Note that a service SHALL be consistent in its use of separator characters (`!' or `$\mathtt{\sim}$') when referring to its own data but SHALL accept either as valid in URIs in service requests.
+The naming authority for a VOSpace node SHALL be the VOSpace service through which the node was created. The authority part of the URI SHALL be constructed from the IVO registry identifier \citep{std:VOID2} for that service by deleting the ivo:// prefix and changing all forward-slash characters(`/') in the resource key to exclamation marks (`!') or tildes (`$\mathtt{\sim}$'). Note that a service SHALL be consistent in its use of separator characters (`!' or `$\mathtt{\sim}$') when referring to its own data but SHALL accept either as valid in URIs in service requests.
 
 This is an example of a possible VOSpace identifier.
 
@@ -907,7 +908,7 @@ For transfer requests, the securityMethod indicates that the client is capable o
 
 The Protocol list in transfer responses represent the protocol and securityMethod combinations that are supported by the server.  The server must only list supported combinations.  The server may choose to consult the protocol and securityMethod combinations in the transfer request to generate the ordered list of protocols.
 
-Please refer to the IVOA Single-Sign-On Profile: Authentication Mechanisms for more information: \citep{2017ivoa.spec.0524T}
+Please refer to the IVOA Single-Sign-On Profile: Authentication Mechanisms for more information: \citep{std:SSOAUTH2}
 
 \subsection{Transfers}
 \label{subsec:transfers}
@@ -961,8 +962,7 @@ A client initiated UWS Job representation of a Transfer SHALL have the following
             \item Standard Property URIs should be used as the parameter key.
             \item e.g., Clients may tell the service the size of a file they intend to upload: 
             \begin{lstlisting}
-<vos:param uri="ivo://ivoa.net/vospace/core#length"
-   >1024</vos:param>
+            <vos:param uri="ivo://ivoa.net/vospace/core\#length">1024</vos:param>
             \end{lstlisting}
         \end{itemize}
 \end{itemize}
@@ -1162,7 +1162,7 @@ The 2.0 specification defined the standardID as:
 
 \begin{verbatim}ivo://ivoa.net/std/VOSpace/v2.0\end{verbatim}
 
-so this will also be recognized as a valid standardID for VOSpace in the 2.1 specification.
+This form of standardID will also be recognized as a valid standardID for VOSpace in the 2.1 specification.
 
 The syntax of the standard IDs for the REST bindings has changed in VOSpace 2.1 to be in accordance with the IVOA Recommendation IVOA Identifiers 2.0 \citep{2016ivoa.spec.0523D}.  Specifically, the question mark (?) symbol is to be used in place of the hash (\#) symbol for listing the particular resource.  Secondly, the resource is now versioned to align with the version of the standard, rather than having the version in the standardID of the specification.
 
@@ -1202,7 +1202,7 @@ VOSpace implementations may support a number of authentication methods including
     \item OAuth (http://oauth.net)
 \end{itemize}
 
-For a full list of authentication methods and the associated standardIDs please refer to the document: \citep{2017ivoa.spec.0524T.0}. 	
+For a full list of authentication methods and the associated standardIDs please refer to the IVOA Single Sign-On document: \citep{std:SSOAUTH2}. 	
 
 When a client is requesting a transfer from the service, the authentication type (securityMethod) may be supplied along side the list of transfer protocols. The \emph{securityMethod} is specified by standardID.  If the service supports the requested type, it may base the construction of the endpoint URL for data transfer from this information.  (Services may encounter situations when the URL for data transfer will depend on the authentication type the client wishes to use.)
 
