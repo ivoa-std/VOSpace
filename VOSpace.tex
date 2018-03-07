@@ -102,7 +102,7 @@ A typical use case for VOSpace is uploading a local data file to a remote VOSpac
 Let's consider the first step: the user provides a XML description of the data file which they HTTP PUT to the appropriate VOSpace URI -- this will be the HTTP identifier for the data file in the VOSpace, e.g., http://server.example.com/vospace/nodes/mytable1. The description will resemble this:
 
 \begin{lstlisting}
-<vos:node xmlns="http://www.ivoa.net/xml/VOSpace/v2.1"
+<vos:node xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.0"
     xmlns:xs="http://www.w3.org/2001/XMLSchema-instance" 
     uri="vos://example.com!vospace/mytable1"
     xsi:type="vos:UnstructuredDataNode">  
@@ -125,7 +125,7 @@ The service will reply with an amended version of the representation containing 
 The user will then describe the data format (the view) they want to use in uploading the file, e.g., VOTable, and the transport protocol (the protocol) that they want to employ to upload the file, e.g., HTTP PUT. This will result in the HTTP POSTing of a XML description of the transfer request to the appropriate VOSpace transfer URL:  http://server.example.com/vospace/synctrans. The description will resemble this:
 
 \begin{lstlisting}
-<vos:transfer xmlns="http://www.ivoa.net/xml/VOSpace/v2.1">
+<vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.0" version="2.1">
     <vos:target>vos://example.com!vospace/mytable1</vos:target>
     <vos:direction>pushToVoSpace</vos:direction> 
     <vos:view uri="ivo://ivoa.net/vospace/core#votable"/> 
@@ -138,7 +138,7 @@ The service will reply with a redirect to a location with an amended version of 
 Similarly, when users want to retrieve a data file from a VOSpace service, they will specify the data format (view) they want to use in downloading the file (e.g., VOTable), and the transport protocol (the protocol) that they want to employ to download the file (e.g., HTTP GET), and then HTTP POST a XML description of this transfer request to the VOSpace transfer URL (e.g., http://server.example.com/vospace/synctrans). The description will resemble this:
 
 \begin{lstlisting}
-<vos:transfer xmlns="http://www.ivoa.net/xml/VOSpace/v2.1">
+<vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.0" version="2.1">
     <vos:target>vos://example.com!vospace/mytable1</vos:target>
     <vos:direction>pullFromVoSpace</vos:direction> 
     <vos:view uri="ivo://ivoa.net/vospace/core#votable"/> 
@@ -920,7 +920,7 @@ A Transfer describes the details of a data transfer to or from a VOSpace.
 Transfers can be represented as XML documents.  For example:
 
 \begin{lstlisting}
-<vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1">
+<vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.0" version="2.1">
   <vos:target>vos://example.com!vospace/myspace/myfile</vos:target>
   <vos:direction>pushToVoSpace</vos:direction>
   <vos:protocol uri="ivo://ivoa.net/vospace/core#httpsput">
@@ -1286,7 +1286,7 @@ Response:
 < HTTP/1.1 200 OK
 < Content-Type: text/xml
 <
-<vos:protocols xmlns="http://www.ivoa.net/xml/VOSpace/v2.1" xmlns:xs="http://www.w3.org/2001/XMLSchema-instance">
+<vos:protocols xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.0" xmlns:xs="http://www.w3.org/2001/XMLSchema-instance">
   <vos:accepts>
     <vos:protocol uri="ivo://ivoa.net/vospace/core#httpget"/>
     <vos:protocol uri="ivo://ivoa.net/vospace/core#httpput"/>
@@ -1342,7 +1342,7 @@ Response:
 < HTTP/1.1 200 OK
 < Content-Type: text/xml
 <
-<vos:views xmlns="http://www.ivoa.net/xml/VOSpace/v2.1" xmlns:xs="http://www.w3.org/2001/XMLSchema-instance">
+<vos:views xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.0" xmlns:xs="http://www.w3.org/2001/XMLSchema-instance">
   <vos:accepts>
     <vos:view uri="ivo://ivoa.net/vospace/core#anyview"/>
   </vos:accepts>
@@ -1388,7 +1388,7 @@ Response:
 < HTTP/1.1 200 OK
 < Content-Type: text/xml
 <
-<vos:properties xmlns="http://www.ivoa.net/xml/VOSpace/v2.1" xmlns:xs="http://www.w3.org/2001/XMLSchema-instance">
+<vos:properties xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.0" xmlns:xs="http://www.w3.org/2001/XMLSchema-instance">
   <vos:accepts>
     <vos:property uri="ivo://ivoa.net/vospace/core#title"/>
     <vos:property uri="ivo://ivoa.net/vospace/core#creator"/>
@@ -1483,7 +1483,7 @@ Create a node
 The node to be created (newNode.xml):
 \begin{lstlisting}
 <vos:node xmlns:xs="http://www.w3.org/2001/XMLSchema-instance"
-    xmlns="http://www.ivoa.net/xml/VOSpace/v2.1" xsi:type="vos:UnstructuredDataNode" uri="vos://example.com!vospace/mydata1">
+    xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.0" xsi:type="vos:UnstructuredDataNode" uri="vos://example.com!vospace/mydata1">
   <vos:properties>
     <vos:property uri="ivo://ivoa.net/vospace/core#description">My important results</vos:property>
   </vos:properties>
@@ -1505,7 +1505,7 @@ Response:
 < Content-Type: text/xml
 <
 <vos:node xmlns:xi="http://www.w3.org/2001/XMLSchema-instance"
-      xmlns="http://www.ivoa.net/xml/VOSpace/v2.1"
+      xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.0"
       xsi:type="vos:UnstructuredDataNode" 
       uri="vos://example.com!vospace/mydata1">
   <vos:properties>
@@ -1586,7 +1586,7 @@ Move a node
 The Job to be submitted (moveJob.xml):
 \begin{lstlisting}
 <vos:transfer xmlns:xs="http://www.w3.org/2001/XMLSchema-instance"
-    xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1" >
+    xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.0" version="2.1">
   <vos:target>vos://example.com!vospace/mydata1</vos:target>
   <vos:direction>vos://example.com!vospace/mydata2</vos:direction>
   <vos:keepBytes>false</vos:keepBytes>
@@ -1630,7 +1630,7 @@ Response:
   <uws:parameters />
   <uws:results />
   <uws:jobInfo>
-    <vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1">
+    <vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.0" version="2.1">
       <vos:target>vos://example.com!vospace/mydata1</vos:target>
       <vos:direction>vos://example.com!vospace/mydata2</vos:direction>
       <vos:keepBytes>false</vos:keepBytes>
@@ -1728,7 +1728,7 @@ Copy a VOSpace node
 The Job to be submitted (copyJob.xml):
 \begin{lstlisting}
 <vos:transfer xmlns:xs="http://www.w3.org/2001/XMLSchema-instance"
-    xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1" >
+    xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.0" version="2.1">
   <vos:target>vos://example.com!vospace/mydata1</vos:target>
   <vos:direction>vos://example.com!vospace/mydir/.auto</vos:direction>
   <vos:keepBytes>true</vos:keepBytes>
@@ -1775,7 +1775,7 @@ Response:
     <uws:result id="destination" xlink:href="vos://example.com!vospace/mydir/ef9ce281f5bd4bff92c8991580cddff4"/>
   </uws:results>
   <uws:jobInfo>
-    <vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1">
+    <vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.0" version="2.1">
       <vos:target>vos://example.com!vospace/mydata1</vos:target>
       <vos:direction>vos://example.com!vospace/mydir/.auto</vos:direction>
       <vos:keepBytes>true</vos:keepBytes>
@@ -1930,7 +1930,7 @@ Response:
 < Content-Type: text/xml
 <
 <?xml version="1.0" encoding="UTF-8"?>
-<vos:node xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1" xmlns:xs="http://www.w3.org/2001/XMLSchema-instance" uri="vos://example.com!vospace/mydir" xsi:type="vos:ContainerNode">
+<vos:node xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.0" version="2.1" xmlns:xs="http://www.w3.org/2001/XMLSchema-instance" uri="vos://example.com!vospace/mydir" xsi:type="vos:ContainerNode">
   <vos:properties>
     <vos:property uri="ivo://ivoa.net/vospace/core#description">My award winning images</property>
   </vos:properties>
@@ -1990,7 +1990,7 @@ Set node metadata
 \noindent
 The updated node (setNode.xml) is:
 \begin{lstlisting}
-<node xmlns:xs="http://www.w3.org/2001/XMLSchema-instance" xsi:type="vos:UnstructuredDataNode" xmlns="http://www.ivoa.net/xml/VOSpace/v2.1" uri="vos://nvo.caltech!vospace/mydata1">
+<node xmlns:xs="http://www.w3.org/2001/XMLSchema-instance" xsi:type="vos:UnstructuredDataNode" xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.0" version="2.1" uri="vos://nvo.caltech!vospace/mydata1">
   <properties>
     <property uri="ivo://ivoa.net/vospace/core#title" readOnly="false">Title for my data</property>
   </properties>
@@ -2012,7 +2012,7 @@ Response:
 < Content-Type: text/xml
 <
 <?xml version="1.0" encoding="UTF-8"?>
-<vos:node xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1" xmlns:xs="http://www.w3.org/2001/XMLSchema-instance" uri="vos://cadc.nrc.ca!vospace/mydata1" xsi:type="vos:DataNode" busy="false">
+<vos:node xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.0" xmlns:xs="http://www.w3.org/2001/XMLSchema-instance" version="2.1" uri="vos://cadc.nrc.ca!vospace/mydata1" xsi:type="vos:DataNode" busy="false">
   <vos:properties>
     <vos:property uri="ivo://ivoa.net/vospace/core#length" readOnly="true">44</vos:property>
     <vos:property uri="ivo://ivoa.net/vospace/core#MD5" readOnly="true">12c13e49f2fd37e2c91bcca6acb78a08</vos:property>
@@ -2077,7 +2077,7 @@ Response:
 % \noindent
 % The Job to be submitted (searchJob.xml) is:
 % \begin{lstlisting}
-% <vos:search xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1">
+% <vos:search xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.0">
 %   <vos:detail>properties</vos:detail>
 %   <vos:matches>ivo://ivoa.net/vospace/core#description='galax'</vos:matches>
 % <vos:search>
@@ -2142,7 +2142,7 @@ Response:
 % < HTTP/1.1 200 OK
 % < Content-Type: text/html
 % < 
-% <nodes xmlns="http://www.ivoa.net/xml/VOSpace/v2.1"
+% <nodes xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.0"
 % xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 %   <node uri="vos://nvo.caltech!vospace/mydir/img1" xsi:type="vos:UnstructuredDataNode">
 %     <properties>
@@ -2170,7 +2170,7 @@ Two modes are supported for external data transfers: a simple HTTP GET to retrie
 A transfer job is created by a HTTP POST of an appropriate Job representation to the transfers endpoint of the service: http://rest-endpoint/transfers.  The following example shows a transfer document for a pushToVoSpace operation:
 
 \begin{lstlisting}
-<vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1">   
+<vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.0" version="2.1">   
   <vos:target>vos://server.example.com!vospace/mydata1</vos:target>
   <vos:direction>pushToVoSpace</vos:direction>
   <vos:view uri="ivo://net.ivoa/vospace/core#fits"/>
@@ -2320,7 +2320,7 @@ pushToVoSpace over the asynchronous endpoint
 \noindent
 The Job to be submitted (pushToVoSpace.xml):
 \begin{lstlisting}
-<vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1">
+<vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.0" version="2.1">
   <vos:target>vos://example.com!vospace/mydata1</vos:target>
   <vos:direction>pushToVoSpace</vos:direction>
   <vos:view uri="ivo://ivoa.net/vospace/core#fits"/>
@@ -2365,7 +2365,7 @@ Response:
   <uws:parameters />
   <uws:results />
   <uws:jobInfo>
-    <vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1">
+    <vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.0" version="2.1">
       <vos:target>vos://example.com!vospace/mydata1</vos:target>
       <vos:direction>pushToVoSpace</vos:direction>
       <vos:view uri="ivo://ivoa.net/vospace/core#fits" />
@@ -2414,7 +2414,7 @@ Response:
     <uws:result id="dataNode" xlink:href="vos://example.com!vospace/mydata1" />
   </uws:results>
   <uws:jobInfo>
-    <vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1">
+    <vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.0" version="2.1">
       <vos:target>vos://example.com!vospace/mydata1</vos:target>
       <vos:direction>pushToVoSpace</vos:direction>
       <vos:view uri="ivo://ivoa.net/vospace/core#fits" />
@@ -2435,7 +2435,7 @@ Response:
 < Content-Type: text/xml
 <
 <?xml version="1.0" encoding="UTF-8"?>
-<vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1">
+<vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.0" version="2.1">
   <vos:target>vos://example.com!vospace/mydata1</vos:target>
   <vos:direction>pushToVoSpace</vos:direction>
   <vos:protocol uri="ivo://ivoa.net/vospace/core#httpput">
@@ -2479,7 +2479,7 @@ pushToVoSpace over the synchronous endpoint
 \noindent
 The Job to be submitted (pushToVoSpace.xml):
 \begin{lstlisting}
-<vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1">
+<vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.0" version="2.1">
   <vos:target>vos://example.com!vospace/mydata1</vos:target>
   <vos:direction>pushToVoSpace</vos:direction>
   <vos:view uri="ivo://ivoa.net/vospace/core#fits"/>
@@ -2516,7 +2516,7 @@ Response:
 < Content-Type: text/xml;UTF-8
 <
 <?xml version="1.0" encoding="UTF-8"?>
-<vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1">
+<vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.0" version="2.1">
   <vos:target>vos://example.com!vospace/mydata1</vos:target>
   <vos:direction>pushToVoSpace</vos:direction>
   <vos:protocol uri="ivo://ivoa.net/vospace/core#httpput">
@@ -2535,7 +2535,7 @@ pushToVoSpace over the synchronous endpoint with securityMethod
 A transfer request for endpoints supporting basic authentication over HTTP or TLS with a client certificate over SSL.\\
 The Job to be submitted (pushToVoSpace.xml):
 \begin{lstlisting}
-<vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1">
+<vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.0" version="2.1">
   <vos:target>vos://example.com!vospace/mydata1</vos:target>
   <vos:direction>pushToVoSpace</vos:direction>
   <vos:view uri="ivo://ivoa.net/vospace/core#fits"/>
@@ -2577,7 +2577,7 @@ Response:
 < Content-Type: text/xml
 <
 <?xml version="1.0" encoding="UTF-8"?>
-<vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1">
+<vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.0" version="2.1">
   <vos:target>vos://example.com!vospace/mydata1</vos:target>
   <vos:direction>pushToVoSpace</vos:direction>
   <vos:protocol uri="ivo://ivoa.net/vospace/core#httpsput">
@@ -2606,7 +2606,7 @@ Response:
 < Content-Type: text/xml
 <
 <?xml version="1.0" encoding="UTF-8"?>
-<vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1">
+<vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.0" version="2.1">
   <vos:target>vos://example.com!vospace/mydata1</vos:target>
   <vos:direction>pushToVoSpace</vos:direction>
   <vos:protocol uri="ivo://ivoa.net/vospace/core#httpput">
@@ -2685,7 +2685,7 @@ pullToVoSpace
 \noindent
 The Job to be submitted (pullToVoSpace.xml):
 \begin{lstlisting}
-<vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1">
+<vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.0" version="2.1">
   <vos:target>vos://example.com!vospace/mydata1</vos:target>
   <vos:direction>pullToVoSpace</vos:direction>
   <vos:protocol uri="ivo://ivoa.net/vospace/core#httpput">
@@ -2731,7 +2731,7 @@ Response:
   <uws:parameters />
   <uws:results />
   <uws:jobInfo>
-    <vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1">
+    <vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.0" version="2.1">
       <vos:target>vos://example.com!vospace/mydata1</vos:target>
       <vos:direction>pullToVoSpace</vos:direction>
       <vos:protocol uri="ivo://ivoa.net/vospace/core#httpput">
@@ -2781,7 +2781,7 @@ Response:
     <uws:result id="dataNode" xlink:href="vos://example.com!vospace/mydata1" />
   </uws:results>
   <uws:jobInfo>
-    <vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1">
+    <vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.0" version="2.1">
       <vos:target>vos://example.com!vospace/mydata1</vos:target>
       <vos:direction>pullToVoSpace</vos:direction>
       <vos:protocol uri="ivo://ivoa.net/vospace/core#httpput">
@@ -2913,7 +2913,7 @@ pullFromVoSpace over the asynchronous endpoint
 \noindent
 The Job to be submitted (pullFromVoSpace.xml):
 \begin{lstlisting}
-<vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1">
+<vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.0" version="2.1">
   <vos:target>vos://example.com!vospace/mydata1</vos:target>
   <vos:direction>pullFromVoSpace</vos:direction>
   <vos:protocol uri="ivo://ivoa.net/vospace/core#httpget" />
@@ -2957,7 +2957,7 @@ Response:
   <uws:parameters />
   <uws:results />
   <uws:jobInfo>
-    <vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1">
+    <vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.0" version="2.1">
       <vos:target>vos://example.com!vospace/mydata1</vos:target>
       <vos:direction>pullFromVoSpace</vos:direction>
       <vos:protocol uri="ivo://ivoa.net/vospace/core#httpget" />
@@ -3005,7 +3005,7 @@ Response:
     <uws:result id="dataNode" xlink:href="vos://example.com!vospace/mydata1" />
   </uws:results>
   <uws:jobInfo>
-    <vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1">
+    <vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.0" version="2.1">
       <vos:target>vos://example.com!vospace/mydata1</vos:target>
       <vos:direction>pullFromVoSpace</vos:direction>
       <vos:protocol uri="ivo://ivoa.net/vospace/core#httpget" />
@@ -3025,7 +3025,7 @@ Response:
 < Content-Type: text/xml
 <
 <?xml version="1.0" encoding="UTF-8"?>
-<vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1">
+<vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.0" version="2.1">
   <vos:target>vos://example.com!vospace/mydata1</vos:target>
   <vos:direction>pullFromVoSpace</vos:direction>
   <vos:protocol uri="ivo://ivoa.net/vospace/core#httpget">
@@ -3068,7 +3068,7 @@ pullFromVoSpace over the synchronous endpoint
 \noindent
 The Job to be submitted (pullFromVoSpace.xml):
 \begin{lstlisting}
-<vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1">
+<vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.0" version="2.1">
   <vos:target>vos://example.com!vospace/mydata1</vos:target>
   <vos:direction>pullFromVoSpace</vos:direction>
   <vos:protocol uri="ivo://ivoa.net/vospace/core#httpget" />
@@ -3104,7 +3104,7 @@ Response:
 < Content-Type: text/xml
 <
 <?xml version="1.0" encoding="UTF-8"?>
-<vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1">
+<vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.0" version="2.1">
   <vos:target>vos://example.com!vospace/mydata1</vos:target>
   <vos:direction>pullFromVoSpace</vos:direction>
   <vos:protocol uri="ivo://ivoa.net/vospace/core#httpget">
@@ -3136,7 +3136,7 @@ pullFromVoSpace over the synchronous endpoint with securityMethod
 A transfer request for endpoints supporting basic authentication over HTTP or TLS with a client certificate over SSL.\\
 The Job to be submitted (pullFromVoSpace.xml):
 \begin{lstlisting}
-<vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1">
+<vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.0" version="2.1">
   <vos:target>vos://example.com!vospace/mydata1</vos:target>
   <vos:direction>pullFromVoSpace</vos:direction>
   <vos:protocol uri="ivo://ivoa.net/vospace/core#httpsget">
@@ -3177,7 +3177,7 @@ Response:
 < Content-Type: text/xml
 <
 <?xml version="1.0" encoding="UTF-8"?>
-<vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1">
+<vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.0" version="2.1">
   <vos:target>vos://example.com!vospace/mydata1</vos:target>
   <vos:direction>pullFromVoSpace</vos:direction>
   <vos:protocol uri="ivo://ivoa.net/vospace/core#httpsget">
@@ -3219,7 +3219,7 @@ Response:
 < Content-Type: text/xml
 <
 <?xml version="1.0" encoding="UTF-8"?>
-<vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1">
+<vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.0" version="2.1">
   <vos:target>vos://example.com!vospace/mydata1</vos:target>
   <vos:direction>pullFromVoSpace</vos:direction>
   <vos:protocol uri="ivo://ivoa.net/vospace/core#httpget">
@@ -3369,7 +3369,7 @@ pushFromVoSpace
 \noindent
 The Job to be submitted (pushFromVoSpace.xml):
 \begin{lstlisting}
-<vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1">
+<vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.0" version="2.1">
   <vos:target>vos://example.com!vospace/mydata1</vos:target>
   <vos:direction>pushFromVoSpace</vos:direction>
   <vos:protocol uri="ivo://ivoa.net/vospace/core#httpput">
@@ -3418,7 +3418,7 @@ Response:
   <uws:parameters />
   <uws:results />
   <uws:jobInfo>
-    <vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1">
+    <vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.0" version="2.1">
       <vos:target>vos://example.com!vospace/mydata1</vos:target>
       <vos:direction>pushFromVoSpace</vos:direction>
       <vos:protocol uri="ivo://ivoa.net/vospace/core#httpput">
@@ -3471,7 +3471,7 @@ Response:
     <uws:result id="dataNode" xlink:href="vos://example.com!vospace/mydata1" />
   </uws:results>
   <uws:jobInfo>
-    <vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1">
+    <vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.0" version="2.1">
       <vos:target>vos://example.com!vospace/mydata1</vos:target>
       <vos:direction>pushFromVoSpace</vos:direction>
       <vos:protocol uri="ivo://ivoa.net/vospace/core#httpput">
