@@ -1192,6 +1192,8 @@ In version 2.1, the following resourceID has been introduced for the 2.1 version
     \item \begin{verbatim}ivo://ivoa.net/std/VOSpace#sync-2.1\end{verbatim}
 \end{itemize}
 
+For backwards compatibility support in the exchange of XML documents on transfers, VOSpace 2.1 employs the techniques described in the IVOA XML Schema Versioning note \citep{note:schemaversioning}.  This means that both 2.0 and 2.1 documents will use the single, major version in the namespace (v2.0), but 2.1 documents will also be tagged with the attribute \emph{version="2.1"}.
+
 \section{Access Control}
 \label{sec:access control}
 VOSpace implementations may support a number of authentication methods including:
