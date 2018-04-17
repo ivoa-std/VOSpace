@@ -3,10 +3,21 @@
     attributeFormDefault="unqualified"
     version="2.1-PR-20170924"
     xmlns:xs="http://www.w3.org/2001/XMLSchema"
-    xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.1"
+    xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.0"
     xmlns:uws="http://www.ivoa.net/xml/UWS/v1.0"
-    xmlns:xlink="http://www.w3.org/1999/xlink">
+    xmlns:xlink="http://www.w3.org/1999/xlink"
+    version="2.1">
   <xs:import namespace="http://www.ivoa.net/xml/UWS/v1.0" schemaLocation="http://www.ivoa.net/xml/UWS/v1.0"/>
+
+    <!--  VOSpace 2.1 (as noted with the "version" tag) - targetNamespace remains 2.0
+      for backwards compatibility -->
+
+  <xs:simpleType name="VOSVersion">
+    <xs:annotation>
+      <xs:documentation>The version of the VOSpace standard. </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string"/>
+  </xs:simpleType>
 
   <!-- ======== Node types ======== -->
 
@@ -31,6 +42,11 @@
           The node identifier URI.
         </xs:documentation>
       </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="version" type="vos:VOSVersion" use="optional">
+       <xs:annotation>
+          <xs:documentation>The version of this VOSpace document.</xs:documentation>
+       </xs:annotation>
     </xs:attribute>
   </xs:complexType>
 
@@ -174,6 +190,11 @@
     <xs:sequence>
       <xs:element name="property" type="vos:Property" minOccurs="0" maxOccurs="unbounded" nillable="true"/>
     </xs:sequence>
+    <xs:attribute name="version" type="vos:VOSVersion" use="optional">
+       <xs:annotation>
+          <xs:documentation>The version of this VOSpace document.</xs:documentation>
+       </xs:annotation>
+    </xs:attribute>
   </xs:complexType>
 
   <xs:complexType name="PropertyReference">
@@ -309,6 +330,11 @@
     <xs:sequence>
       <xs:element name="view" type="vos:View" minOccurs="0" maxOccurs="unbounded" nillable="true"/>
     </xs:sequence>
+    <xs:attribute name="version" type="vos:VOSVersion" use="optional">
+       <xs:annotation>
+          <xs:documentation>The version of this VOSpace document.</xs:documentation>
+       </xs:annotation>
+    </xs:attribute>
   </xs:complexType>
 
   <xs:complexType name="GetViewsResponse">
@@ -405,6 +431,11 @@
     <xs:sequence>
       <xs:element name="protocol" type="vos:Protocol" minOccurs="0" maxOccurs="unbounded" nillable="true"/>
     </xs:sequence>
+    <xs:attribute name="version" type="vos:VOSVersion" use="optional">
+       <xs:annotation>
+          <xs:documentation>The version of this VOSpace document.</xs:documentation>
+       </xs:annotation>
+    </xs:attribute>
   </xs:complexType>
 
   <xs:complexType name="GetProtocolsResponse">
@@ -475,6 +506,11 @@
     <xs:sequence>
       <xs:element name="capability" type="vos:Capability" minOccurs="0" maxOccurs="unbounded" nillable="true"/>
     </xs:sequence>
+    <xs:attribute name="version" type="vos:VOSVersion" use="optional">
+       <xs:annotation>
+          <xs:documentation>The version of this VOSpace document.</xs:documentation>
+       </xs:annotation>
+    </xs:attribute>
   </xs:complexType>
 
   <!-- ======== Node list type ======== -->
@@ -577,22 +613,11 @@
         </xs:element>
     </xs:sequence>
     <xs:attribute name="version" type="vos:VOSVersion" use="optional">
-      <xs:annotation>
-        <xs:documentation>
-          Note that this attribute is actually required by the 2.1 specification - however remains optional in the schema for backwards compatibility. It will be formally required in the next major revision.
-        </xs:documentation>
-      </xs:annotation>
+       <xs:annotation>
+          <xs:documentation>The version of this VOSpace document.</xs:documentation>
+       </xs:annotation>
     </xs:attribute>
   </xs:complexType>
-
-  <xs:simpleType name="VOSVersion">
-    <xs:annotation>
-      <xs:documentation>
-        The version of the VOSpace standard that the server complies with.
-      </xs:documentation>
-    </xs:annotation>
-    <xs:restriction base="xs:string"/>
-  </xs:simpleType>
 
   <!-- ======== Response representations ======== -->
 
