@@ -196,7 +196,7 @@ In Section \ref{sec:access control}, we outline how security and access control 
 
 In Section \ref{sec:web service operations}, we detail the operations that the VOSpace interface supports. These handle access to service-level metadata, the creation and manipulation of nodes within the VOSpace, access to node metadata (properties) and data transfer to and from the VOSpace.
 
-In Appendex \ref{sec:machine readable definitions}, we formally define the VOSpace interface with a machine readable description of its requests and responses and in Appendix \ref{sec:compliance matrix}, we present a compliance matrix listing the mandatory behaviour required of a valid VOSpace 2.1 service.
+In Appendix \ref{sec:machine readable definitions}, we formally define the VOSpace interface with a machine readable description of its requests and responses and in Appendix \ref{sec:compliance matrix}, we present a compliance matrix listing the mandatory behaviour required of a valid VOSpace 2.1 service.
 
 \section{VOSpace identifiers}
 \label{sec:vospace identifiers}
@@ -578,7 +578,7 @@ A CapabilityDescription SHOULD describe the third-party interface and how it sho
 \end{itemize}
 
 \subsubsection{UI display name}
-\label{subsubsection:ui display ame}
+\label{subsubsection:ui display name}
 If a client is unable to resolve a Capability identifier into a description then it may just display the identifier as a text string:
 
 \begin{itemize}
@@ -1425,7 +1425,7 @@ The node representation is template Node (as defined in section \ref{subsec:node
 
 A valid uri attribute SHALL be required. The name .auto is a reserved URI to indicate an auto-generated URI for the destination, i.e., given the following URI vos://service/path/.auto a service SHOULD create a new unique URI for the node within vos://service/path.
 
-If the node path of the uri in the node representation does not match the node path in the HTTP PUT URL the service SHALL return an error.
+If the node path of the URI in the node representation does not match the node path in the HTTP PUT URL the service SHALL return an error.
 
 If the Node xsi:type is not specified then a generic node of type Node is implied.
 
@@ -1957,7 +1957,7 @@ Set the property values for a specific Node
 \paragraph{Request}
 A HTTP POST of a Node representation to the URL of an existing node http://rest-endpoint/nodes/path including:
 \begin{itemize}
-    \item \emph{node}: A Node containing the Node uri and a list of the Properties to set (as defined in section 3.1)
+    \item \emph{node}: A Node containing the Node URI and a list of the Properties to set (as defined in section 3.1)
 \end{itemize}
 This will add or update the node properties including any xsi:type specific elements.
 
@@ -2219,7 +2219,7 @@ An HTTP POST of a Job representation for the transfer to http://rest-endpoint/tr
 
 If a Node already exists at the target URI, then the data SHALL be imported into the existing Node and the Node properties SHALL be cleared unless the node is a ContainerNode.
 
-If there is no Node at the target URI, then the service SHALL create a new Node using the uri and the default xsi:type for the space.
+If there is no Node at the target URI, then the service SHALL create a new Node using the URI and the default xsi:type for the space.
 
 The transfer representation contains details of the View and a list of the Protocols (and, optionally, the preferred security method(s) per protocol) that the client wants to use.
 
@@ -2639,7 +2639,7 @@ A HTTP POST of a Job representation for the transfer to http://rest-endpoint/tra
 
 If a Node already exists at the target URI, then the data SHALL be imported into the existing Node and the Node properties SHALL be cleared unless the node is a ContainerNode.
 
-If there is no Node at the target URI, then the service SHALL create a new Node using the uri, and the default xsi:type for the space.
+If there is no Node at the target URI, then the service SHALL create a new Node using the URI, and the default xsi:type for the space.
 
 \paragraph{Response}
 The initial response is a HTTP 303 status code with the Location header keyword assigned to the created job.
@@ -2872,7 +2872,7 @@ If the transfer was initiated with a HTTP POST to http://rest-endpoint/sync then
     \item A HTTP 303 status code with the Location header keyword assigned to the endpoint: http://rest-endpoint/transfers/(jobid)/results/transferDetails.
 \end{itemize}
 The HTTP 303 redirect points to a transfer representation with the required transfer details and endpoints.
-If the transfer was initiated with a HTTP POST to http://rest-rendpoint/sync with transfer information TARGET, DIRECTION, and PROTOCOL supplied as query string parameters, the service may respond with the transfer details directly. If the parameter REQUEST=redirect is also provided in this POST, then the service may respond with a redirect to a preferred endpoint (example below).
+If the transfer was initiated with a HTTP POST to http://rest-endpoint/sync with transfer information TARGET, DIRECTION, and PROTOCOL supplied as query string parameters, the service may respond with the transfer details directly. If the parameter REQUEST=redirect is also provided in this POST, then the service may respond with a redirect to a preferred endpoint (example below).
 
 \paragraph{Faults}
 For all faults using the UWS mode, the service shall set the PHASE to ``ERROR'' in the Job representation. The \verb|<errorSummary>| element in the Job representation shall be set to the appropriate value for the fault type and the appropriate fault representation provided at the error URI: http://rest-endpoint/transfers/(jobid)/error.
@@ -3280,7 +3280,7 @@ Response:
 \end{lstlisting}
 
 \paragraph{Example 6}
-pullFromVoSpace over the synchronous endpoint with URL parameters, REQUEST=redirect and SecurityMethod
+pullFromVoSpace over the synchronous endpoint with URL parameters, REQUEST=redirect and securityMethod
 \\[5px]
 \noindent
 Request:
@@ -3516,7 +3516,7 @@ This is thrown with a description of the invalid argument, including the View or
 This is thrown with the QName of the unsupported type.
 
 \paragraph{ViewNotSupported}
-This is thrown with the uri of the View.
+This is thrown with the URI of the View.
 
 \paragraph{InvalidData}
 This is thrown with any error message that the data parser produced.
@@ -3646,7 +3646,7 @@ ivo://ivoa.net/vospace/core\#language & a language of the resource & string \\ \
 ivo://ivoa.net/vospace/core\#length & the length or size of a resource & float \\ \hline
 ivo://ivoa.net/vospace/core\#mtime & the data modification time & datetime \\ \hline
 ivo://ivoa.net/vospace/core\#publicread & whether this resource is world readable & boolean \\ \hline
-ivo://ivoa.net/vospace/core\#publisher & an entity responsible for making the resource available & uri \\ \hline
+ivo://ivoa.net/vospace/core\#publisher & an entity responsible for making the resource available & URI \\ \hline
 ivo://ivoa.net/vospace/core\#quota & the value of a system quota on the resource & string \\ \hline
 ivo://ivoa.net/vospace/core\#relation & a related resource & URI \\ \hline
 ivo://ivoa.net/vospace/core\#rights & information about rights held in and over the resource & string \\ \hline
