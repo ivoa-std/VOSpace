@@ -31,7 +31,8 @@
 \editor{Matthew Graham}
 \editor{Brian Major}
 
-\previousversion[http://www.ivoa.net/documents/VOSpace/20160420/index.html]{PR-VOSpace-2.1-20170405}
+\previousversion[http://www.ivoa.net/documents/VOSpace/20170924/index.html]{PR-VOSpace-2.1-20170924}
+\previousversion[http://www.ivoa.net/documents/VOSpace/20170405/index.html]{PR-VOSpace-2.1-20170405}
 \previousversion[http://www.ivoa.net/documents/VOSpace/20160420/index.html]{WD-VOSpace-2.1-20160405}
 \previousversion[http://www.ivoa.net/documents/VOSpace/20150601/index.html]{WD-VOSpace-2.1-20150601}
 \previousversion[http://www.ivoa.net/documents/VOSpace/20140805/index.html]{WD-VOSpace-2.1-20140805}
@@ -153,22 +154,20 @@ The service will reply with a redirect to a location that contains an amended ve
 
 The IVOA Architecture \citep{note:VOARCH} provides a high-level view of how IVOA standards work together to connect users and applications with providers of data and services, as depicted in the diagram in Figure ~\ref{fig:archdiag}.
 
+In this architecture, users employ a variety of tools (from the User Layer) to discover and access archives and services of interest (represented in the Resource Layer). VOSpace provides an interface to storage resources containing the results of using these archives and services and also to other storage solutions, e.g., local disks, where users might want to transfer these results for further work. Items in these resources are referenced by a VOSpace identifier which is related to the standard IVOA Resource Identifier. This version of VOSpace employs the UWS design pattern \citep{std:UWS} to manage data transfers (see section \ref{subsec:transfers}). VOSpace instances may also employ the IVOA Single-Sign-On standard \citep{std:SSOAUTH2} for authentication purposes (see section \ref{sec:access control}) and IVOA Credential Delegation Protocol \citep{std:CDP} to delegate data transfers.
+
 \begin{figure}
 \centering
-
 % Get the architecture diagram from the TCG chair
 % http://wiki.ivoa.net/twiki/bin/view/IVOA/IvoaTCG
 % If they give you a PDF, for now dumb it down to a png by
 % convert -antialias -density 72x72 archdiag.pdf archdiag.png
 % Oh -- Notes don't need this; you'd have to remove archdiag.png
 % from FIGURES in the Makefile, too.
-
 \includegraphics[width=0.9\textwidth]{archdiag.png}
 \caption{VOSpace in the IVOA Architecture. This provides an interface to distributed storage. It specifies how applications can use networked data stores to persist and exchange data in a standardized fashion.}
 \label{fig:archdiag}
 \end{figure}
-
-In this architecture, users employ a variety of tools (from the User Layer) to discover and access archives and services of interest (represented in the Resource Layer). VOSpace provides an interface to storage resources containing the results of using these archives and services and also to other storage solutions, e.g., local disks, where users might want to transfer these results for further work. Items in these resources are referenced by a VOSpace identifier which is related to the standard IVOA Resource Identifier. This version of VOSpace employs the UWS design pattern \citep{std:UWS} to manage data transfers (see section \ref{subsec:transfers}). VOSpace instances may also employ the IVOA Single-Sign-On standard \citep{std:SSOAUTH2} for authentication purposes (see section \ref{sec:access control}) and IVOA Credential Delegation Protocol \citep{std:CDP} to delegate data transfers.
 
 % Note: add 'search' section to above paragraph when reinstated
 
