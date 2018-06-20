@@ -31,6 +31,7 @@
 \editor{Matthew Graham}
 \editor{Brian Major}
 
+\previousversion[http://www.ivoa.net/documents/VOSpace/20180502/index.html]{PR-VOSpace-2.1-20180502}
 \previousversion[http://www.ivoa.net/documents/VOSpace/20170924/index.html]{PR-VOSpace-2.1-20170924}
 \previousversion[http://www.ivoa.net/documents/VOSpace/20170405/index.html]{PR-VOSpace-2.1-20170405}
 \previousversion[http://www.ivoa.net/documents/VOSpace/20160420/index.html]{WD-VOSpace-2.1-20160405}
@@ -231,7 +232,7 @@ Using a separate URI scheme for VOSpace identifiers enables clients to distingui
 
 \emph{example.com!vospace} is the authority part of the URI, corresponding to the IVO registry identifier \emph{ivo://example.com/vospace}.  This is the IVO registry identifier of the VOSpace service that contains the node.
 
-\emph{/siap-out-1.vot} is the URI path
+\emph{/myresults/siap-out-1.vot} is the URI path
 
 Slashes in the URI path imply a hierarchical arrangement of data: the data object identified by \emph{vos://example.com!vospace/myresults/siap-out-1.vot} is within the container identified by \emph{vos://example.com!vospace/myresults}.
 
@@ -623,7 +624,7 @@ A View representation SHALL have the following members:
 
 \subsubsection{Example view use cases}
 \label{subsubsec:example view use cases}
-A simple VOSpace system that stores data as a binary files can just return the contents of the original file. The client supplies a View identifier when it imports the data, and the service uses this information to describe the data to other clients.
+A simple VOSpace system that stores data as binary files can just return the contents of the original file. The client supplies a View identifier when it imports the data, and the service uses this information to describe the data to other clients.
 
 A file based system can use the special case identifier
 \begin{verbatim}
@@ -764,7 +765,7 @@ If a client requests data using this view, the server SHALL choose whichever of 
 
 Note, this view is OPTIONAL, and the server may throw a ViewNotSupported exception if it does not provide this view. However, in most cases, it is expected that a service would be able to select an appropriate 'default' format for data held within the service.
 
-Note, this view is only valid for the data export operations, pullFromVoSpace and pushFromVoSpace. If this view is requested in an import operation, pullToVoSpace and pushToVoSpace, then the service SHOULD throw a ViewNotSupported fault.
+Note, this view is only valid for the data export operations, pullFromVoSpace and pushFromVoSpace. If this view is requested in an import operation, pullToVoSpace and pushFromVoSpace, then the service SHOULD throw a ViewNotSupported fault.
 
 \subsubsection{Container views}
 \label{subsubsec:container views}
@@ -1025,7 +1026,7 @@ The following parameters MAY be supplied by the client requesting a transfer:
 \begin{itemize}
     \item \emph{VIEW}: The standard URI of the view to use.  If no view is provided the service SHALL use the default view.
     \item \emph{SECURITYMETHOD}: The standard URI of the security method that can be used for the supplied PROTOCOL.
-    \item \emph{REQUEST=redirect}: If the supplied, the service SHALL respond with an HTTP redirect to an endpoint for the PROTOCOL.
+    \item \emph{REQUEST=redirect}: If supplied, the service SHALL respond with an HTTP redirect to an endpoint for the PROTOCOL.
     \begin{itemize}
         \item This parameter is only applicable when the value of the DIRECTION parameter is \emph{pullFromVoSpace}.
     \end{itemize}
@@ -1674,7 +1675,7 @@ Error and result details can be seen by performing an HTTP GET to the job URL:
 
 \subsubsection{copyNode}
 \label{subsubsec:copynode}
-Copy a node with a VOSpace service.
+Copy a node within a VOSpace service.
 Note that this does not cover copying data between two separate VOSpace services.
 Copying nodes between separate VOSpace services SHOULD be handled by the client, using the import and export methods.
 When the source is a ContainerNode, all its children (the full contents of the container) SHALL get copied, i.e., this is a deep recursive copy.
@@ -3532,7 +3533,6 @@ This is thrown when a node is not in a state to perform the requested operation.
 \label{sec:machine readable definitions}
 \subsection{Message schema}
 \label{subsec:message schema}
-XML Schema
 The requests and responses of a VOSpace 2.1 service shall adhere to the following XML Schema:
 
 \lstinputlisting{VOSpace-2.1.xsd}
@@ -3565,37 +3565,37 @@ This table summarizes the mandatory behaviour required of a fully compliant VOSp
 19 & Each View is identified by a unique URI & ~\ref{subsubsec:view identifiers} \\ \hline
 20 & Each Protocol is identified by a unique URI & ~\ref{subsubsec:protocol identifiers} \\ \hline
 21 & Standard views are represented by the specified URIs & ~\ref{subsubsec:default views} \\ \hline
-xx & Standard properties are represented by the specified URIs & ~\ref{subsubsec:standard properties} \\ \hline
-22 & Data imported with the default View is treated as a binary BLOB & ~\ref{subsubsec:default views} \\ \hline
-23 & Data exported with the default export View is returned in the most appropriate format & ~\ref{subsubsec:default views} \\ \hline
-24 & An archive format View on a ContainerNode provides access to the archive contents as children nodes of the container & ~\ref{subsubsec:container views}* \\ \hline
-25 & An archive format View specified in a data export operation on a ContainerNode will package the contents of the container and all its child nodes & ~\ref{subsubsec:container views}* \\ \hline
+23 & Standard properties are represented by the specified URIs & ~\ref{subsubsec:standard properties} \\ \hline
+23 & Data imported with the default View is treated as a binary BLOB & ~\ref{subsubsec:default views} \\ \hline
+24 & Data exported with the default export View is returned in the most appropriate format & ~\ref{subsubsec:default views} \\ \hline
+25 & An archive format View on a ContainerNode provides access to the archive contents as children nodes of the container & ~\ref{subsubsec:container views}* \\ \hline
+26 & An archive format View specified in a data export operation on a ContainerNode will package the contents of the container and all its child nodes & ~\ref{subsubsec:container views}* \\ \hline
 \end{tabular}
 
 \hskip-2.0cm\begin{tabular}{ | p {1cm} | p {11cm} | p {4cm} | }
 \hline
 \textbf{Item} & \textbf{Description} & \textbf{Occurs in section(s)} \\ \hline
-26 & A Protocol has elements: uri and and endpoint & ~\ref{subsec:protocols} \\ \hline
-27 & Standard Protocols are represented by the specified URIs & ~\ref{subsubsec:standard protocols} \\ \hline	
-28 & A Transfer UWS Job representation has elements: target, direction, view, protocol and keepBytes & ~\ref{subsec:transfers} \\ \hline
-29 & A Transfer results representation has elements: target, direction, view, and protocol & ~\ref{subsec:transfers} \\ \hline
-30 & A server responds with a fault if it is unable to handle any of the requested protocols in a data transfer & ~\ref{subsubsec:service-initiated transfers}, ~\ref{subsubsec:client-initiated transfers} \\ \hline
-31 & A server uses each requested protocol only once in a data transfer & ~\ref{subsubsec:service-initiated transfers}, ~\ref{subsubsec:client-initiated transfers} \\ \hline
-32 & A data transfer is complete once a specified protocol is successful & ~\ref{subsubsec:service-initiated transfers}, ~\ref{subsubsec:client-initiated transfers} \\ \hline
-33 & A data transfer has failed if none of the specified protocols has been successful & ~\ref{subsubsec:service-initiated transfers}, ~\ref{subsubsec:client-initiated transfers} \\ \hline
-34 & A server updates the status flag in the UWS Job representation as appropriate & ~\ref{subsubsec:service-initiated transfers}, ~\ref{subsubsec:client-initiated transfers} \\ \hline
-35 & A VOSpace service has the REST bindings: properties, views, protocols, nodes, and transfers & ~\ref{sec:rest bindings} \\ \hline
-36 & Access policies on a VOSpace service are declared in the registered metadata for the service & ~\ref{sec:access control} \\ \hline
-37 & VOSpace authentication employs IVOA SSO supported methods & ~\ref{sec:access control} \\ \hline
-38 & A VOSpace service supports the operations: getProtocols, getViews, getProperties, createNode, deleteNode, moveNode, copyNode, getNode, setNode, pullFromVoSpace. The following are optional operations: pushToVoSpace, pullToVoSpace, pushFromVoSpace & ~\ref{subsubsec:getprotocols}, ~\ref{subsubsec:getviews}, ~\ref{subsubsec:getproperties}, ~\ref{subsubsec:createnode}, ~\ref{subsubsec:movenode}, ~\ref{subsubsec:copynode}, ~\ref{subsubsec:deletenode}, ~\ref{subsubsec:getnode}, ~\ref{subsubsec:setnode}, ~\ref{subsubsec:pushtovospace}*, ~\ref{subsubsec:pushtovospace}*, ~\ref{subsubsec:pullfromvospace}, ~\ref{subsubsec:pushfromvospace}* \\ \hline
-39 & accepts and provides specify entities that the service supports & ~\ref{subsubsec:getprotocols}, ~\ref{subsubsec:getviews}, ~\ref{subsubsec:getproperties} \\ \hline
-40 & An autogenerated URI is specified as a result in the Results List & ~\ref{subsubsec:createnode}*, ~\ref{subsubsec:movenode}*, ~\ref{subsubsec:copynode}*, ~\ref{subsubsec:pushtovospace}* \\ \hline
-41 & Any data written to the reserved URI .null is discarded & ~\ref{sec:rest bindings} \\ \hline
-42 & accepts is filled in based on service capabilities & ~\ref{subsubsec:createnode} \\ \hline
-43 & If a container is deleted then so are its children & ~\ref{subsubsec:deletenode} \\ \hline
-44 & If a container is listed, only direct children are listed & ~\ref{subsubsec:getnode} \\ \hline
-45 & Results are drawn from the same ordered sequence in any ordering imposed by the server & ~\ref{subsubsec:getnode} \\ \hline
-46 & Regex expressions comply with POSIX conventions & ~\ref{subsec:searches} \\ \hline
+27 & A Protocol has elements: uri and and endpoint & ~\ref{subsec:protocols} \\ \hline
+28 & Standard Protocols are represented by the specified URIs & ~\ref{subsubsec:standard protocols} \\ \hline	
+29 & A Transfer UWS Job representation has elements: target, direction, view, protocol and keepBytes & ~\ref{subsec:transfers} \\ \hline
+30 & A Transfer results representation has elements: target, direction, view, and protocol & ~\ref{subsec:transfers} \\ \hline
+31 & A server responds with a fault if it is unable to handle any of the requested protocols in a data transfer & ~\ref{subsubsec:service-initiated transfers}, ~\ref{subsubsec:client-initiated transfers} \\ \hline
+32 & A server uses each requested protocol only once in a data transfer & ~\ref{subsubsec:service-initiated transfers}, ~\ref{subsubsec:client-initiated transfers} \\ \hline
+33 & A data transfer is complete once a specified protocol is successful & ~\ref{subsubsec:service-initiated transfers}, ~\ref{subsubsec:client-initiated transfers} \\ \hline
+34 & A data transfer has failed if none of the specified protocols has been successful & ~\ref{subsubsec:service-initiated transfers}, ~\ref{subsubsec:client-initiated transfers} \\ \hline
+35 & A server updates the status flag in the UWS Job representation as appropriate & ~\ref{subsubsec:service-initiated transfers}, ~\ref{subsubsec:client-initiated transfers} \\ \hline
+36 & A VOSpace service has the REST bindings: properties, views, protocols, nodes, and transfers & ~\ref{sec:rest bindings} \\ \hline
+37 & Access policies on a VOSpace service are declared in the registered metadata for the service & ~\ref{sec:access control} \\ \hline
+38 & VOSpace authentication employs IVOA SSO supported methods & ~\ref{sec:access control} \\ \hline
+39 & A VOSpace service supports the operations: getProtocols, getViews, getProperties, createNode, deleteNode, moveNode, copyNode, getNode, setNode, pullFromVoSpace. The following are optional operations: pushToVoSpace, pullToVoSpace, pushFromVoSpace & ~\ref{subsubsec:getprotocols}, ~\ref{subsubsec:getviews}, ~\ref{subsubsec:getproperties}, ~\ref{subsubsec:createnode}, ~\ref{subsubsec:movenode}, ~\ref{subsubsec:copynode}, ~\ref{subsubsec:deletenode}, ~\ref{subsubsec:getnode}, ~\ref{subsubsec:setnode}, ~\ref{subsubsec:pushtovospace}*, ~\ref{subsubsec:pushtovospace}*, ~\ref{subsubsec:pullfromvospace}, ~\ref{subsubsec:pushfromvospace}* \\ \hline
+40 & accepts and provides specify entities that the service supports & ~\ref{subsubsec:getprotocols}, ~\ref{subsubsec:getviews}, ~\ref{subsubsec:getproperties} \\ \hline
+41 & An autogenerated URI is specified as a result in the Results List & ~\ref{subsubsec:createnode}*, ~\ref{subsubsec:movenode}*, ~\ref{subsubsec:copynode}*, ~\ref{subsubsec:pushtovospace}* \\ \hline
+42 & Any data written to the reserved URI .null is discarded & ~\ref{sec:rest bindings} \\ \hline
+43 & accepts is filled in based on service capabilities & ~\ref{subsubsec:createnode} \\ \hline
+44 & If a container is deleted then so are its children & ~\ref{subsubsec:deletenode} \\ \hline
+45 & If a container is listed, only direct children are listed & ~\ref{subsubsec:getnode} \\ \hline
+46 & Results are drawn from the same ordered sequence in any ordering imposed by the server & ~\ref{subsubsec:getnode} \\ \hline
+% 47 & Regex expressions comply with POSIX conventions & ~\ref{subsec:searches} \\ \hline
 47 & Moving a container moves its children as well & ~\ref{subsubsec:movenode} \\ \hline
 \end{tabular}
 
