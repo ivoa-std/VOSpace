@@ -1,0 +1,206 @@
+<ri:Resource 
+  xsi:type="vstd:Standard" 
+  created="2017-06-07T09:30:00" 
+  updated="2017-06-07T09:30:00" 
+  status="active"
+  xmlns:vr="http://www.ivoa.net/xml/VOResource/v1.0" 
+  xmlns:vstd="http://www.ivoa.net/xml/StandardsRegExt/v1.0" 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+  xmlns:ri="http://www.ivoa.net/xml/RegistryInterface/v1.0"
+  xsi:schemaLocation="http://www.ivoa.net/xml/VOResource/v1.0
+    http://www.ivoa.net/xml/VOResource/v1.0
+  http://www.ivoa.net/xml/StandardsRegExt/v1.0
+    http://www.ivoa.net/xml/StandardsRegExt/v1.0
+  http://www.ivoa.net/xml/VOResource/v1.0
+    http://www.ivoa.net/xml/VOResource/v1.0">
+
+  <title>VOSpace Core Vocabulary</title>
+  <shortName>VOSCORE</shortName>
+  <identifier>ivo://ivoa.net/vospace/core</identifier> 
+  <curation>
+    <publisher>IVOA</publisher>
+
+    <creator>
+      <name>Graham, M.</name>
+    </creator>
+    <creator>
+      <name>Morris, D.</name>
+    </creator>
+    <creator>
+      <name>Rixon, G.</name>
+    </creator>
+    <creator>
+      <name>Dowler, P.</name>
+    </creator>
+    <creator>
+      <name>Schaaff, A.</name>
+    </creator>
+    <creator>
+      <name>Tody, D.</name>
+    </creator>
+    <creator>
+      <name>Major, B.</name>
+    </creator>
+
+    <date role="update">UPDATEME to standards publication date</date>
+    <version>2.1</version>
+    <contact>
+      <name>Grid and Web Services WG</name>
+      <email>grid@ivoa.net</email>
+    </contact>
+  </curation>
+  <content>
+    <subject>Virtual observatory</subject>
+    <subject>Data storage</subject>
+    <subject>Data retrieval</subject>
+
+    <description>
+      VOSpace is the IVOA interface to distributed storage, described
+      in the standard ivo://ivoa.net/std/vospace.
+
+      The standard defines several terms.  Their URIs were defined before
+      StandardsRegExt was finalised and therefore do not live in the
+      main VOSpace standards record.  To still make them resolvable, this
+      record was created as a stop-gap.
+    </description>
+    <referenceURL>http://ivoa.net/documents/VOSpace/</referenceURL>
+    <type>Other</type>
+    <contentLevel>Research</contentLevel>
+    <relationship>
+      <relationshipType>isSupplementedTo</relationshipType>
+      <relatedResource ivo-id="ivo://ivoa.net/std/vospace"
+        >The VOSpace standard</relatedResource>
+    </relationship>
+
+  </content>
+
+  <endorsedVersion status="n/a">2.1</endorsedVersion>
+
+  <key>
+    <name>availableSpace</name>
+    <description> the amount of space available within a container </description>
+  </key>
+  <key>
+    <name>btime</name>
+    <description> the initial creation time </description>
+  </key>
+  <key>
+    <name>contributor</name>
+    <description> an entity responsible for making contributions to this resource </description>
+  </key>
+  <key>
+    <name>coverage</name>
+    <description> a spatial or temporal topic of the resource, the spatial applicability of the resource, or the jurisdiction under which the resource is relevant </description>
+  </key>
+  <key>
+    <name>creator</name>
+    <description> an entity primarily responsible for making the resource </description>
+  </key>
+  <key>
+    <name>ctime</name>
+    <description> the status change (aka metadata modification) time </description>
+  </key>
+  <key>
+    <name>date</name>
+    <description> a point or period of time associated with an event in the lifecycle of the resource </description>
+  </key>
+  <key>
+    <name>description</name>
+    <description> an account of the resource </description>
+  </key>
+  <key>
+    <name>format</name>
+    <description> the file format, physical medium or dimensions of the resource </description>
+  </key>
+  <key>
+    <name>groupread</name>
+    <description> the list of groups which can only read this resource </description>
+  </key>
+  <key>
+    <name>groupwrite</name>
+    <description> the list of groups which can read and write to this resource </description>
+  </key>
+  <key>
+    <name>identifier</name>
+    <description> an unambiguous reference to the resource within a given context </description>
+  </key>
+  <key>
+    <name>language</name>
+    <description> a language of the resource </description>
+  </key>
+  <key>
+    <name>length</name>
+    <description> the length or size of a resource </description>
+  </key>
+  <key>
+    <name>mtime</name>
+    <description> the data modification time </description>
+  </key>
+  <key>
+    <name>publicread</name>
+    <description> whether this resource is world readable </description>
+  </key>
+  <key>
+    <name>publisher</name>
+    <description> an entity responsible for making the resource available </description>
+  </key>
+  <key>
+    <name>quota</name>
+    <description> the value of a system quota on the resource </description>
+  </key>
+  <key>
+    <name>relation</name>
+    <description> a related resource </description>
+  </key>
+  <key>
+    <name>rights</name>
+    <description> information about rights held in and over the resource </description>
+  </key>
+  <key>
+    <name>source</name>
+    <description> a related resource from which the described resource is derived </description>
+  </key>
+  <key>
+    <name>subject</name>
+    <description> the topic of the resource </description>
+  </key>
+  <key>
+    <name>title</name>
+    <description> a name given to the resource </description>
+  </key>
+  <key>
+    <name>type</name>
+    <description> the nature or genre of the resource </description>
+  </key>
+
+  <key>
+    <name>anyview</name>
+    <description>SHALL be used as the view URI to indicate that a service will accept any view for an import operation</description>
+  </key>
+  <key>
+    <name>binaryview</name>
+    <description>SHALL be used as the view URI to import or export data as a binary file</description>
+  </key>
+  <key>
+    <name>defaultview</name>
+    <description>SHALL be used by a client to indicate that the service should choose the most appropriate view for a data export</description>
+  </key>
+
+  <key>
+    <name>httpget</name>
+    <description>SHALL be used as the protocol URI for a HTTP GET transfer</description>
+  </key>
+  <key>
+    <name>httpput</name>
+    <description>SHALL be used as the protocol URI for a HTTP PUT transfer</description>
+  </key>
+  <key>
+    <name>httpsget</name>
+    <description>SHALL be used as the protocol URI for a HTTP GET transfer over a Secure Socket Layer (SSL)</description>
+  </key>
+  <key>
+    <name>httpsput</name>
+    <description>SHALL be used as the protocol URI for a HTTP PUT transfer over a Secure Socket Layer (SSL)</description>
+  </key>
+
+</ri:Resource>

@@ -1,0 +1,95 @@
+<ri:Resource 
+  xsi:type="vstd:Standard" 
+  created="2017-06-07T09:00:00" 
+  updated="2017-06-07T09:00:00" 
+  status="active"
+  xmlns:vr="http://www.ivoa.net/xml/VOResource/v1.0" 
+  xmlns:vstd="http://www.ivoa.net/xml/StandardsRegExt/v1.0" 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+  xmlns:ri="http://www.ivoa.net/xml/RegistryInterface/v1.0"
+  xsi:schemaLocation="http://www.ivoa.net/xml/VOResource/v1.0
+    http://www.ivoa.net/xml/VOResource/v1.0
+  http://www.ivoa.net/xml/StandardsRegExt/v1.0
+    http://www.ivoa.net/xml/StandardsRegExt/v1.0
+  http://www.ivoa.net/xml/VOResource/v1.0
+    http://www.ivoa.net/xml/VOResource/v1.0">
+
+  <title>VOSpace</title>
+  <shortName>VOSpace</shortName>
+  <identifier>ivo://ivoa.net/std/vospace</identifier> 
+  <curation>
+    <publisher>IVOA</publisher>
+
+    <creator>
+      <name>Graham, M.</name>
+    </creator>
+    <creator>
+      <name>Morris, D.</name>
+    </creator>
+    <creator>
+      <name>Rixon, G.</name>
+    </creator>
+    <creator>
+      <name>Dowler, P.</name>
+    </creator>
+    <creator>
+      <name>Schaaff, A.</name>
+    </creator>
+    <creator>
+      <name>Tody, D.</name>
+    </creator>
+    <creator>
+      <name>Major, B.</name>
+    </creator>
+
+    <date role="update">UPDATEME to standards publication date</date>
+    <version>2.1</version>
+    <contact>
+      <name>Grid and Web Services WG</name>
+      <email>grid@ivoa.net</email>
+    </contact>
+  </curation>
+  <content>
+    <subject>Virtual observatory</subject>
+    <subject>Data storage</subject>
+    <subject>Data retrieval</subject>
+
+    <description>
+      VOSpace is the IVOA interface to distributed storage. This specification
+      presents the second RESTful version of the interface. It specifies how VO
+      agents and applications can use network attached data stores to persist
+      and exchange data in a standard way.
+    </description>
+    <referenceURL>http://ivoa.net/documents/VOSpace/</referenceURL>
+    <type>Other</type>
+    <contentLevel>Research</contentLevel>
+
+    <relationship>
+      <relationshipType>isSupplementedBy</relationshipType>
+      <relatedResource ivo-id="ivo://ivoa.net/std/vospace/v2.0"
+        >Legacy capability identifiers</relatedResource>
+    </relationship>
+    <relationship>
+      <relationshipType>isSupplementedBy</relationshipType>
+      <relatedResource ivo-id="ivo://ivoa.net/vospace/core"
+        >VOSpace core vocabulary in StandardsRegExt form</relatedResource>
+    </relationship>
+
+  </content> 	
+
+
+  <endorsedVersion status="rec">2.1</endorsedVersion>
+
+  <!-- UPDATEME if you have schema updates -->
+  <schema namespace="http://www.ivoa.net/xml/VOSpace/v2.1">
+    <location>http://ivoa.net/xml/VOSpace/VOSpace-v2.1.xsd</location>
+    <description>A schema constraining VOSpace messages.</description>
+  </schema>
+
+  <key>
+    <name>synctrans-2.1</name>
+    <description>A VOSpace endpoint for synchronous transfersl.
+    </description>
+  </key>
+
+</ri:Resource>
