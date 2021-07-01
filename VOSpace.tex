@@ -1918,12 +1918,13 @@ If a ``uri'' and ``limit'' are specified in the request then the returned list w
 \end{itemize}
 
 \paragraph{Example}
-Get a VOSpace node
+Given a container node \verb|mydir| that contains 5 data nodes, \verb|file-001|, \verb|file-002|, \verb|file-003|, \verb|file-004| and \verb|file-005|.
+The following request will fetch details of the container node and minimal details of all its children.
 \\[5px]
 \noindent
 Request:
 \begin{lstlisting}
-> curl -v "http://server.example.com/vospace/nodes/mydir?detail=min&uri=vos://example.com!vospace/mydir/file3401"
+> curl -v "http://server.example.com/vospace/nodes/mydir?detail=min"
 \end{lstlisting}
 Response:
 \begin{lstlisting}
@@ -1945,10 +1946,13 @@ Response:
   </vos:provides>
   <vos:capabilities/>
   <vos:nodes>
-    <vos:node uri="vos://example.com!vospace/mydir/file3401" xsi:type="vos:DataNode"/>
-    <vos:node uri="vos://example.com!vospace/mydir/file3406" xsi:type="vos:DataNode"/>
-    <vos:node uri="vos://example.com!vospace/mydir/file3532" xsi:type="vos:DataNode"/>
+    <vos:node uri="vos://example.com!vospace/mydir/file-001" xsi:type="vos:DataNode"/>
+    <vos:node uri="vos://example.com!vospace/mydir/file-002" xsi:type="vos:DataNode"/>
+    <vos:node uri="vos://example.com!vospace/mydir/file-003" xsi:type="vos:DataNode"/>
+    <vos:node uri="vos://example.com!vospace/mydir/file-004" xsi:type="vos:DataNode"/>
+    <vos:node uri="vos://example.com!vospace/mydir/file-005" xsi:type="vos:DataNode"/>
   </vos:nodes>
+</vos:node>
 \end{lstlisting}
 
 \paragraph{Paginated example}
