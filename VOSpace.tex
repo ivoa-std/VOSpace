@@ -1908,7 +1908,7 @@ When the node is a container, the returned record will also contain a list of di
 For the target node and for any children returned for a container node, the attribute \emph{xsi:type} SHALL be included in the resulting Node document.  
 
 \paragraph{Paginated response}
-If a ``uri'' and ``offset'' are specified in the request then the returned list will consist of the subset of children which begins at the node matching the specified value of the ``uri'' parameter and with cardinality matching the specified value of the ``offset'' parameter drawn from an ordered sequence of all children. The ordering is determined by the server but results must always be drawn from the same ordered sequence.
+If a ``uri'' and ``limit'' are specified in the request then the returned list will consist of the subset of children which begins at the node matching the specified value of the ``uri'' parameter and with cardinality matching the specified value of the ``limit'' parameter drawn from an ordered sequence of all children. The ordering is determined by the server but results must always be drawn from the same ordered sequence.
 
 \paragraph{Faults}
 \begin{itemize}
