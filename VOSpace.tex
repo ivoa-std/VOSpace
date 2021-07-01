@@ -1951,6 +1951,41 @@ Response:
   </vos:nodes>
 \end{lstlisting}
 
+\paragraph{Paginated example}
+Given a container node \verb|mydir| that contains 5 data nodes, \verb|file-001|, \verb|file-002|, \verb|file-003|, \verb|file-004| and \verb|file-005|.
+The following request will fetch details of the container node and minimal details of 2 of its children, starting from \verb|file-003|.
+\\[5px]
+\noindent
+Request:
+\begin{lstlisting}
+> curl -v "http://server.example.com/vospace/nodes/mydir?detail=min&limit=2&uri=vos://example.com!vospace/mydir/file-003"
+\end{lstlisting}
+Response:
+\begin{lstlisting}
+> GET /vospace/nodes/mydir?detail=min&limit=2&uri=vos://example.com!vospace/mydir/file-003 HTTP/1.1
+>
+< HTTP/1.1 200 OK
+< Content-Type: text/xml
+<
+<?xml version="1.0" encoding="UTF-8"?>
+<vos:node xmlns:vos="...." uri="vos://example.com!vospace/mydir" xsi:type="vos:ContainerNode">
+  <vos:properties>
+    <vos:property uri="ivo://ivoa.net/vospace/core#description">GetNode example</property>
+  </vos:properties>
+  <vos:accepts>
+    <vos:view uri="ivo://ivoa.net/vospace/core#anyview"/>
+  </vos:accepts>
+  <vos:provides>
+    <vos:view uri="ivo://ivoa/net/vospace/core#defaultview"/>
+  </vos:provides>
+  <vos:capabilities/>
+  <vos:nodes>
+    <vos:node uri="vos://example.com!vospace/mydir/file-003" xsi:type="vos:DataNode"/>
+    <vos:node uri="vos://example.com!vospace/mydir/file-004" xsi:type="vos:DataNode"/>
+  </vos:nodes>
+</vos:node>
+\end{lstlisting}
+
 \subsubsection{setNode}
 \label{subsubsec:setnode}
 Set the property values for a specific Node
