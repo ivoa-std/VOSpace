@@ -1905,9 +1905,10 @@ When no parameters are present in the request, the full expanded record for the 
 
 When the node is a container, the returned record will also contain a list of direct children nodes in the container (as \verb|<node>| subelements under the \verb|<nodes>| element).
 
-If a ``uri'' and ``offset'' are specified in the request then the returned list will consist of the subset of children which begins at the node matching the specified value of the ``uri'' parameter and with cardinality matching the specified value of the ``offset'' parameter drawn from an ordered sequence of all children. The ordering is determined by the server but results must always be drawn from the same ordered sequence.
-
 For the target node and for any children returned for a container node, the attribute \emph{xsi:type} SHALL be included in the resulting Node document.  
+
+\paragraph{Paginated response}
+If a ``uri'' and ``offset'' are specified in the request then the returned list will consist of the subset of children which begins at the node matching the specified value of the ``uri'' parameter and with cardinality matching the specified value of the ``offset'' parameter drawn from an ordered sequence of all children. The ordering is determined by the server but results must always be drawn from the same ordered sequence.
 
 \paragraph{Faults}
 \begin{itemize}
