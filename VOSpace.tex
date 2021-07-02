@@ -1905,9 +1905,10 @@ When no parameters are present in the request, the full expanded record for the 
 
 When the node is a container, the returned record will also contain a list of direct children nodes in the container (as \verb|<node>| subelements under the \verb|<nodes>| element).
 
-If a ``uri'' and ``offset'' are specified in the request then the returned list will consist of the subset of children which begins at the node matching the specified value of the ``uri'' parameter and with cardinality matching the specified value of the ``offset'' parameter drawn from an ordered sequence of all children. The ordering is determined by the server but results must always be drawn from the same ordered sequence.
-
 For the target node and for any children returned for a container node, the attribute \emph{xsi:type} SHALL be included in the resulting Node document.  
+
+\paragraph{Paginated response}
+If a ``uri'' and ``limit'' are specified in the request then the returned list will consist of the subset of children which begins at the node matching the specified value of the ``uri'' parameter and with cardinality matching the specified value of the ``limit'' parameter drawn from an ordered sequence of all children. The ordering is determined by the server but results must always be drawn from the same ordered sequence.
 
 \paragraph{Faults}
 \begin{itemize}
@@ -1917,12 +1918,13 @@ For the target node and for any children returned for a container node, the attr
 \end{itemize}
 
 \paragraph{Example}
-Get a VOSpace node
+Given a container node \verb|mydir| that contains 5 data nodes, \verb|file-001|, \verb|file-002|, \verb|file-003|, \verb|file-004| and \verb|file-005|.
+The following request will fetch details of the container node and minimal details of all its children.
 \\[5px]
 \noindent
 Request:
 \begin{lstlisting}
-> curl -v "http://server.example.com/vospace/nodes/mydir?detail=min&uri=vos://example.com!vospace/mydir/file3401"
+> curl -v "http://server.example.com/vospace/nodes/mydir?detail=min"
 \end{lstlisting}
 Response:
 \begin{lstlisting}
@@ -1944,10 +1946,48 @@ Response:
   </vos:provides>
   <vos:capabilities/>
   <vos:nodes>
-    <vos:node uri="vos://example.com!vospace/mydir/file3401" xsi:type="vos:DataNode"/>
-    <vos:node uri="vos://example.com!vospace/mydir/file3406" xsi:type="vos:DataNode"/>
-    <vos:node uri="vos://example.com!vospace/mydir/file3532" xsi:type="vos:DataNode"/>
+    <vos:node uri="vos://example.com!vospace/mydir/file-001" xsi:type="vos:DataNode"/>
+    <vos:node uri="vos://example.com!vospace/mydir/file-002" xsi:type="vos:DataNode"/>
+    <vos:node uri="vos://example.com!vospace/mydir/file-003" xsi:type="vos:DataNode"/>
+    <vos:node uri="vos://example.com!vospace/mydir/file-004" xsi:type="vos:DataNode"/>
+    <vos:node uri="vos://example.com!vospace/mydir/file-005" xsi:type="vos:DataNode"/>
   </vos:nodes>
+</vos:node>
+\end{lstlisting}
+
+\paragraph{Paginated example}
+Given a container node \verb|mydir| that contains 5 data nodes, \verb|file-001|, \verb|file-002|, \verb|file-003|, \verb|file-004| and \verb|file-005|.
+The following request will fetch details of the container node and minimal details of 2 of its children, starting from \verb|file-003|.
+\\[5px]
+\noindent
+Request:
+\begin{lstlisting}
+> curl -v "http://server.example.com/vospace/nodes/mydir?detail=min&limit=2&uri=vos://example.com!vospace/mydir/file-003"
+\end{lstlisting}
+Response:
+\begin{lstlisting}
+> GET /vospace/nodes/mydir?detail=min&limit=2&uri=vos://example.com!vospace/mydir/file-003 HTTP/1.1
+>
+< HTTP/1.1 200 OK
+< Content-Type: text/xml
+<
+<?xml version="1.0" encoding="UTF-8"?>
+<vos:node xmlns:vos="...." uri="vos://example.com!vospace/mydir" xsi:type="vos:ContainerNode">
+  <vos:properties>
+    <vos:property uri="ivo://ivoa.net/vospace/core#description">GetNode example</property>
+  </vos:properties>
+  <vos:accepts>
+    <vos:view uri="ivo://ivoa.net/vospace/core#anyview"/>
+  </vos:accepts>
+  <vos:provides>
+    <vos:view uri="ivo://ivoa/net/vospace/core#defaultview"/>
+  </vos:provides>
+  <vos:capabilities/>
+  <vos:nodes>
+    <vos:node uri="vos://example.com!vospace/mydir/file-003" xsi:type="vos:DataNode"/>
+    <vos:node uri="vos://example.com!vospace/mydir/file-004" xsi:type="vos:DataNode"/>
+  </vos:nodes>
+</vos:node>
 \end{lstlisting}
 
 \subsubsection{setNode}
