@@ -62,7 +62,7 @@ representative at an online or offline event.
 Instances of abusive, harassing, or otherwise unacceptable behavior may be
 reported to the community leaders responsible for enforcement by
 contacting one of the project team:
-- [Dave Morris (Zarquan)](mailto:dmr@roe.ac.uk)
+- [TBD](mailto:person@example.com>)
 - [TBD](mailto:person@example.com>)
 
 All complaints will be reviewed and investigated promptly and fairly.
