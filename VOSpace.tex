@@ -515,6 +515,7 @@ Property URIs and PropertyDescriptions for the core set of Properties are regist
     \item ivo://ivoa.net/vospace/core\#mtime SHALL be used as the property URI denoting the data modification time
     \item ivo://ivoa.net/vospace/core\#ctime SHALL be used as the property URI denoting status change (aka metadata modification) time
     \item ivo://ivoa.net/vospace/core\#btime SHALL be used as the property URI denoting initial creation time
+    \item ivo://ivoa.net/vospace/core\#immutable MAY be used as the property URI denoting a node whose content cannot be changed and for which moveNode and deleteNode operations are not allowed. If the node is a container node, child nodes cannot be added or removed. Children of an immutable node inherit this property. Properties that are not readOnly can still be edited
 \end{itemize}
 
 However, this is not intended to be a closed list, different implementations are free to define and use their own Properties.
