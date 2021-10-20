@@ -510,31 +510,30 @@ Future versions of the VOSpace specification may extend the PropertyDescription 
 Property URIs and PropertyDescriptions for the core set of Properties are registered under a StandardKeyEnumeration resource \citep{std:STDREGEXT} in the IVOA registry with the resource identifier ivo://ivoa.net/vospace/core. The following URIs SHOULD be used to represent the service properties:
 
 \begin{itemize}
-    \item ivo://ivoa.net/vospace/core\#title SHALL be used as the property URI denoting a name given to the resource
-    \item ivo://ivoa.net/vospace/core\#creator SHALL be used as the property URI denoting an entity primarily responsible for making the resource
-    \item ivo://ivoa.net/vospace/core\#subject SHALL be used as the property URI denoting the topic of the resource
-    \item ivo://ivoa.net/vospace/core\#description SHALL be used as the property URI denoting an account of the resource
-    \item ivo://ivoa.net/vospace/core\#publisher SHALL be used as the property URI denoting an entity responsible for making the resource available
-    \item ivo://ivoa.net/vospace/core\#contributor SHALL be used as the property URI denoting an entity responsible for making contributions to this resource
-    \item ivo://ivoa.net/vospace/core\#date SHALL be used as the property URI denoting a point or period of time associated with an event in the lifecycle of the resource
-    \item ivo://ivoa.net/vospace/core\#type SHALL be used as the property URI denoting the nature or genre of the resource
-    \item ivo://ivoa.net/vospace/core\#format SHALL be used as the property URI denoting the file format, physical medium, or dimensions of the resource
-    \item ivo://ivoa.net/vospace/core\#identifier SHALL be used as the property URI denoting an unambiguous reference to the resource within a given context
-    \item ivo://ivoa.net/vospace/core\#source SHALL be used as the property URI denoting a related resource from which the described resource is derived
-    \item ivo://ivoa.net/vospace/core\#language SHALL be used as the property URI denoting a language of the resource
-    \item ivo://ivoa.net/vospace/core\#relation SHALL be used as the property URI denoting a related resource
-    \item ivo://ivoa.net/vospace/core\#coverage SHALL be used as the property URI denoting the spatial or temporal topic of the resource, the spatial applicability of the resource, or the jurisdiction under which the resource is relevant
-    \item ivo://ivoa.net/vospace/core\#rights SHALL be used as the property URI denoting information about rights held in and over the resource
-    \item ivo://ivoa.net/vospace/core\#availableSpace SHALL be used as the property URI denoting the amount of space available within a container
-    \item ivo://ivoa.net/vospace/core\#groupread SHALL be used as the property URI denoting the list of groups which can only read this resource (read-only)
-    \item ivo://ivoa.net/vospace/core\#groupwrite SHALL be used as the property URI denoting the list of groups which can read and write to this resource (read-write)
-    \item ivo://ivoa.net/vospace/core\#publicread SHALL be used as the property URI denoting whether this resource is world readable (anon-read-only)
-    \item ivo://ivoa.net/vospace/core\#quota SHALL be used as the property URI denoting the value of a system quota on the resource
-    \item ivo://ivoa.net/vospace/core\#length SHALL be used as the property URI denoting the length or size of a resource
-    \item ivo://ivoa.net/vospace/core\#mtime SHALL be used as the property URI denoting the data modification time
-    \item ivo://ivoa.net/vospace/core\#ctime SHALL be used as the property URI denoting status change (aka metadata modification) time
-    \item ivo://ivoa.net/vospace/core\#btime SHALL be used as the property URI denoting initial creation time
-    \item ivo://ivoa.net/vospace/core\#immutable MAY be used as the property URI denoting a node whose content cannot be changed and for which moveNode and deleteNode operations are not allowed. See section \ref{subsubsec:immutable nodes} for details.
+    \item ivo://ivoa.net/vospace/core\#title MAY be used as the property URI denoting a name given to the resource
+    \item ivo://ivoa.net/vospace/core\#creator MAY be used as the property URI denoting an entity primarily responsible for making the resource
+    \item ivo://ivoa.net/vospace/core\#subject MAY be used as the property URI denoting the topic of the resource
+    \item ivo://ivoa.net/vospace/core\#description MAY be used as the property URI denoting an account of the resource
+    \item ivo://ivoa.net/vospace/core\#publisher MAY be used as the property URI denoting an entity responsible for making the resource available
+    \item ivo://ivoa.net/vospace/core\#contributor MAY be used as the property URI denoting an entity responsible for making contributions to this resource
+    \item ivo://ivoa.net/vospace/core\#date MAY be used as the property URI denoting a point or period of time associated with an event in the lifecycle of the resource
+    \item ivo://ivoa.net/vospace/core\#type MAY be used as the property URI denoting the nature or genre of the resource
+    \item ivo://ivoa.net/vospace/core\#format MAY be used as the property URI denoting the file format, physical medium, or dimensions of the resource
+    \item ivo://ivoa.net/vospace/core\#identifier MAY be used as the property URI denoting an unambiguous reference to the resource within a given context
+    \item ivo://ivoa.net/vospace/core\#source MAY be used as the property URI denoting a related resource from which the described resource is derived
+    \item ivo://ivoa.net/vospace/core\#language MAY be used as the property URI denoting a language of the resource
+    \item ivo://ivoa.net/vospace/core\#relation MAY be used as the property URI denoting a related resource
+    \item ivo://ivoa.net/vospace/core\#coverage MAY be used as the property URI denoting the spatial or temporal topic of the resource, the spatial applicability of the resource, or the jurisdiction under which the resource is relevant
+    \item ivo://ivoa.net/vospace/core\#rights MAY be used as the property URI denoting information about rights held in and over the resource
+    \item ivo://ivoa.net/vospace/core\#availableSpace MAY be used as the property URI denoting the amount of space available within a container
+    \item ivo://ivoa.net/vospace/core\#groupread MAY be used as the property URI denoting the list of groups which can only read this resource (read-only)
+    \item ivo://ivoa.net/vospace/core\#groupwrite MAY be used as the property URI denoting the list of groups which can read and write to this resource (read-write)
+    \item ivo://ivoa.net/vospace/core\#publicread MAY be used as the property URI denoting whether this resource is world readable (anon-read-only)
+    \item ivo://ivoa.net/vospace/core\#quota MAY be used as the property URI denoting the value of a system quota on the resource
+    \item ivo://ivoa.net/vospace/core\#length MAY be used as the property URI denoting the length or size of a resource
+    \item ivo://ivoa.net/vospace/core\#mtime MAY be used as the property URI denoting the data modification time
+    \item ivo://ivoa.net/vospace/core\#ctime MAY be used as the property URI denoting status change (aka metadata modification) time
+    \item ivo://ivoa.net/vospace/core\#btime MAY be used as the property URI denoting initial creation time
 \end{itemize}
 
 However, this is not intended to be a closed list, different implementations are free to define and use their own Properties.
