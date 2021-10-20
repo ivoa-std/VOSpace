@@ -45,7 +45,7 @@
 \previousversion[http://www.ivoa.net/documents/VOSpace/20101112/index.html]{WD-VOSpace-2.0-20101112}
 \previousversion[http://www.ivoa.net/documents/VOSpace/20100323/index.html]{WD-VOSpace-2.0-20100323}
 \previousversion[http://www.ivoa.net/documents/VOSpace/20090513/index.html]{WD-VOSpace-2.0-20090513}
-       
+
 \begin{document}
 \begin{abstract}
 VOSpace is the IVOA interface to distributed storage. This specification presents the second RESTful version of the interface.  It specifies how VO agents and applications can use network attached data stores to persist and exchange data in a standard way.
@@ -105,15 +105,15 @@ Let's consider the first step: the user provides a XML description of the data f
 
 \begin{lstlisting}
 <vos:node xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.0"
-    xmlns:xs="http://www.w3.org/2001/XMLSchema-instance" 
+    xmlns:xs="http://www.w3.org/2001/XMLSchema-instance"
     uri="vos://example.com!vospace/mytable1"
-    xsi:type="vos:UnstructuredDataNode">  
-    <vos:properties> 
+    xsi:type="vos:UnstructuredDataNode">
+    <vos:properties>
         <vos:property uri="ivo://ivoa.net/vospace/core#mimetype">
             text/xml
-        </vos:property>     
-    </vos:properties> 
-</vos:node> 
+        </vos:property>
+    </vos:properties>
+</vos:node>
 \end{lstlisting}
 \noindent
 Note that the node path is specified in two places on this request, and that they must match:
@@ -129,9 +129,9 @@ The user will then describe the data format (the view) they want to use in uploa
 \begin{lstlisting}
 <vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.0" version="2.1">
     <vos:target>vos://example.com!vospace/mytable1</vos:target>
-    <vos:direction>pushToVoSpace</vos:direction> 
-    <vos:view uri="ivo://ivoa.net/vospace/core#votable"/> 
-    <vos:protocol uri="ivo://ivoa.net/vospace/core#httpput"/>  
+    <vos:direction>pushToVoSpace</vos:direction>
+    <vos:view uri="ivo://ivoa.net/vospace/core#votable"/>
+    <vos:protocol uri="ivo://ivoa.net/vospace/core#httpput"/>
 </vos:transfer>
 \end{lstlisting}
 
@@ -142,9 +142,9 @@ Similarly, when users want to retrieve a data file from a VOSpace service, they 
 \begin{lstlisting}
 <vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.0" version="2.1">
     <vos:target>vos://example.com!vospace/mytable1</vos:target>
-    <vos:direction>pullFromVoSpace</vos:direction> 
-    <vos:view uri="ivo://ivoa.net/vospace/core#votable"/> 
-    <vos:protocol uri="ivo://ivoa.net/vospace/core#httpget"/>  
+    <vos:direction>pullFromVoSpace</vos:direction>
+    <vos:view uri="ivo://ivoa.net/vospace/core#votable"/>
+    <vos:protocol uri="ivo://ivoa.net/vospace/core#httpget"/>
 </vos:transfer>
 \end{lstlisting}
 
@@ -256,7 +256,7 @@ The tilde (`$\mathtt{\sim}$') character was introduced in version 2.0 as an alte
 A VOSpace identifier can be resolved to a HTTP endpoint for accessing representations of the node associated with it. A client SHOULD use the following procedure to resolve access to a VOSpace node from a VOSpace identifier:
 
 \begin{itemize}
-    \item Resolve the HTTP endpoint of a VOSpace service with using the registry.  
+    \item Resolve the HTTP endpoint of a VOSpace service with using the registry.
     \item Append ``nodes/'' and the path following the naming authority part of the VOSpace identifier to the service endpoint
 \end{itemize}
 
@@ -979,7 +979,7 @@ A client initiated UWS Job representation of a Transfer SHALL have the following
     \item \emph{param}: A list of zero or more parameters that specify any additional arguments for the transfer.
         \begin{itemize}
             \item Standard Property URIs should be used as the parameter key.
-            \item e.g., Clients may tell the service the size of a file they intend to upload: 
+            \item e.g., Clients may tell the service the size of a file they intend to upload:
             \begin{lstlisting}
             <vos:param uri="ivo://ivoa.net/vospace/core\#length">1024</vos:param>
             \end{lstlisting}
@@ -1034,7 +1034,7 @@ The following parameters MUST be supplied by the client requesting a transfer:
         \begin{itemize}
             \item With parameter based negotiation, only pushToVoSpace and pullFromVoSpace are allowed as values for DIRECTION.
         \end{itemize}
-    \item \emph{PROTOCOL}: denotes the transfer protocol(s) to use. 
+    \item \emph{PROTOCOL}: denotes the transfer protocol(s) to use.
         \begin{itemize}
             \item With parameter based negotiation, clients MUST provide exactly one PROTOCOL parameter.
         \end{itemize}
@@ -1123,9 +1123,9 @@ If none of the Protocol options succeed, then the transfer SHALL be considered t
 % \subsection{Searches}
 % \label{subsec:searches}
 % A Search describes the details of data objects in the space which meet specified search criteria, i.e. that are the results of a submitted search request.
-% 
+%
 % A UWS Job representation of a Search SHALL have the following parameters:
-% 
+%
 % \begin{itemize}
 %     \item \emph{uri}: An OPTIONAL identifier indicating from which item to continue a search
 %     \item \emph{limit}: An OPTIONAL limit indicating the maximum number of results in the response
@@ -1149,9 +1149,9 @@ If none of the Protocol options succeed, then the transfer SHALL be considered t
 %         \end{itemize}
 %     \item \emph{node}: An OPTIONAL URI(s) identifying the starting node for a search, i.e., the matches constraints are applied to this node and its children
 % \end{itemize}
-% 
+%
 % This representation will be used as a child of the jobInfo element in a UWS Job representation. For example:
-% 
+%
 % \begin{verbatim}
 % <uws:jobInfo>
 %   <vos:search>
@@ -1162,9 +1162,9 @@ If none of the Protocol options succeed, then the transfer SHALL be considered t
 %   <vos:search>
 % <uws:jobInfo>
 % \end{verbatim}
-% 
+%
 % The representation of the results of a Search SHALL have the following members:
-% 
+%
 % \begin{itemize}
 %     \item \emph{nodes}: A list containing zero or more Nodes of appropriate detail identifying the target URIs meeting the search criteria
 % \end{itemize}
@@ -1223,7 +1223,7 @@ VOSpace implementations may support a number of authentication methods including
     \item OAuth (http://oauth.net)
 \end{itemize}
 
-For a full list of authentication methods and the associated standardIDs please refer to the IVOA Single Sign-On document: \citep{std:SSOAUTH2}. 	
+For a full list of authentication methods and the associated standardIDs please refer to the IVOA Single Sign-On document: \citep{std:SSOAUTH2}.
 
 When a client is requesting a transfer from the service, the authentication type (securityMethod) may be supplied along side the list of transfer protocols. The \emph{securityMethod} is specified by standardID.  If the service supports the requested type, it may base the construction of the endpoint URL for data transfer from this information.  (Services may encounter situations when the URL for data transfer will depend on the authentication type the client wishes to use.)
 
@@ -1527,7 +1527,7 @@ Response:
 <
 <vos:node xmlns:xi="http://www.w3.org/2001/XMLSchema-instance"
       xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.0"
-      xsi:type="vos:UnstructuredDataNode" 
+      xsi:type="vos:UnstructuredDataNode"
       uri="vos://example.com!vospace/mydata1">
   <vos:properties>
     <vos:property uri="ivo://ivoa.net/vospace/core#description">My important results</vos:property>
@@ -1917,7 +1917,7 @@ The list of supported protocols for a node can be retrieved with:
 \begin{itemize}
     \item A HTTP POST of an empty protocol representation to the URL of an existing node http://rest-endpoint/nodes/path
 \end{itemize}
-    
+
 \paragraph{Response}
 A HTTP 200 status code and a Node representation in the entity-body.
 When no parameters are present in the request, the full expanded record for the node SHALL be returned, including any xsi:type specific extensions; otherwise the appropriate form for the specified value of the ``detail'' parameter SHALL be returned.
@@ -1926,7 +1926,7 @@ When the node is a container, the returned record will also contain a list of di
 
 If a ``uri'' and ``offset'' are specified in the request then the returned list will consist of the subset of children which begins at the node matching the specified value of the ``uri'' parameter and with cardinality matching the specified value of the ``offset'' parameter drawn from an ordered sequence of all children. The ordering is determined by the server but results must always be drawn from the same ordered sequence.
 
-For the target node and for any children returned for a container node, the attribute \emph{xsi:type} SHALL be included in the resulting Node document.  
+For the target node and for any children returned for a container node, the attribute \emph{xsi:type} SHALL be included in the resulting Node document.
 
 \paragraph{Faults}
 \begin{itemize}
@@ -2050,18 +2050,18 @@ Response:
 % \subsubsection{findNodes}
 % \label{subsubsec:findnodes}
 % Find nodes whose properties match the specified values.
-% 
+%
 % This operation is OPTIONAL.
-% 
+%
 % \paragraph{Request}
 % A HTTP POST of a Job representation of a Search (see section 3.7) to http://rest-endpoint/searches
 % A null value of the "matches" parameter implies a full listing of the space.
-% 
+%
 % \paragraph{Response}
 % The initial response is a HTTP 303 status code with the Location header keyword assigned to the created job.
-% 
+%
 % The search results representation can be retrieved directly from the link reported in the Results List, available from the results endpoint -- http://rest-endpoint/searches/(jobid)/results -, the standard UWS location under the results endpoint -- http://rest-endpoint/searches/(jobid)/results/searchDetails -- (which may well just be a redirect to the former link), or as part of the full Job representation from http://rest-endpoint/searches/(jobid). The result element in the Results List SHALL have an id of ``searchDetails'':
-% 
+%
 % \begin{lstlisting}
 % <uws:job>
 % ...
@@ -2071,10 +2071,10 @@ Response:
 % ...
 % </uws:job>
 % \end{lstlisting}
-% 
+%
 % \paragraph{Faults}
 % For all faults, the service shall set the PHASE to ``ERROR'' in the Job representation. The <errorSummary> element in the Job representation shall be set to the appropriate value for the fault type and the appropriate fault representation (see section 5.5) provided at the error URI: http://rest-endpoint/transfers/(jobid)/error.
-% 
+%
 % \vspace{3mm}
 % \begin{tabular}{ p{5cm} l p{4cm} }
 % \textbf{Fault description} & \textbf{errorSummary} & \textbf{Fault representation} \\
@@ -2089,10 +2089,10 @@ Response:
 % \hline
 % \end{tabular}
 % \vspace{3mm}
-% 
+%
 % \paragraph{Example}
-% 
-% 
+%
+%
 % Find VOSpace nodes
 % \\[5px]
 % \noindent
@@ -2111,11 +2111,11 @@ Response:
 % \begin{lstlisting}
 % > POST /searches HTTP/1.1
 % > Content-Type: text/xml
-% > 
+% >
 % < HTTP/1.1 303 See Other
 % < Location: http://localhost:8080/searches/8c5b0f78cd5a44af8694f10da1b92060
 % < Content-Type: text/html
-% < 
+% <
 % \end{lstlisting}
 % This resource can be found at:
 % \begin{lstlisting}
@@ -2128,10 +2128,10 @@ Response:
 % Response:
 % \begin{lstlisting}
 % > GET /searches/8c6e7bc53ee848638cda35817e47da65 HTTP/1.1
-% > 
+% >
 % < HTTP/1.1 200 OK
 % < Content-Type: text/xml
-% < 
+% <
 % <uws:job xmlns:uws="http://www.ivoa.net/xml/UWS/v1.0" xmlns:xlink="http://www.w3.org/1999/xlink"
 %   xmlns:xs="http://www.w3.org/2001/XMLSchema-instance" xs:schemaLocation="http://www.ivoa.net/xml/UWS/v1.0 UWS.xsd ">
 %   <uws:jobId>8c6e7bc53ee848638cda35817e47da65<
@@ -2159,10 +2159,10 @@ Response:
 % Response:
 % \begin{lstlisting}
 % > GET /searches/d55814f88d974c21afe5ad50e4e875c8/results/listing1 HTTP/1.1
-% > 
+% >
 % < HTTP/1.1 200 OK
 % < Content-Type: text/html
-% < 
+% <
 % <nodes xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.0"
 % xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 %   <node uri="vos://nvo.caltech!vospace/mydir/img1" xsi:type="vos:UnstructuredDataNode">
@@ -2191,7 +2191,7 @@ Two modes are supported for external data transfers: a simple HTTP GET to retrie
 A transfer job is created by a HTTP POST of an appropriate Job representation to the transfers endpoint of the service: http://rest-endpoint/transfers.  The following example shows a transfer document for a pushToVoSpace operation:
 
 \begin{lstlisting}
-<vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.0" version="2.1">   
+<vos:transfer xmlns:vos="http://www.ivoa.net/xml/VOSpace/v2.0" version="2.1">
   <vos:target>vos://server.example.com!vospace/mydata1</vos:target>
   <vos:direction>pushToVoSpace</vos:direction>
   <vos:view uri="ivo://net.ivoa/vospace/core#fits"/>
@@ -2201,7 +2201,7 @@ A transfer job is created by a HTTP POST of an appropriate Job representation to
 </vos:transfer>
 \end{lstlisting}
 
-This example transfer job is making a request for an TLS endpoint that supports client certificates that is to be used for performing an HTTP PUT of a file.  
+This example transfer job is making a request for an TLS endpoint that supports client certificates that is to be used for performing an HTTP PUT of a file.
 
 The service returns a 303 redirect with the Location set to the URL of the UWS jobid of the transfer.  It can then be initiated with a HTTP POST of the single parameter ``PHASE=RUN'' to the appropriate job endpoint: http://rest-endpoint/transfers/(jobid)/phase. Alternatively the transfer can also be run immediately on creation by adding the parameter ``PHASE=RUN'' to the initial Job creation URL.
 
@@ -2854,7 +2854,7 @@ The following optional parameters may also be included:
         \begin{itemize}
            \item Example:  ivo://ivoa.net/sso\#tls-with-certificate
         \end{itemize}
-    \item \emph{REQUEST=redirect}: If supplied, the service will issue an immediate redirect to the preferred endpoint matching the transfer request.     
+    \item \emph{REQUEST=redirect}: If supplied, the service will issue an immediate redirect to the preferred endpoint matching the transfer request.
 \end{itemize}
 
 The service SHALL respond with the job containing the transfer results in the response body.  (See Example 3)
@@ -3595,7 +3595,7 @@ This table summarizes the mandatory behaviour required of a fully compliant VOSp
 \hline
 \textbf{Item} & \textbf{Description} & \textbf{Occurs in section(s)} \\ \hline
 27 & A Protocol has elements: uri and and endpoint & ~\ref{subsec:protocols} \\ \hline
-28 & Standard Protocols are represented by the specified URIs & ~\ref{subsubsec:standard protocols} \\ \hline	
+28 & Standard Protocols are represented by the specified URIs & ~\ref{subsubsec:standard protocols} \\ \hline
 29 & A Transfer UWS Job representation has elements: target, direction, view, protocol and keepBytes & ~\ref{subsec:transfers} \\ \hline
 30 & A Transfer results representation has elements: target, direction, view, and protocol & ~\ref{subsec:transfers} \\ \hline
 31 & A server responds with a fault if it is unable to handle any of the requested protocols in a data transfer & ~\ref{subsubsec:service-initiated transfers}, ~\ref{subsubsec:client-initiated transfers} \\ \hline
