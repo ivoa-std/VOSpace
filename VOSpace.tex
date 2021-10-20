@@ -377,6 +377,25 @@ The following Nodes, appearing as part of a node-path, are reserved:
     \item .null indicates an endpoint that discards all data written to it and provides no data when read from, i.e., a bit bucket
 \end{itemize}
 
+\subsubsection{Immutable nodes}
+\label{subsubsec:immutable nodes}
+
+A VOSpace service MAY support immutable nodes. Content of immutable nodes can't be changed and they are identified by adding the standard property ivo://ivoa.net/vospace/core\#immutable set to true.
+
+In particular:
+
+\begin{itemize}
+\item moveNode and deleteNode operations are not allowed
+\item for data nodes, transfers that write data into the node (pushToVoSpace or pullToVoSpace operations) are not allowed
+\item if the node is a container node, child nodes cannot be added or removed; children of an immutable node inherit this property
+\item for link nodes, it is not possible to change the target element
+\item properties that are not readOnly can still be edited
+\end{itemize}
+
+A PermissionDenied fault is thrown if forbidden operations are attempted.
+
+Typical use cases for this are locking directories for DOI purposes or storing data for long term preservation.
+
 \subsection{Properties}
 \label{subsec:properties}
 \emph{Properties} are simple string-based metadata properties associated with a node.
@@ -515,6 +534,7 @@ Property URIs and PropertyDescriptions for the core set of Properties are regist
     \item ivo://ivoa.net/vospace/core\#mtime SHALL be used as the property URI denoting the data modification time
     \item ivo://ivoa.net/vospace/core\#ctime SHALL be used as the property URI denoting status change (aka metadata modification) time
     \item ivo://ivoa.net/vospace/core\#btime SHALL be used as the property URI denoting initial creation time
+    \item ivo://ivoa.net/vospace/core\#immutable MAY be used as the property URI denoting a node whose content cannot be changed and for which moveNode and deleteNode operations are not allowed. See section \ref{subsubsec:immutable nodes} for details.
 \end{itemize}
 
 However, this is not intended to be a closed list, different implementations are free to define and use their own Properties.
